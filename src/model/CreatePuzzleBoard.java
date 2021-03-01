@@ -39,38 +39,66 @@ public class CreatePuzzleBoard {
         this.maxHeight = pieceHeight*0.3;
     }
 
-    //------------------ NOTE CURRENTLY TOP AND BOTTOM X VALUES CAN VARY ON THE COLUMNS -----------------------------
-    //------------------ ONE ROW PUZZLE IS HARDCODED ----------------------------------------------------------------
     public void createOneRowPuzzle(){
-        //[ROW][COLUMN]
-        //We display points as they appear visually in their lines
-        //create coordinates for columns
-        for(int i = 0; i < columns+1; i++){
+        createColumn(columns);
+        createRows(rows);
+    }
+
+    private void createColumn(int totalColumns) {
+        for(int i = 0; i < totalColumns+1; i++){
             ArrayList<Double> columnListX = new ArrayList<>();
             ArrayList<Double> columnListY = new ArrayList<>();
-            ArrayList<Double> rowListX = new ArrayList<>();
-            ArrayList<Double> rowListY = new ArrayList<>();
-            for(int j = 0; j < rows+1; j++){
-                if(i != 0 && i != columns){
-                    double x = (i*piecewidth-maxWidth)+Math.random()*(i*piecewidth+maxWidth-(i*piecewidth-maxWidth));
+            if(i != 0 && i != totalColumns) {
+                double y = 0;
+                columnListX.add(i*piecewidth);
+                columnListY.add(y);
+                while (y < height) {
+                    //y += (0.3 * pieceHeight) + Math.random() * (pieceHeight - (pieceHeight * 0.3));
+                    y += Math.random()*pieceHeight;
+                    double x = (i * piecewidth - maxWidth) + Math.random() * (i * piecewidth + maxWidth - (i * piecewidth - maxWidth));
+                    if(y > height) {
+                        y = height;
+                    }
+                    columnListY.add(y);
                     columnListX.add(x);
-                } else {
-                    columnListX.add(i*piecewidth);
                 }
-                columnListY.add(j*pieceHeight);
-                if(i <= rows) {
-                    rowListX.add((double)j*width);
-                    rowListY.add((double)i*height);
-                }
-
+            } else {
+                columnListX.add(i*piecewidth);
+                columnListX.add(i*piecewidth);
+                columnListY.add(0.0);
+                columnListY.add((double)height);
             }
             columnX.add(columnListX);
             columnY.add(columnListY);
-            if(i <= rows) {
-                rowX.add(rowListX);
-                rowY.add(rowListY);
-            }
         }
 
+    }
+
+    private void createRows(int rows){
+        for(int i = 0; i < rows+1; i++){
+            ArrayList<Double> rowListX = new ArrayList<>();
+            ArrayList<Double> rowListY = new ArrayList<>();
+            if(i != 0 && i != rows){
+                double x = 0;
+                rowListX.add(x);
+                rowListY.add(i*pieceHeight);
+                while(x < width){
+                    x += Math.random()*piecewidth;
+                    double y = (i * pieceHeight - maxHeight) + Math.random() * (i * pieceHeight + maxHeight - (i * pieceHeight - maxWidth));
+                    if(x > width){
+                        x = width;
+                    }
+                    rowListX.add(x);
+                    rowListY.add(y);
+                }
+            } else {
+                rowListX.add(0.0);
+                rowListX.add((double)width);
+                rowListY.add(i*pieceHeight);
+                rowListY.add(i*pieceHeight);
+            }
+            rowX.add(rowListX);
+            rowY.add(rowListY);
+        }
     }
 }
