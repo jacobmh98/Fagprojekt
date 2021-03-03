@@ -53,9 +53,8 @@ public class CreatePuzzleBoard {
                 columnListX.add(i*piecewidth);
                 columnListY.add(y);
                 while (y < height) {
-                    //y += (0.3 * pieceHeight) + Math.random() * (pieceHeight - (pieceHeight * 0.3));
-                    y += Math.random()*pieceHeight;
                     double x = (i * piecewidth - maxWidth) + Math.random() * (i * piecewidth + maxWidth - (i * piecewidth - maxWidth));
+                    y += (piecewidth-maxWidth) + Math.random() * (0.5*pieceHeight-(piecewidth-maxWidth));
                     if(y > height) {
                         y = height;
                     }
@@ -83,7 +82,7 @@ public class CreatePuzzleBoard {
                 rowListX.add(x);
                 rowListY.add(i*pieceHeight);
                 while(x < width){
-                    x += Math.random()*piecewidth;
+                    x += (pieceHeight-maxHeight) + Math.random()*(0.5*piecewidth-(pieceHeight-maxHeight));
                     double y = (i * pieceHeight - maxHeight) + Math.random() * (i * pieceHeight + maxHeight - (i * pieceHeight - maxWidth));
                     if(x > width){
                         x = width;
