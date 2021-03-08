@@ -20,6 +20,8 @@ public class CreatePuzzleBoard {
 
     ArrayList<Double> pieceX = new ArrayList<>();
     ArrayList<Double> pieceY = new ArrayList<>();
+    ArrayList<Integer> rowIntersectPoint = new ArrayList<>();
+    ArrayList<Integer> columnIntersectPoint = new ArrayList<>();
 
     //Getters
     public ArrayList<ArrayList<Double>> getColumnX() { return columnX; }
@@ -50,6 +52,7 @@ public class CreatePuzzleBoard {
         createColumn(columns);
         createRows(rows);
         assignCornerPoints();
+        System.out.println(rowX);
     }
 
     private void createColumn(int totalColumns) {
@@ -63,8 +66,8 @@ public class CreatePuzzleBoard {
                 while (y < height) {
                     double x = (i * piecewidth - maxWidth) + Math.random() * (i * piecewidth + maxWidth - (i * piecewidth - maxWidth));
                     //y needs to be atleast the same length as x can vary (angle can vary atmost 45 degrees from vertical line)
-                    y += (maxWidth*2) + Math.random() * (0.5*pieceHeight-maxWidth*2)*0;
-                    if(y > height) {
+                    y += (maxWidth*2) + Math.random() * (0.5*pieceHeight-maxWidth*2);
+                    if(y > height-10) {
                         y = height;
                     }
                     columnListY.add(y);
@@ -91,9 +94,9 @@ public class CreatePuzzleBoard {
                 rowListX.add(x);
                 rowListY.add(i*pieceHeight);
                 while(x < width){
-                    x += (maxHeight*2) + Math.random()*(0.5*piecewidth-maxHeight*2)*0;
+                    x += (maxHeight*2) + Math.random()*(0.5*piecewidth-maxHeight*2);
                     double y = (i * pieceHeight - maxHeight) + Math.random() * (i * pieceHeight + maxHeight - (i * pieceHeight - maxWidth));
-                    if(x > width){
+                    if(x > width-10){
                         x = width;
                     }
                     rowListX.add(x);
@@ -110,44 +113,37 @@ public class CreatePuzzleBoard {
         }
     }
 
+    
     public void assignCornerPoints(){
-        //row[i] & col[i]
-        //row[i] & col[i+1]
-        //row[i+1] & col[i]
-        //row[i+1] & col[i+1]
-        //When not on first col - col[i][1] = col[i-1][2] and col[i][4] = col[i-1][3]
-        //When not on first row - row[i][1] = row[i-1][4] and row[i][2] = row[i-1][3]
-        
-        for(int col = 0; col < 1; col++){
-            for(int row = 0; row < 1; row++){
-                for(int i = 0; i < 2; i++){
-                    for(int j = 0; j < 2; j++){
-                        int currentColumnPoint = 0;
-                        boolean foundIntersect = false;
-                        while(!foundIntersect && currentColumnPoint < columns-1){
-                            int currentRowPoint = 0;
-                            while(rowX.get(row+i).get(currentRowPoint) < ((i+col)*piecewidth+maxWidth) && !foundIntersect){ //checks if row x coordinate has crossed max for current column
-                                double[] intersectingPoints = intersect(columnX.get(col+j).get(currentColumnPoint),columnY.get(col+j).get(currentColumnPoint),
-                                                                        columnX.get(col+j).get(currentColumnPoint+1), columnY.get(col+j).get(currentColumnPoint+1),
-                                                                        rowX.get(row+i).get(currentRowPoint), rowY.get(row+i).get(currentRowPoint),
-                                                                        rowX.get(row+i).get(currentRowPoint+1), rowY.get(row+i).get(currentRowPoint+1));
-                                if(intersectingPoints[0] < 0){ // if it didn't intersect
-                                    currentRowPoint++;
-                                } else {
-                                    foundIntersect = true;
-                                    pieceX.add(intersectingPoints[0]);
-                                    pieceY.add(intersectingPoints[1]);
-                                }
-                            }
-                            currentColumnPoint++;
+        for(int col = 0; col <= columns; col++){
+            for(int row = 0; row <= rows; row++){
+                int currentColumnPoint = 0;
+                boolean foundIntersect = false;
+                while(!foundIntersect && currentColumnPoint < columnX.get(col).size()-1){
+                    int currentRowPoint = 0;
+                    while(!foundIntersect && rowX.get(row).get(currentRowPoint) < col*piecewidth+maxWidth && currentRowPoint < rowX.get(row).size()-1){
+                        double[] intersectingPoints = intersect(columnX.get(col).get(currentColumnPoint), columnY.get(col).get(currentColumnPoint),
+                                                                columnX.get(col).get(currentColumnPoint+1), columnY.get(col).get(currentColumnPoint+1),
+                                                                rowX.get(row).get(currentRowPoint), rowY.get(row).get(currentRowPoint),
+                                                                rowX.get(row).get(currentRowPoint+1), rowY.get(row).get(currentRowPoint+1));
+                        if(intersectingPoints[0] < 0) { //Didn't intersect
+                            currentRowPoint++;
+                        } else {
+                            foundIntersect = true;
+                            columnIntersectPoint.add(currentColumnPoint);
+                            rowIntersectPoint.add(currentRowPoint);
+                            pieceX.add(intersectingPoints[0]);
+                            pieceY.add(intersectingPoints[1]);
                         }
                     }
+                    currentColumnPoint++;
                 }
             }
         }
-        System.out.println(pieceX);
-        System.out.println(pieceY);
     }
+
+
+
     //Column points, row points
     public double[] intersect(double x1, double y1, double x2, double y2, double x3, double y3, double x4, double y4){
         double[] intersectingPoints = new double[2];
@@ -156,9 +152,11 @@ public class CreatePuzzleBoard {
             m2 = (y4-y3)/(x4-x3);
             b2 = y3-x3*m2;
             double yAtX = m2*x1+b2;
-            if(yAtX < y2 && yAtX > y1){
+            if((yAtX <= y2 && yAtX >= y1) && (x3 <= x1 && x4 >= x1)){
                 intersectingPoints[0] = x1;
                 intersectingPoints[1] = yAtX;
+            } else {
+                intersectingPoints[0] = -1;
             }
         }   else {
             //Finding the formula for the two lines
@@ -167,8 +165,15 @@ public class CreatePuzzleBoard {
             b1 = y1-x1*m1;
             b2 = y3-x3*m2;
             //Check the x value the two lines intersect
-            double intersectX = ((b2-b1)/(m1-m2));
-            if((intersectX >= x3 && intersectX <= x4) && ((intersectX >= x1 && intersectX <= x2) || (intersectX <= x1 && intersectX >= x2))){ //We know that x3 < x4 always
+            double intersectX = (b2-b1)/(m1-m2);
+            intersectX = Math.round(intersectX*1000.0)/1000.0;
+            x1 = Math.round(x1*1000.0)/1000.0;
+            x2 = Math.round(x2*1000.0)/1000.0;
+            //We know that x4 > x3, but x2 is not always bigger than x1
+            if(y3 == 500){
+                System.out.println("IntersectX " + intersectX + ", x1: " + x1 + ", x2: " + x2);
+            }
+            if((intersectX >= x3 && intersectX <= x4) && ((intersectX >= x1 && intersectX <= x2) || (intersectX <= x1 && intersectX >= x2))){
                 intersectingPoints[0] = intersectX;
                 intersectingPoints[1] = m1*intersectX+b1;
             } else {
