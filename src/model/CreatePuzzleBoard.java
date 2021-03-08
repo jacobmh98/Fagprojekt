@@ -167,12 +167,8 @@ public class CreatePuzzleBoard {
             b1 = y1-x1*m1;
             b2 = y3-x3*m2;
             //Check the x value the two lines intersect
-            double intersectX = (b2-b1)/(m1-m2);
-            if((intersectX >= x3 && intersectX <= x4) && (intersectX >= x1 && intersectX <= x2)){ //We know that x3 < x4 always
-                System.out.println();
-                System.out.println("y1 =" + m1 + "x + " + b1);
-                System.out.println("y2 = " + m2 + "x + " + b2);
-                System.out.println("IntersectX: " + intersectX);
+            double intersectX = ((b2-b1)/(m1-m2));
+            if((intersectX >= x3 && intersectX <= x4) && ((intersectX >= x1 && intersectX <= x2) || (intersectX <= x1 && intersectX >= x2))){ //We know that x3 < x4 always
                 intersectingPoints[0] = intersectX;
                 intersectingPoints[1] = m1*intersectX+b1;
             } else {
