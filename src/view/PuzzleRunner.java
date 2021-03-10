@@ -5,6 +5,7 @@ import javafx.application.Application;
 import javafx.scene.Group;
 import javafx.scene.Scene;
 import javafx.scene.layout.BorderPane;
+import javafx.scene.shape.Circle;
 import javafx.scene.shape.Line;
 import javafx.stage.Stage;
 import model.CreatePuzzleBoard;
@@ -66,17 +67,26 @@ public class PuzzleRunner extends Application {
 		ArrayList<ArrayList<Double>> columnY = createPuzzleBoard.getColumnY();
 		ArrayList<ArrayList<Double>> rowX = createPuzzleBoard.getRowX();
 		ArrayList<ArrayList<Double>> rowY = createPuzzleBoard.getRowY();
+		//Create Column lines
 		for(int i = 0; i < columnX.size(); i++) {
 			for(int j = 0; j < columnX.get(i).size()-1; j++){
 				Line columnLine = new Line(columnX.get(i).get(j)+10,columnY.get(i).get(j)+10,columnX.get(i).get(j+1)+10,columnY.get(i).get(j+1)+10);
 				board.getChildren().add(columnLine);
 			}
 		}
+		//Create row lines
 		for(int i = 0; i < rowX.size(); i++){
 			for(int j = 0; j < rowX.get(i).size()-1; j++){
 				Line rowLine = new Line(rowX.get(i).get(j)+10,rowY.get(i).get(j)+10,rowX.get(i).get(j+1)+10,rowY.get(i).get(j+1)+10);
 				board.getChildren().add(rowLine);
 			}
+		}
+		//Create corner points
+		ArrayList<Double> pieceX = createPuzzleBoard.getPieceX();
+		ArrayList<Double> pieceY = createPuzzleBoard.getPieceY();
+		for(int i = 0; i < pieceX.size(); i++){
+			Circle circle = new Circle((pieceX.get(i))+10, (pieceY.get(i))+10, 3);
+			board.getChildren().add(circle);
 		}
 		Scene boardScene = new Scene(board,600,600);
 		stage.setScene(boardScene);
