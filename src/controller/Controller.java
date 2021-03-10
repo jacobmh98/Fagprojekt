@@ -32,6 +32,7 @@ public class Controller {
 		int index = this.group.getChildren().indexOf(p);
 		if(index != -1) {
 			this.group.getChildren().remove(p);
+			this.group.getChildren().add(p);
 		}
 	}
 	
@@ -40,6 +41,6 @@ public class Controller {
 		Piece p = new Piece(pieceID, corners);
 		pieces.add(p);
 		
-		p.setRotation(Math.PI/3.0);
+		// p.setRotation(Math.PI/3.0);
 	}
 }

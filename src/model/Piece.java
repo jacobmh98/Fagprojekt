@@ -2,6 +2,7 @@ package model;
 
 import controller.Controller;
 import javafx.event.EventHandler;
+import javafx.scene.Cursor;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Polygon;
@@ -9,6 +10,7 @@ import javafx.scene.shape.Polygon;
 public class Piece extends Polygon {
 	private Integer pieceID;
 	private Double[] corners;
+	private Double[] center = new Double[2];
 	private Double rotation = 0.0;
 	Controller controller = Controller.getInstance();
 	
@@ -21,12 +23,12 @@ public class Piece extends Polygon {
 		this.getPoints().addAll(this.corners);
 		this.setStroke(Color.BLACK);
 		this.setFill(Color.WHITE);
+		this.setCursor(Cursor.HAND);
 
 		this.setOnMousePressed(new EventHandler<MouseEvent>() {
 			@Override
 			public void handle(MouseEvent mouseEvent) {
 				mouseEvent.setDragDetect(true);
-				System.out.println("Event on Source: mouse pressed");
 				Piece.this.setMouseTransparent(true);
 			}
 		});
@@ -35,22 +37,61 @@ public class Piece extends Polygon {
 			@Override
 			public void handle(MouseEvent mouseEvent) {
 				mouseEvent.setDragDetect(true);
+				computeCenter();
+
+				double deltaX = mouseEvent.getX();
+				double deltaY = mouseEvent.getY();
+				Double[] updateCorners = new Double[corners.length];
+				boolean update = true;
+
 				for(int i = 0; i < corners.length; i++) {
+					double updateCornerX = corners[i] + (deltaX - center[0]);
+					double updateCornerY = corners[i] + (deltaY - center[1]);
+
+					if(updateCornerX < 0 || updateCornerY < 0 || deltaX < 0 || deltaY < 0) {
+						update = false;
+						break;
+					}
+
 					if(i % 2 == 0) {
-						corners[i] += mouseEvent.getX();
+						updateCorners[i] = updateCornerX;
 					} else {
-						corners[i] += mouseEvent.getY();
+						updateCorners[i] = updateCornerY;
 					}
 				}
 
-				Piece.this.setMouseTransparent(false);
+				if(update) {
+					for(int i = 0; i < corners.length; i++) {
+						corners[i] = updateCorners[i];
+					}
+
+					Piece.this.getPoints().removeAll();
+					Piece.this.getPoints().setAll(corners);
+					Piece.this.setMouseTransparent(false);
+				}
 			}
 		});
 	}
-	
+
 	// Getter method for corners
 	public Double[] getCorners() {
 		return this.corners;
+	}
+
+	// Calculate center
+	public void computeCenter() {
+		Double sumX = 0.0;
+		Double sumY = 0.0;
+		for(int i = 0; i < corners.length; i++) {
+			if(i % 2 == 0) {
+				sumX += corners[i];
+			} else {
+				sumY += corners[i];
+			}
+		}
+
+		center[0] = (1/(double) (corners.length/2.0)) * sumX;
+		center[1] = (1/(double) (corners.length/2.0)) * sumY;
 	}
 	
 	private void updatePolygon(Double[][] cornerMatrix) {
