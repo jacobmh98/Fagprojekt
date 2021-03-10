@@ -1,5 +1,8 @@
 package model;
 
+import controller.Controller;
+import javafx.event.EventHandler;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Polygon;
 
@@ -7,6 +10,7 @@ public class Piece extends Polygon {
 	private Integer pieceID;
 	private Double[] corners;
 	private Double rotation = 0.0;
+	Controller controller = Controller.getInstance();
 	
 	// Constructor for piece
 	public Piece(Integer pieceID, Double[] corners) {
@@ -17,6 +21,31 @@ public class Piece extends Polygon {
 		this.getPoints().addAll(this.corners);
 		this.setStroke(Color.BLACK);
 		this.setFill(Color.WHITE);
+
+		this.setOnMousePressed(new EventHandler<MouseEvent>() {
+			@Override
+			public void handle(MouseEvent mouseEvent) {
+				mouseEvent.setDragDetect(true);
+				System.out.println("Event on Source: mouse pressed");
+				Piece.this.setMouseTransparent(true);
+			}
+		});
+
+		this.setOnMouseDragged(new EventHandler<MouseEvent>() {
+			@Override
+			public void handle(MouseEvent mouseEvent) {
+				mouseEvent.setDragDetect(true);
+				for(int i = 0; i < corners.length; i++) {
+					if(i % 2 == 0) {
+						corners[i] += mouseEvent.getX();
+					} else {
+						corners[i] += mouseEvent.getY();
+					}
+				}
+
+				Piece.this.setMouseTransparent(false);
+			}
+		});
 	}
 	
 	// Getter method for corners
