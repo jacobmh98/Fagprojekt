@@ -112,7 +112,6 @@ public class CreatePuzzleBoard {
             rowY.add(rowListY);
         }
     }
-
     
     public void assignCornerPoints(){
         for(int col = 0; col <= columns; col++){

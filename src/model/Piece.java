@@ -3,15 +3,19 @@ package model;
 import controller.Controller;
 import javafx.event.EventHandler;
 import javafx.scene.Cursor;
+import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Polygon;
+
+import java.util.Arrays;
 
 public class Piece extends Polygon {
 	private Integer pieceID;
 	private Double[] corners;
 	private Double[] center = new Double[2];
 	private Double rotation = 0.0;
+	private double prevY = 0.0;
 	Controller controller = Controller.getInstance();
 	
 	// Constructor for piece
@@ -25,49 +29,51 @@ public class Piece extends Polygon {
 		this.setFill(Color.WHITE);
 		this.setCursor(Cursor.HAND);
 
+		rotatePiece(Math.PI/2.0);
+		updatePiece();
+	}
+
+	public void updatePiece() {
+		this.getPoints().removeAll();
+		this.getPoints().setAll(this.corners);
+
 		this.setOnMousePressed(new EventHandler<MouseEvent>() {
 			@Override
 			public void handle(MouseEvent mouseEvent) {
 				mouseEvent.setDragDetect(true);
 				Piece.this.setMouseTransparent(true);
+
 			}
 		});
 
 		this.setOnMouseDragged(new EventHandler<MouseEvent>() {
 			@Override
 			public void handle(MouseEvent mouseEvent) {
+				Piece.this.setMouseTransparent(false);
 				mouseEvent.setDragDetect(true);
 				computeCenter();
 
 				double deltaX = mouseEvent.getX();
 				double deltaY = mouseEvent.getY();
-				Double[] updateCorners = new Double[corners.length];
-				boolean update = true;
+				int direction = 0;
 
-				for(int i = 0; i < corners.length; i++) {
-					double updateCornerX = corners[i] + (deltaX - center[0]);
-					double updateCornerY = corners[i] + (deltaY - center[1]);
-
-					if(updateCornerX < 0 || updateCornerY < 0 || deltaX < 0 || deltaY < 0) {
-						update = false;
-						break;
-					}
-
-					if(i % 2 == 0) {
-						updateCorners[i] = updateCornerX;
-					} else {
-						updateCorners[i] = updateCornerY;
-					}
+				if(deltaY > Piece.this.prevY) {
+					direction = -1;
+				} else {
+					direction = 1;
 				}
+				Piece.this.prevY = deltaY;
 
-				if(update) {
-					for(int i = 0; i < corners.length; i++) {
-						corners[i] = updateCorners[i];
+				System.out.println("direction" + direction);
+
+				if(mouseEvent.getButton() == MouseButton.PRIMARY) {
+					movePiece(deltaX, deltaY);
+				} else {
+					if(direction == 1) {
+						rotatePiece(Math.PI/50);
+					} else {
+						rotatePiece(-Math.PI/50);
 					}
-
-					Piece.this.getPoints().removeAll();
-					Piece.this.getPoints().setAll(corners);
-					Piece.this.setMouseTransparent(false);
 				}
 			}
 		});
@@ -78,7 +84,7 @@ public class Piece extends Polygon {
 		return this.corners;
 	}
 
-	// Calculate center
+	// compute the center of the polygon
 	public void computeCenter() {
 		Double sumX = 0.0;
 		Double sumY = 0.0;
@@ -93,21 +99,36 @@ public class Piece extends Polygon {
 		center[0] = (1/(double) (corners.length/2.0)) * sumX;
 		center[1] = (1/(double) (corners.length/2.0)) * sumY;
 	}
-	
-	private void updatePolygon(Double[][] cornerMatrix) {
-		Double[] corners = new Double[cornerMatrix[0].length * 2];
-		int pos = 0;
-		for(int i = 0; i < cornerMatrix[0].length; i++) {
-			corners[pos] = cornerMatrix[0][i];
-			pos++;
-			corners[pos] = cornerMatrix[1][i];
-			pos++;
+
+	// Method for moving piece
+	public void movePiece(double deltaX, double deltaY) {
+		boolean update = true;
+		Double[] updateCorners = new Double[corners.length];
+
+		for(int i = 0; i < corners.length; i++) {
+			double updateCornerX = corners[i] + (deltaX - center[0]);
+			double updateCornerY = corners[i] + (deltaY - center[1]);
+
+			if(updateCornerX < 0 || updateCornerY < 0 || deltaX < 0 || deltaY < 0) {
+				update = false;
+			} else {
+				if(i % 2 == 0)
+					updateCorners[i] = updateCornerX;
+				else
+					updateCorners[i] = updateCornerY;
+			}
 		}
-		this.getPoints().setAll(corners);
+		if(update) {
+			for(int i = 0; i < corners.length; i++) {
+				corners[i] = updateCorners[i];
+			}
+			updatePiece();
+		}
 	}
-	
+
+
 	// Method for rotating piece
-	public void setRotation(Double angle) {
+	public void rotatePiece(Double angle) {
 		Integer n = corners.length / 2;		
 		
 		// Variable C contains n pairs of the centroid
@@ -123,7 +144,7 @@ public class Piece extends Polygon {
 		// Variable contains old coordinates
 		Double[][] pOld = new Double[2][n];
 		
-		// Variable contains rotatet coordinates
+		// Variable contains rotated coordinates
 		Double[][] pNew = new Double[2][n];
 		
 		// Represent the corners as a matrix
@@ -138,8 +159,8 @@ public class Piece extends Polygon {
 			sumY += corners[pos];
 			pos++;
 		}
-		System.out.println("Corners");
-		print2dArray(pOld);
+		// System.out.println("Corners");
+		// print2dArray(pOld);
 		
 		// Compute the centroid of the polygon
 		centroid[0] = (1/(double) n) * sumX;
@@ -148,17 +169,37 @@ public class Piece extends Polygon {
 			C[0][col] = centroid[0];
 			C[1][col] = centroid[1];
 		}
-		System.out.println("\nCentroid");
-		print2dArray(C);
+		// System.out.println("\nCentroid");
+		// print2dArray(C);
 		
-		System.out.println("\nRotation with angle: " + angle);
+		// System.out.println("\nRotation with angle: " + angle);
 		
 		pNew = addition(dot(R, subtract(pOld,C,n)), C,n);
-		print2dArray(pNew);
-		
-		updatePolygon(pNew);
+		convertFrom2D(pNew);
+
+		Piece.this.getPoints().removeAll();
+		Piece.this.getPoints().setAll(corners);
+
+		// print2dArray(pNew);
 	}
-	
+
+	// Method for converting from 2d to 1d
+	public void convertFrom2D(Double[][] m2d) {
+		Double[] temp = new Double[m2d[0].length * 2];
+
+		int pos = 0;
+		for(int i = 0; i < m2d[0].length; i++) {
+			temp[pos] = m2d[0][i];
+			pos++;
+			temp[pos] = m2d[1][i];
+			pos++;
+		}
+
+		corners = temp;
+
+		// System.out.println(Arrays.toString(corners));
+	}
+
 	// Method for matrix subtraction
 	private Double[][] subtract(Double[][] matrix1, Double[][] matrix2, int n) {
 		Double[][] sum = new Double[2][n];

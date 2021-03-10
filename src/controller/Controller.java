@@ -40,7 +40,7 @@ public class Controller {
 	public void generatePiece(Integer pieceID, Double[] corners) {
 		Piece p = new Piece(pieceID, corners);
 		pieces.add(p);
-		
-		// p.setRotation(Math.PI/3.0);
+
+		// p.setRotation(Math.PI/2.0);
 	}
 }

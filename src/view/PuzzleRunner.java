@@ -42,7 +42,6 @@ public class PuzzleRunner extends Application {
 		};
 		Integer pieceID2 = 1;
 		
-		
 		// generate the piece
 		controller.generatePiece(pieceID1, corners1);
 		
