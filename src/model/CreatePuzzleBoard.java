@@ -187,7 +187,7 @@ public class CreatePuzzleBoard {
     }
 
     private void defineBoardPieceCorners(){
-        ArrayList<ArrayList<Double>> testArray = new ArrayList<>();
+        int pieceID = 0;
         for(int i = 0; i < columns; i++){
             for(int j = 0; j < rows; j++){
                 //Defining where in the point matrix the corners are
@@ -223,13 +223,21 @@ public class CreatePuzzleBoard {
                 pieceCorners.add(pieceY.get(bleft));
                 for(int k = columnIntersectPoint.get(bleft); k > columnIntersectPoint.get(tleft); k--){
                     pieceCorners.add(columnX.get(i).get(k));
-                    pieceCorners.add(columnX.get(i).get(k));
+                    pieceCorners.add(columnY.get(i).get(k));
                 }
-                double[] pieceCoordinateArray = new double[pieceCorners.size()];
+                Double[] pieceCoordinateArray = new Double[pieceCorners.size()];
                 for(int k = 0; k < pieceCorners.size(); k++){
                     pieceCoordinateArray[k] = pieceCorners.get(k);
+                    if(i*5+j == 5){
+                        System.out.print(pieceCoordinateArray[k] + ", ");
+                    }
+
                 }
-                //boardPieces.add(new Piece(pieceCoordinateArray));
+                boardPieces.add(new Piece(pieceID, pieceCoordinateArray));
+                if(i*5+j == 5){
+                    System.out.println();
+                    System.out.println(pieceCorners);
+                }
             }
         }
     }
