@@ -24,7 +24,9 @@ public class PuzzleRunner extends Application {
 		// get instance of controller
 		Controller controller = Controller.getInstance();
 		controller.setGroup(group);
-		
+
+		// Setting example board size
+
 		// set example piece 1,2
 		Double[] corners1 = {
 				150.0, 150.0,
@@ -49,7 +51,7 @@ public class PuzzleRunner extends Application {
 		controller.drawPieces();
 		
 		try {
-			Scene scene = new Scene(group, 500, 500);
+			Scene scene = new Scene(group, controller.BOARD_SIZE[0], controller.BOARD_SIZE[1]);
 			stage.setScene(scene);
 			// testOneRowPuzzle(stage);
 			stage.setTitle("Puzzle");

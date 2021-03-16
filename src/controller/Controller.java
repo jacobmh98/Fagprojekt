@@ -9,6 +9,7 @@ public class Controller {
 	private static Controller controller = new Controller();;
 	private ArrayList<Piece> pieces = new ArrayList<Piece>();
 	Group group;
+	public static int[] BOARD_SIZE = {500, 500};
 	
 	public Controller() {}
 

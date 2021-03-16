@@ -109,7 +109,7 @@ public class Piece extends Polygon {
 			double updateCornerX = corners[i] + (deltaX - center[0]);
 			double updateCornerY = corners[i] + (deltaY - center[1]);
 
-			if(updateCornerX < 0 || updateCornerY < 0 || deltaX < 0 || deltaY < 0) {
+			if(updateCornerX < 0 || updateCornerY < 0 || updateCornerX > controller.BOARD_SIZE[0] || updateCornerY > controller.BOARD_SIZE[1]) {
 				update = false;
 			} else {
 				if(i % 2 == 0)
@@ -118,6 +118,7 @@ public class Piece extends Polygon {
 					updateCorners[i] = updateCornerY;
 			}
 		}
+
 		if(update) {
 			for(int i = 0; i < corners.length; i++) {
 				corners[i] = updateCorners[i];
@@ -175,16 +176,24 @@ public class Piece extends Polygon {
 		// System.out.println("\nRotation with angle: " + angle);
 		
 		pNew = addition(dot(R, subtract(pOld,C,n)), C,n);
-		convertFrom2D(pNew);
+		Double[] newCorners = convertFrom2D(pNew);
+		boolean update = true;
 
-		Piece.this.getPoints().removeAll();
-		Piece.this.getPoints().setAll(corners);
+		for(Double coord : convertFrom2D(pNew)) {
+			if(coord < 0 || coord > controller.BOARD_SIZE[1]) {
+				update = false;
+			}
+		}
 
-		// print2dArray(pNew);
+		if(update) {
+			corners = newCorners;
+			Piece.this.getPoints().removeAll();
+			Piece.this.getPoints().setAll(corners);
+		}
 	}
 
 	// Method for converting from 2d to 1d
-	public void convertFrom2D(Double[][] m2d) {
+	public Double[] convertFrom2D(Double[][] m2d) {
 		Double[] temp = new Double[m2d[0].length * 2];
 
 		int pos = 0;
@@ -195,9 +204,7 @@ public class Piece extends Polygon {
 			pos++;
 		}
 
-		corners = temp;
-
-		// System.out.println(Arrays.toString(corners));
+		return temp;
 	}
 
 	// Method for matrix subtraction
