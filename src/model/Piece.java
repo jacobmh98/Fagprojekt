@@ -106,6 +106,7 @@ public class Piece extends Polygon {
 			double updateCornerX = corners[i] + (deltaX - center[0]);
 			double updateCornerY = corners[i] + (deltaY - center[1]);
 
+			// Taking borders into consideration
 			//if(updateCornerX < 0 || updateCornerY < 0 || updateCornerX > controller.BOARD_SIZE[0] || updateCornerY > controller.BOARD_SIZE[1]) {
 			//	update = false;
 			//} else {
@@ -158,8 +159,6 @@ public class Piece extends Polygon {
 			sumY += corners[pos];
 			pos++;
 		}
-		// System.out.println("Corners");
-		// print2dArray(pOld);
 		
 		// Compute the centroid of the polygon
 		centroid[0] = (1/(double) n) * sumX;
@@ -168,20 +167,17 @@ public class Piece extends Polygon {
 			C[0][col] = centroid[0];
 			C[1][col] = centroid[1];
 		}
-		// System.out.println("\nCentroid");
-		// print2dArray(C);
-		
-		// System.out.println("\nRotation with angle: " + angle);
 		
 		pNew = addition(dot(R, subtract(pOld,C,n)), C,n);
 		Double[] newCorners = convertFrom2D(pNew);
 		boolean update = true;
 
-		for(Double coord : convertFrom2D(pNew)) {
-			if(coord < 0 || coord > controller.BOARD_SIZE[1]) {
+		// Taking borders into consideration
+		/*for(Double coord : convertFrom2D(pNew)) {
+			if(coord < 0 || coord > 800) {
 				update = false;
 			}
-		}
+		}*/
 
 		if(update) {
 			corners = newCorners;
@@ -198,7 +194,6 @@ public class Piece extends Polygon {
 		if(this.rotation < 0) {
 			this.rotation = 2*Math.PI;
 		}
-		System.out.println(this.rotation);
 	}
 
 	// Method for converting from 2d to 1d
