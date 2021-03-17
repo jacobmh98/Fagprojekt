@@ -55,8 +55,6 @@ public class CreatePuzzleBoard {
         createRows(rows);
         findIntersectPoints();
         defineBoardPieceCorners();
-
-
     }
 
     private void createColumn(int totalColumns) {
@@ -145,8 +143,6 @@ public class CreatePuzzleBoard {
             }
         }
     }
-
-
 
     //Column points, row points
     public double[] intersect(double x1, double y1, double x2, double y2, double x3, double y3, double x4, double y4){
