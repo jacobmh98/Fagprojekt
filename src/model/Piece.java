@@ -29,7 +29,7 @@ public class Piece extends Polygon {
 		this.setFill(Color.WHITE);
 		this.setCursor(Cursor.HAND);
 
-		rotatePiece(Math.PI/2.0);
+		//rotatePiece(Math.PI/2.0);
 		updatePiece();
 	}
 
@@ -109,14 +109,14 @@ public class Piece extends Polygon {
 			double updateCornerX = corners[i] + (deltaX - center[0]);
 			double updateCornerY = corners[i] + (deltaY - center[1]);
 
-			if(updateCornerX < 0 || updateCornerY < 0 || updateCornerX > controller.BOARD_SIZE[0] || updateCornerY > controller.BOARD_SIZE[1]) {
-				update = false;
-			} else {
+			//if(updateCornerX < 0 || updateCornerY < 0 || updateCornerX > controller.BOARD_SIZE[0] || updateCornerY > controller.BOARD_SIZE[1]) {
+			//	update = false;
+			//} else {
 				if(i % 2 == 0)
 					updateCorners[i] = updateCornerX;
 				else
 					updateCorners[i] = updateCornerY;
-			}
+			//}
 		}
 
 		if(update) {
