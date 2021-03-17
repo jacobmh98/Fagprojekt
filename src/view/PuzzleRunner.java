@@ -2,13 +2,15 @@ package view;
 
 import controller.Controller;
 import javafx.application.Application;
+import javafx.geometry.Insets;
 import javafx.scene.Group;
 import javafx.scene.Scene;
-import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.StackPane;
 import javafx.scene.shape.Circle;
 import javafx.scene.shape.Line;
 import javafx.stage.Stage;
 import model.CreatePuzzleBoard;
+import model.Piece;
 
 import java.util.ArrayList;
 
@@ -45,15 +47,17 @@ public class PuzzleRunner extends Application {
 		Integer pieceID2 = 1;
 		
 		// generate the piece
-		controller.generatePiece(pieceID1, corners1);
+		//controller.generatePiece(pieceID1, corners1);
 		
 		// draw the pieces
-		controller.drawPieces();
+		//controller.drawPieces();
 		
 		try {
 			Scene scene = new Scene(group, controller.BOARD_SIZE[0], controller.BOARD_SIZE[1]);
 			stage.setScene(scene);
-			// testOneRowPuzzle(stage);
+			//testRowColGeneration(stage);
+			testPuzzleWithPolygons(stage);
+
 			stage.setTitle("Puzzle");
 			stage.show();
 		} catch(Exception e) {
@@ -61,7 +65,7 @@ public class PuzzleRunner extends Application {
 		}
 	}
 
-	public void testOneRowPuzzle(Stage stage){
+	public void testRowColGeneration(Stage stage){
 		Group board = new Group();
 		CreatePuzzleBoard createPuzzleBoard = new CreatePuzzleBoard(5,5,500,500);
 		createPuzzleBoard.createOneRowPuzzle();
@@ -90,9 +94,29 @@ public class PuzzleRunner extends Application {
 			Circle circle = new Circle((pieceX.get(i))+10, (pieceY.get(i))+10, 3);
 			board.getChildren().add(circle);
 		}
+		//create straight lines at 100 both y and x
+		board.getChildren().add(new Line(110,10,110,510));
+		board.getChildren().add(new Line(10,110,510,110));
+
 		Scene boardScene = new Scene(board,600,600);
 		stage.setScene(boardScene);
 	}
 
+	public void testPuzzleWithPolygons(Stage stage){
+		int width = 800;
+		int height = 800;
+		CreatePuzzleBoard createPuzzleBoard = new CreatePuzzleBoard(15,20,height,width);
+		createPuzzleBoard.createOneRowPuzzle();
+		Group board = new Group();
+		StackPane root = new StackPane();
+		root.setPadding(new Insets(10,10,10,10));
+		root.getChildren().add(board);
+		ArrayList<Piece> boardPieces = createPuzzleBoard.getBoardPieces();
+		for(int i = 0; i < boardPieces.size(); i++){
+			board.getChildren().add(boardPieces.get(i));
+		}
+		Scene boardScene = new Scene(root, height+20, width+20);
+		stage.setScene((boardScene));
+	}
 
 }
