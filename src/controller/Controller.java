@@ -9,7 +9,9 @@ public class Controller {
 	private static Controller controller = new Controller();;
 	private ArrayList<Piece> pieces = new ArrayList<Piece>();
 	Group group;
-	public static int[] BOARD_SIZE = {500, 500};
+	public final int[] BOARD_SIZE = {800, 800};
+	public final int ROWS = 15;
+	public final int COLUMNS = 20;
 	
 	public Controller() {}
 
@@ -20,28 +22,5 @@ public class Controller {
 	public void setGroup(Group g) {
 		this.group = g;
 	}
-	
-	// Method for drawing pieces on stage
-	public void drawPieces() {
-		for(Piece piece : pieces) {
-			this.group.getChildren().add(piece);
-		}
-	}
 
-	// Method for drawing individual pieces
-	public void drawPiece(Piece p) {
-		int index = this.group.getChildren().indexOf(p);
-		if(index != -1) {
-			this.group.getChildren().remove(p);
-			this.group.getChildren().add(p);
-		}
-	}
-	
-	// Method for generating new piece
-	public void generatePiece(Integer pieceID, Double[] corners) {
-		Piece p = new Piece(pieceID, corners);
-		pieces.add(p);
-
-		// p.setRotation(Math.PI/2.0);
-	}
 }

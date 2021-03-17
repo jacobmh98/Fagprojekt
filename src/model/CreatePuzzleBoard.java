@@ -1,6 +1,8 @@
 package model;
 
 
+import controller.Controller;
+
 import java.util.ArrayList;
 
 public class CreatePuzzleBoard {
@@ -16,6 +18,8 @@ public class CreatePuzzleBoard {
     private ArrayList<ArrayList<Double>> columnY = new ArrayList<>();
     private ArrayList<ArrayList<Double>> rowX = new ArrayList<>();
     private ArrayList<ArrayList<Double>> rowY = new ArrayList<>();
+    private Controller controller = Controller.getInstance();
+    private Piece selectedPiece;
 
     private ArrayList<Double> pieceX = new ArrayList<>();
     private ArrayList<Double> pieceY = new ArrayList<>();
@@ -38,6 +42,8 @@ public class CreatePuzzleBoard {
     public ArrayList<Double> getPieceY() {return pieceY;}
 
     public ArrayList<Piece> getBoardPieces() {return boardPieces;}
+
+    public Piece getSelectedPiece() { return this.selectedPiece; };
 
     public CreatePuzzleBoard(int rows, int columns, int height, int width){
         this.rows = rows;
@@ -229,6 +235,7 @@ public class CreatePuzzleBoard {
 
                 }
                 boardPieces.add(new Piece(pieceID, pieceCoordinateArray));
+                pieceID++;
                 if(i*5+j == 5){
                     System.out.println();
                     System.out.println(pieceCorners);
@@ -237,5 +244,74 @@ public class CreatePuzzleBoard {
         }
     }
 
+    // Method assigning neighbours to pieces
+    public void setAdjacentPieces() {
+        int rows = controller.ROWS;
+        int columns = controller.COLUMNS;
+        ArrayList<Integer> topRowIndexes = new ArrayList<Integer>(0);
+        ArrayList<Integer> bottomRowIndexes = new ArrayList<Integer>(rows-1);
 
+        for(int i = 1; i < rows; i++) {
+            topRowIndexes.add(i*rows);
+            bottomRowIndexes.add(i*rows + (rows-1));
+        }
+
+        for(Piece p : boardPieces) {
+            int pieceID = p.getPieceID();
+            // Corners
+            if(pieceID == 0) {
+                p.addAdjacentPiece(boardPieces.get(pieceID+1));
+                p.addAdjacentPiece(boardPieces.get(pieceID+rows));
+            } else if(pieceID == rows-1) {
+                p.addAdjacentPiece(boardPieces.get(pieceID-1));
+                p.addAdjacentPiece(boardPieces.get(pieceID+rows));
+            } else if(pieceID == rows*(columns-1)) {
+                p.addAdjacentPiece(boardPieces.get(pieceID+1));
+                p.addAdjacentPiece(boardPieces.get(pieceID-rows));
+            } else if(pieceID == rows*columns-1) {
+                p.addAdjacentPiece(boardPieces.get(pieceID-1));
+                p.addAdjacentPiece(boardPieces.get(pieceID-rows));
+            } else {
+                // Left border
+                if(pieceID < rows) {
+                    Piece pTemp = boardPieces.get(p.getPieceID()+rows);
+                    if(!p.getAdjacentPieces().contains(pTemp)) {
+                        p.addAdjacentPiece(pTemp);
+                    }
+                }
+                // Right border
+                else if(pieceID >= rows*(columns-1)) {
+                    Piece pTemp = boardPieces.get(p.getPieceID()-rows);
+                    if(!p.getAdjacentPieces().contains(pTemp)) {
+                        p.addAdjacentPiece(pTemp);
+                    }
+                }
+                // Top border
+                else if(topRowIndexes.contains(pieceID)) {
+                    Piece pTemp = boardPieces.get(p.getPieceID()+1);
+                    if(!p.getAdjacentPieces().contains(pTemp)) {
+                        p.addAdjacentPiece(pTemp);
+                    }
+                }
+                // Bottom border
+                else if(bottomRowIndexes.contains(pieceID)) {
+                    Piece pTemp = boardPieces.get(p.getPieceID()-1);
+                    if(!p.getAdjacentPieces().contains(pTemp)) {
+                        p.addAdjacentPiece(pTemp);
+                    }
+                }
+                // For all pieces in the middle
+                else {
+                    p.addAdjacentPiece(boardPieces.get(p.getPieceID()-1));
+                    p.addAdjacentPiece(boardPieces.get(p.getPieceID()+1));
+                    p.addAdjacentPiece(boardPieces.get(p.getPieceID()-rows));
+                    p.addAdjacentPiece(boardPieces.get(p.getPieceID()+rows));
+                }
+            }
+        }
+    }
+
+    public void setSelectedPiece(Piece p) {
+        this.selectedPiece = p;
+    }
 }

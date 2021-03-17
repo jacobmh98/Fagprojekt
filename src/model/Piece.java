@@ -8,7 +8,7 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Polygon;
 
-import java.util.Arrays;
+import java.util.ArrayList;
 
 public class Piece extends Polygon {
 	private Integer pieceID;
@@ -17,6 +17,11 @@ public class Piece extends Polygon {
 	private Double rotation = 0.0; // 2*PI
 	private double prevY = 0.0;
 	Controller controller = Controller.getInstance();
+	private ArrayList<Piece> adjacentPieces = new ArrayList<Piece>();
+
+	public Double getRotation() { return this.rotation; }
+	public Integer getPieceID() { return this.pieceID; }
+	public ArrayList<Piece> getAdjacentPieces() { return this.adjacentPieces; }
 	
 	// Constructor for piece
 	public Piece(Integer pieceID, Double[] corners) {
@@ -31,21 +36,27 @@ public class Piece extends Polygon {
 
 		updatePiece();
 	}
-
 	public void updatePiece() {
 		this.getPoints().removeAll();
 		this.getPoints().setAll(this.corners);
 
 		this.setOnMousePressed(new EventHandler<MouseEvent>() {
+
 			@Override
 			public void handle(MouseEvent mouseEvent) {
+				System.out.println("ID: "+Piece.this.pieceID);
+				for(Piece p : adjacentPieces) {
+					System.out.print(p.getPieceID()+", ");
+				}
+				System.out.println();
+
 				mouseEvent.setDragDetect(true);
 				Piece.this.setMouseTransparent(true);
-
 			}
 		});
 
 		this.setOnMouseDragged(new EventHandler<MouseEvent>() {
+
 			@Override
 			public void handle(MouseEvent mouseEvent) {
 				Piece.this.setMouseTransparent(false);
@@ -264,5 +275,9 @@ public class Piece extends Polygon {
 			}
 			System.out.println();
 		}
+	}
+
+	public void addAdjacentPiece(Piece p) {
+		adjacentPieces.add(p);
 	}
 }

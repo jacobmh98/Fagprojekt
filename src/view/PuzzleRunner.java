@@ -15,6 +15,7 @@ import model.Piece;
 import java.util.ArrayList;
 
 public class PuzzleRunner extends Application {
+	Controller controller = Controller.getInstance();
 
 	public static void main(String[] args) {
 		launch(args);
@@ -22,39 +23,7 @@ public class PuzzleRunner extends Application {
 
 	@Override
 	public void start(Stage stage) throws Exception {
-		Group group = new Group();
-		// get instance of controller
-		Controller controller = Controller.getInstance();
-		controller.setGroup(group);
-
-		// Setting example board size
-
-		// set example piece 1,2
-		Double[] corners1 = {
-				150.0, 150.0,
-				250.0, 250.0,
-				150.0, 350.0,
-		};
-		Integer pieceID1 = 0;
-		
-		Double[] corners2 = {
-				50.0, 50.0,
-				350.0, 50.0,
-				350.0, 250.0,
-				50.0, 250.0,
-				150.0, 150.0,
-		};
-		Integer pieceID2 = 1;
-		
-		// generate the piece
-		//controller.generatePiece(pieceID1, corners1);
-		
-		// draw the pieces
-		//controller.drawPieces();
-		
 		try {
-			Scene scene = new Scene(group, controller.BOARD_SIZE[0], controller.BOARD_SIZE[1]);
-			stage.setScene(scene);
 			//testRowColGeneration(stage);
 			testPuzzleWithPolygons(stage);
 
@@ -103,16 +72,20 @@ public class PuzzleRunner extends Application {
 	}
 
 	public void testPuzzleWithPolygons(Stage stage){
-		int width = 800;
-		int height = 800;
-		CreatePuzzleBoard createPuzzleBoard = new CreatePuzzleBoard(15,20,height,width);
+		int width = controller.BOARD_SIZE[0];
+		int height = controller.BOARD_SIZE[1];
+		int rows = controller.ROWS;
+		int columns = controller.COLUMNS;
+
+		CreatePuzzleBoard createPuzzleBoard = new CreatePuzzleBoard(rows,columns,height,width);
 		createPuzzleBoard.createOneRowPuzzle();
 		Group board = new Group();
 		StackPane root = new StackPane();
 		root.setPadding(new Insets(10,10,10,10));
 		root.getChildren().add(board);
 		ArrayList<Piece> boardPieces = createPuzzleBoard.getBoardPieces();
-		for(int i = 0; i < boardPieces.size(); i++){
+		createPuzzleBoard.setAdjacentPieces();
+		for(int i = 0; i < boardPieces.size(); i++) {
 			board.getChildren().add(boardPieces.get(i));
 		}
 		Scene boardScene = new Scene(root, height+20, width+20);
