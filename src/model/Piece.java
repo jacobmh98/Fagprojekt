@@ -14,7 +14,7 @@ public class Piece extends Polygon {
 	private Integer pieceID;
 	private Double[] corners;
 	private Double[] center = new Double[2];
-	private Double rotation = 0.0;
+	private Double rotation = 0.0; // 2*PI
 	private double prevY = 0.0;
 	Controller controller = Controller.getInstance();
 	
@@ -29,7 +29,6 @@ public class Piece extends Polygon {
 		this.setFill(Color.WHITE);
 		this.setCursor(Cursor.HAND);
 
-		//rotatePiece(Math.PI/2.0);
 		updatePiece();
 	}
 
@@ -63,8 +62,6 @@ public class Piece extends Polygon {
 					direction = 1;
 				}
 				Piece.this.prevY = deltaY;
-
-				System.out.println("direction" + direction);
 
 				if(mouseEvent.getButton() == MouseButton.PRIMARY) {
 					movePiece(deltaX, deltaY);
@@ -130,6 +127,7 @@ public class Piece extends Polygon {
 
 	// Method for rotating piece
 	public void rotatePiece(Double angle) {
+		setRotation(angle);
 		Integer n = corners.length / 2;		
 		
 		// Variable C contains n pairs of the centroid
@@ -190,6 +188,17 @@ public class Piece extends Polygon {
 			Piece.this.getPoints().removeAll();
 			Piece.this.getPoints().setAll(corners);
 		}
+	}
+
+	public void setRotation(Double angle) {
+		this.rotation += angle;
+		if(this.rotation > 2*Math.PI) {
+			this.rotation = 0.0;
+		}
+		if(this.rotation < 0) {
+			this.rotation = 2*Math.PI;
+		}
+		System.out.println(this.rotation);
 	}
 
 	// Method for converting from 2d to 1d
