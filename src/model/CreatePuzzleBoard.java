@@ -2,6 +2,7 @@ package model;
 
 
 import controller.Controller;
+import javafx.scene.shape.Circle;
 
 import java.util.ArrayList;
 
@@ -19,7 +20,6 @@ public class CreatePuzzleBoard {
     private ArrayList<ArrayList<Double>> rowX = new ArrayList<>();
     private ArrayList<ArrayList<Double>> rowY = new ArrayList<>();
     private Controller controller = Controller.getInstance();
-    private Piece selectedPiece;
 
     private ArrayList<Double> pieceX = new ArrayList<>();
     private ArrayList<Double> pieceY = new ArrayList<>();
@@ -42,8 +42,6 @@ public class CreatePuzzleBoard {
     public ArrayList<Double> getPieceY() {return pieceY;}
 
     public ArrayList<Piece> getBoardPieces() {return boardPieces;}
-
-    public Piece getSelectedPiece() { return this.selectedPiece; };
 
     public CreatePuzzleBoard(int rows, int columns, int height, int width){
         this.rows = rows;
@@ -242,6 +240,8 @@ public class CreatePuzzleBoard {
                 }
             }
         }
+
+        controller.setBoardPieces(boardPieces);
     }
 
     // Method assigning neighbours to pieces
@@ -311,7 +311,4 @@ public class CreatePuzzleBoard {
         }
     }
 
-    public void setSelectedPiece(Piece p) {
-        this.selectedPiece = p;
-    }
 }

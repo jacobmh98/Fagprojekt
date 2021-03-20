@@ -6,8 +6,11 @@ import javafx.scene.Cursor;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.paint.Color;
+import javafx.scene.shape.Circle;
 import javafx.scene.shape.Polygon;
+import view.PuzzleRunner;
 
+import java.awt.*;
 import java.util.ArrayList;
 
 public class Piece extends Polygon {
@@ -20,6 +23,7 @@ public class Piece extends Polygon {
 	private ArrayList<Piece> adjacentPieces = new ArrayList<Piece>();
 
 	public Double getRotation() { return this.rotation; }
+	public Double[] getCenter() { return this.center; }
 	public Integer getPieceID() { return this.pieceID; }
 	public ArrayList<Piece> getAdjacentPieces() { return this.adjacentPieces; }
 	
@@ -27,6 +31,8 @@ public class Piece extends Polygon {
 	public Piece(Integer pieceID, Double[] corners) {
 		this.pieceID = pieceID;
 		this.corners = corners;
+
+		computeCenter();
 		
 		// Methods inherited from JavafX Polygon class
 		this.getPoints().addAll(this.corners);
@@ -74,6 +80,8 @@ public class Piece extends Polygon {
 				}
 				Piece.this.prevY = deltaY;
 
+				getNearbyPieces();
+
 				if(mouseEvent.getButton() == MouseButton.PRIMARY) {
 					movePiece(deltaX, deltaY);
 				} else {
@@ -92,10 +100,38 @@ public class Piece extends Polygon {
 		return this.corners;
 	}
 
+	// Method returning nearby pieces within some radius
+	public ArrayList<Piece> getNearbyPieces() {
+		ArrayList<Piece> nearbyPieces = new ArrayList<Piece>();
+		double radius = 75.0;
+
+		for(Piece p : controller.getBoardPieces()) {
+			Double[] p2Center = p.getCenter();
+			double d = Math.sqrt(Math.pow(center[0] - p2Center[0], 2) +
+								 Math.pow(center[1] - p2Center[1], 2));
+
+
+			if(d < radius) {
+				Circle c = new Circle();
+				c.setCenterX(center[0]);
+				c.setCenterY(center[1]);
+				c.setRadius(radius);
+				c.setStroke(Color.RED);
+				c.setFill(Color.TRANSPARENT);
+				controller.getBoard().getChildren().addAll(c);
+
+				p.setFill(Color.LIGHTBLUE);
+			}
+		}
+
+		return nearbyPieces;
+	}
+
 	// compute the center of the polygon
 	public void computeCenter() {
 		Double sumX = 0.0;
 		Double sumY = 0.0;
+
 		for(int i = 0; i < corners.length; i++) {
 			if(i % 2 == 0) {
 				sumX += corners[i];

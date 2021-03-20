@@ -80,6 +80,7 @@ public class PuzzleRunner extends Application {
 		CreatePuzzleBoard createPuzzleBoard = new CreatePuzzleBoard(rows,columns,height,width);
 		createPuzzleBoard.createOneRowPuzzle();
 		Group board = new Group();
+		controller.setBoard(board);
 		StackPane root = new StackPane();
 		root.setPadding(new Insets(10,10,10,10));
 		root.getChildren().add(board);
@@ -88,6 +89,17 @@ public class PuzzleRunner extends Application {
 		for(int i = 0; i < boardPieces.size(); i++) {
 			board.getChildren().add(boardPieces.get(i));
 		}
+
+		// Temporary code for adding cm for each piece
+		for(Piece p : boardPieces) {
+			Circle c = new Circle();
+			c.setCenterX(p.getCenter()[0]);
+			c.setCenterY(p.getCenter()[1]);
+			c.setRadius(2.0);
+
+			controller.getBoard().getChildren().add(c);
+		}
+
 		Scene boardScene = new Scene(root, height+20, width+20);
 		stage.setScene((boardScene));
 	}
