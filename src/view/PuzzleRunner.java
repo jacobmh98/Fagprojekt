@@ -91,14 +91,14 @@ public class PuzzleRunner extends Application {
 		}
 
 		// Temporary code for adding cm for each piece
-		for(Piece p : boardPieces) {
+		/*for(Piece p : boardPieces) {
 			Circle c = new Circle();
 			c.setCenterX(p.getCenter()[0]);
 			c.setCenterY(p.getCenter()[1]);
 			c.setRadius(2.0);
 
 			controller.getBoard().getChildren().add(c);
-		}
+		}*/
 
 		Scene boardScene = new Scene(root, height+20, width+20);
 		stage.setScene((boardScene));

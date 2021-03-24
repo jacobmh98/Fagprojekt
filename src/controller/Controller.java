@@ -8,9 +8,9 @@ import model.Piece;
 public class Controller {
 	private static Controller controller = new Controller();;
 	private ArrayList<Piece> boardPieces = new ArrayList<Piece>();
-	public final int[] BOARD_SIZE = {800, 800};
-	public final int ROWS = 15;
-	public final int COLUMNS = 20;
+	public final int[] BOARD_SIZE = {300, 300};
+	public final int ROWS = 3;
+	public final int COLUMNS = 3;
 	Group board;
 	public ArrayList<Piece> getBoardPieces() { return this.boardPieces; }
 	public Group getBoard() { return this.board; }

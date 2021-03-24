@@ -21,6 +21,8 @@ public class Piece extends Polygon {
 	private double prevY = 0.0;
 	Controller controller = Controller.getInstance();
 	private ArrayList<Piece> adjacentPieces = new ArrayList<Piece>();
+	private ArrayList<Piece> nearbyPieces = new ArrayList<Piece>();
+	private ArrayList<Piece> snappedPieces = new ArrayList<Piece>();
 
 	public Double getRotation() { return this.rotation; }
 	public Double[] getCenter() { return this.center; }
@@ -50,11 +52,6 @@ public class Piece extends Polygon {
 
 			@Override
 			public void handle(MouseEvent mouseEvent) {
-				System.out.println("ID: "+Piece.this.pieceID);
-				for(Piece p : adjacentPieces) {
-					System.out.print(p.getPieceID()+", ");
-				}
-				System.out.println();
 
 				mouseEvent.setDragDetect(true);
 				Piece.this.setMouseTransparent(true);
@@ -80,7 +77,8 @@ public class Piece extends Polygon {
 				}
 				Piece.this.prevY = deltaY;
 
-				getNearbyPieces();
+				computeNearbyPieces();
+				intersect();
 
 				if(mouseEvent.getButton() == MouseButton.PRIMARY) {
 					movePiece(deltaX, deltaY);
@@ -100,31 +98,136 @@ public class Piece extends Polygon {
 		return this.corners;
 	}
 
+	// Check intersect with other pieces nearby
+	public void intersect() {
+		for(Piece p : this.nearbyPieces) {
+			if(this.intersects(p.getBoundsInLocal())) {
+
+				if(adjacentPieces.contains(p)) {
+					double rotationMin = p.getRotation() - (Math.PI/8.0);
+					double rotationMax = p.getRotation() + (Math.PI/8.0);
+
+					if(this.getRotation() > rotationMin && this.getRotation() < rotationMax) {
+						boolean snap = false;
+						for(int i = 0; i < corners.length; i++) {
+							for(int k = 0; k < p.getCorners().length; k++) {
+								double cornerP = p.getCorners()[k];
+
+								double cornerPMin = cornerP - cornerP*1/10.0;
+								double cornerPMax = cornerP + cornerP*1/10.0;
+
+								if(corners[i] > cornerPMin && corners[i] < cornerPMax) {
+									double cornerPNext;
+									double cornerPPrev;
+									double cornerNext;
+									double cornerPrev;
+									double cornerPNextMin;
+									double cornerPNextMax;
+									double cornerPPrevMin;
+									double cornerPPrevMax;
+
+									if(k < p.getCorners().length-1){
+										cornerPNext = p.getCorners()[k+1];
+									} else {
+										cornerPNext = p.getCorners()[0];
+									}
+									if(k > 0) {
+										cornerPPrev = p.getCorners()[k-1];
+									} else {
+										// k = 0
+										cornerPPrev = p.getCorners()[p.getCorners().length-1];
+									}
+
+									if(i < corners.length-1) {
+										cornerNext = corners[i+1];
+									} else {
+										cornerNext = corners[0];
+									}
+									if(i > 0) {
+										cornerPrev = corners[i-1];
+									} else {
+										// i = 0
+										cornerPrev = corners[corners.length-1];
+									}
+
+									cornerPNextMin = cornerPNext - cornerPNext*1/10.0;
+									cornerPNextMax = cornerPNext + cornerPNext*1/10.0;
+									cornerPPrevMin = cornerPPrev - cornerPPrev*1/10.0;
+									cornerPPrevMax = cornerPPrev + cornerPPrev*1/10.0;
+
+									if(cornerNext > cornerPNextMin && cornerNext < cornerPNextMax) {
+										snap = true;
+										System.out.println("NEW SNAP *********************");
+										System.out.println(cornerPMin + " < " + corners[i] + " < " + cornerPMax);
+										System.out.println(cornerPNextMin + " < " + cornerNext + " < " + cornerPNextMax);
+									}
+
+									if(cornerPrev > cornerPPrevMin && cornerPrev < cornerPPrevMax) {
+										snap = true;
+										System.out.println("NEW SNAP *********************");
+										System.out.println(cornerPMin + " < " + corners[i] + " < " + cornerPMax);
+										System.out.println(cornerPNextMin + " < " + cornerNext + " < " + cornerPNextMax);
+									}
+								}
+							}
+						}
+
+						if(snap) {
+							System.out.println(this.getPieceID() + ", " + p.getPieceID());
+							//Snap piece from the top
+							if(this.getPieceID() - 1 == p.getPieceID()) {
+								System.out.println("snap top");
+							}
+							// Snap piece from the bottom
+							else if(this.getPieceID()+1 == p.getPieceID()) {
+								System.out.println("snap bottom");
+							}
+							// Snap piece from the right
+							else if(p.getPieceID() + controller.ROWS == this.getPieceID()) {
+								System.out.println("snap right");
+							}
+							// Snap piece from the left
+							else if(p.getPieceID() - controller.ROWS == this.getPieceID()) {
+								System.out.println("snap left");
+							}
+						}
+					}
+				}
+
+				// System.out.println(this.getPieceID() + " intersects " + p.getPieceID());
+			}
+		}
+	}
+
 	// Method returning nearby pieces within some radius
-	public ArrayList<Piece> getNearbyPieces() {
+	public void computeNearbyPieces() {
 		ArrayList<Piece> nearbyPieces = new ArrayList<Piece>();
-		double radius = 75.0;
+		double radius = (2*(controller.BOARD_SIZE[0] + controller.BOARD_SIZE[1])) / (controller.ROWS + controller.COLUMNS);
 
 		for(Piece p : controller.getBoardPieces()) {
 			Double[] p2Center = p.getCenter();
 			double d = Math.sqrt(Math.pow(center[0] - p2Center[0], 2) +
 								 Math.pow(center[1] - p2Center[1], 2));
 
+//			System.out.print(p.getPieceID()+", ");
 
 			if(d < radius) {
-				Circle c = new Circle();
-				c.setCenterX(center[0]);
-				c.setCenterY(center[1]);
-				c.setRadius(radius);
-				c.setStroke(Color.RED);
-				c.setFill(Color.TRANSPARENT);
-				controller.getBoard().getChildren().addAll(c);
+//				Circle c = new Circle();
+//				c.setCenterX(center[0]);
+//				c.setCenterY(center[1]);
+//				c.setRadius(radius);
+//				c.setStroke(Color.RED);
+//				c.setFill(Color.TRANSPARENT);
+//				controller.getBoard().getChildren().addAll(c);
+//				p.setFill(Color.LIGHTBLUE);
 
-				p.setFill(Color.LIGHTBLUE);
+				nearbyPieces.add(p);
 			}
 		}
 
-		return nearbyPieces;
+//		System.out.print("\n");
+
+		this.nearbyPieces = nearbyPieces;
 	}
 
 	// compute the center of the polygon
@@ -142,6 +245,38 @@ public class Piece extends Polygon {
 
 		center[0] = (1/(double) (corners.length/2.0)) * sumX;
 		center[1] = (1/(double) (corners.length/2.0)) * sumY;
+	}
+
+	// set corner coordinates
+	public void shufflePiece() {
+		double distToCenterX =  controller.BOARD_SIZE[0]/2.0 - center[0];
+		double distToCenterY = controller.BOARD_SIZE[1]/2.0 - center[1];
+		double[] updateCorners = new double[corners.length];
+		double seed1 = Math.random() * controller.BOARD_SIZE[0] - controller.BOARD_SIZE[0];
+		double seed2 = Math.random() * controller.BOARD_SIZE[1] - controller.BOARD_SIZE[1];
+		double seed3 = Math.random() * 2*Math.PI;
+
+//		wait with random rotation too difficult ;)
+//		this.rotatePiece(seed3);
+
+		for(int i = 0; i < corners.length; i++) {
+			double updateCornerX = corners[i] + distToCenterX + seed1;
+			double updateCornerY = corners[i] + distToCenterY + seed2;
+
+			// Taking borders into consideration
+			//if(updateCornerX < 0 || updateCornerY < 0 || updateCornerX > controller.BOARD_SIZE[0] || updateCornerY > controller.BOARD_SIZE[1]) {
+			//	update = false;
+			//} else {
+			if(i % 2 == 0)
+				updateCorners[i] = updateCornerX;
+			else
+				updateCorners[i] = updateCornerY;
+			//}
+		}
+		for(int i = 0; i < corners.length; i++) {
+			corners[i] = updateCorners[i];
+		}
+		updatePiece();
 	}
 
 	// Method for moving piece

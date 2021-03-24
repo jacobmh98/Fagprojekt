@@ -241,7 +241,17 @@ public class CreatePuzzleBoard {
             }
         }
 
+        // shuffling pieces on board
+        //shufflePieces();
+
         controller.setBoardPieces(boardPieces);
+    }
+
+    // Shuffle board
+    public void shufflePieces() {
+        for(Piece p : boardPieces) {
+            p.shufflePiece();
+        }
     }
 
     // Method assigning neighbours to pieces
