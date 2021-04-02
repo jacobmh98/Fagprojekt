@@ -5,6 +5,7 @@ import javafx.application.Application;
 import javafx.geometry.Insets;
 import javafx.scene.Group;
 import javafx.scene.Scene;
+import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
 import javafx.scene.shape.Circle;
 import javafx.scene.shape.Line;
@@ -79,28 +80,34 @@ public class PuzzleRunner extends Application {
 
 		CreatePuzzleBoard createPuzzleBoard = new CreatePuzzleBoard(rows,columns,height,width);
 		createPuzzleBoard.createOneRowPuzzle();
+
+		Pane bg = new Pane();
+		bg.setMaxWidth(width);
+		bg.setMaxHeight(height);
+		bg.setStyle("-fx-border-color: #000000");
+
 		Group board = new Group();
+		bg.getChildren().add(board);
 		controller.setBoard(board);
 		StackPane root = new StackPane();
 		root.setPadding(new Insets(10,10,10,10));
-		root.getChildren().add(board);
+		root.getChildren().add(bg);
 		ArrayList<Piece> boardPieces = createPuzzleBoard.getBoardPieces();
 		createPuzzleBoard.setAdjacentPieces();
 		for(int i = 0; i < boardPieces.size(); i++) {
 			board.getChildren().add(boardPieces.get(i));
 		}
 
-		// Temporary code for adding cm for each piece
-		/*for(Piece p : boardPieces) {
-			Circle c = new Circle();
-			c.setCenterX(p.getCenter()[0]);
-			c.setCenterY(p.getCenter()[1]);
-			c.setRadius(2.0);
+//		Temporary code for adding cm for each piece
+//		for(Piece p : boardPieces) {
+//
+//			if(p.getPieceID() == 85) {
+//				p.computeNearbyPieces();
+//			}
+//		}
 
-			controller.getBoard().getChildren().add(c);
-		}*/
 
-		Scene boardScene = new Scene(root, height+20, width+20);
+		Scene boardScene = new Scene(root, width+600, height+200);
 		stage.setScene((boardScene));
 	}
 

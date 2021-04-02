@@ -2,7 +2,6 @@ package model;
 
 
 import controller.Controller;
-import javafx.scene.shape.Circle;
 
 import java.util.ArrayList;
 
@@ -242,7 +241,7 @@ public class CreatePuzzleBoard {
         }
 
         // shuffling pieces on board
-        //shufflePieces();
+        shufflePieces();
 
         controller.setBoardPieces(boardPieces);
     }
@@ -320,5 +319,4 @@ public class CreatePuzzleBoard {
             }
         }
     }
-
 }
