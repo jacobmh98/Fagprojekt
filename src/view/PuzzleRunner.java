@@ -132,9 +132,8 @@ public class PuzzleRunner extends Application {
 		StackPane root = new StackPane();
 		root.setPadding(new Insets(10,10,10,10));
 		Group board = new Group();
-		int points = 100;
+		int points = 10;
 		VoronoiBoard voronoi = new VoronoiBoard(points,800,800);
-
 		Piece[] pieces = voronoi.getPieces();
 		for(Piece p : pieces){
 			board.getChildren().add(p);
