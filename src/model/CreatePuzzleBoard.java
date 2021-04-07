@@ -227,31 +227,31 @@ public class CreatePuzzleBoard {
                 for(int k = 0; k < pieceCorners.size(); k++){
                     pieceCoordinateArray[k] = pieceCorners.get(k);
                     if(i*5+j == 5){
-                        System.out.print(pieceCoordinateArray[k] + ", ");
+//                        System.out.print(pieceCoordinateArray[k] + ", ");
                     }
 
                 }
                 boardPieces.add(new Piece(pieceID, pieceCoordinateArray));
                 pieceID++;
                 if(i*5+j == 5){
-                    System.out.println();
-                    System.out.println(pieceCorners);
+//                    System.out.println();
+//                    System.out.println(pieceCorners);
                 }
             }
         }
 
         // shuffling pieces on board
-        shufflePieces();
+//        shufflePieces();
 
         controller.setBoardPieces(boardPieces);
     }
 
     // Shuffle board
-    public void shufflePieces() {
-        for(Piece p : boardPieces) {
-            p.shufflePiece();
-        }
-    }
+//    public void shufflePieces() {
+//        for(Piece p : boardPieces) {
+////            p.shufflePiece();
+//        }
+//    }
 
     // Method assigning neighbours to pieces
     public void setAdjacentPieces() {
@@ -325,11 +325,11 @@ public class CreatePuzzleBoard {
                     p.addAdjacentPiece(boardPieces.get(p.getPieceID()+rows));
                 }
             }
-            System.out.print("Piece with ID: " + p.getPieceID() + " has adjacent pieces: ");
-            for(Piece p2 : p.getAdjacentPieces().keySet()) {
-                System.out.print(p2.getPieceID() + ", ");
-            }
-            System.out.println();
+//            System.out.print("Piece with ID: " + p.getPieceID() + " has adjacent pieces: ");
+//            for(Piece p2 : p.getAdjacentPieces().keySet()) {
+//                System.out.print(p2.getPieceID() + ", ");
+//            }
+//            System.out.println();
         }
 
     }

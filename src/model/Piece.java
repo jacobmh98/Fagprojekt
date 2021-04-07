@@ -6,11 +6,11 @@ import javafx.scene.Cursor;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.paint.Color;
+import javafx.scene.shape.Circle;
 import javafx.scene.shape.Polygon;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 
 public class Piece extends Polygon {
 	private Integer pieceID;
@@ -36,19 +36,12 @@ public class Piece extends Polygon {
 		this.pieceID = pieceID;
 		this.corners = corners;
 		graph.addVertex(this);
-		computeCenter();
 		
 		// Methods inherited from JavafX Polygon class
 		this.getPoints().addAll(this.corners);
 		this.setStroke(Color.BLACK);
 		this.setFill(Color.LIGHTBLUE);
 		this.setCursor(Cursor.HAND);
-
-		updatePiece();
-	}
-	public void updatePiece() {
-		this.getPoints().removeAll();
-		this.getPoints().setAll(this.corners);
 
 		this.setOnMousePressed(new EventHandler<MouseEvent>() {
 			@Override
@@ -64,7 +57,6 @@ public class Piece extends Polygon {
 			public void handle(MouseEvent mouseEvent) {
 				Piece.this.setMouseTransparent(false);
 				mouseEvent.setDragDetect(true);
-				computeCenter();
 
 				double deltaX = mouseEvent.getX();
 				double deltaY = mouseEvent.getY();
@@ -77,8 +69,8 @@ public class Piece extends Polygon {
 				}
 				Piece.this.prevY = deltaY;
 
-				computeNearbyPieces();
-				intersect();
+//				computeNearbyPieces();
+//				intersect();
 
 				if(mouseEvent.getButton() == MouseButton.PRIMARY) {
 					movePiece(deltaX, deltaY);
@@ -91,12 +83,54 @@ public class Piece extends Polygon {
 				}
 			}
 		});
+
+		this.setOnMouseReleased(new EventHandler<MouseEvent>() {
+			@Override
+			public void handle(MouseEvent mouseEvent) {
+				computeNearbyPieces();
+				checkForConnect();
+			}
+		});
+
+		updatePiece();
+	}
+	public void updatePiece() {
+		this.getPoints().removeAll();
+		this.getPoints().setAll(this.corners);
+		this.computeCenter();
 	}
 
-	public void addSnappedPiece(Piece p) {
-		graph.addEdge(this, p);
+	public void checkForConnect() {
+		for(Piece p : nearbyPieces) {
+			Double[] temp = adjacentPieces.get(p);
+			if(temp != null) {
+				System.out.println("\nPiece " + this.pieceID + " should connect to " + p.getPieceID());
+				System.out.println("Distance between cm's should be: " + temp[0] + ", " + temp[1]);
+				Double dx = p.getCenter()[0] - this.getCenter()[0];
+				Double dy = p.getCenter()[1] - this.getCenter()[1];
+
+				Double dxMin = temp[0] - 5.0;
+				Double dxMax = temp[0] + 5.0;
+				Double dyMin = temp[1] - 5.0;
+				Double dyMax = temp[1] + 5.0;
+
+				System.out.println("Distance is currently: " + dx + ", " + dy);
+//				System.out.println(dxMin + " < " + dx + " < " + dxMax);
+//				System.out.println(dyMin + " < " + dy + " < " + dyMax);
+
+				if(dx > dxMin && dx < dxMax && dy > dyMin && dy < dyMax) {
+					System.out.println("Snap accepted");
+					if(!graph.depthFirstTraversal(graph, p).contains(this)) {
+						Double moveDx = dx - temp[0];
+						Double moveDy = dy - temp[1];
+						snapPiece(p, moveDx, moveDy);
+					}
+				}
+			}
+		}
 	}
 
+/*
 	// Check intersect with other pieces nearby
 	public void intersect() {
 		for(Piece p : this.nearbyPieces) {
@@ -136,48 +170,23 @@ public class Piece extends Polygon {
 			}
 		}
 	}
+*/
+	private void snapPiece(Piece p, Double dx, Double dy) {
+		graph.addEdge(this, p);
+		Double[] updateCorners = new Double[this.getCorners().length];
 
-	private void snapPiece(Piece p) {
-		//Snap piece from the top
-		if(this.getPieceID() - 1 == p.getPieceID()) {
-			addSnappedPiece(p);
-			System.out.println("snap top");
-		}
-		// Snap piece from the bottom
-		else if(this.getPieceID()+1 == p.getPieceID()) {
-			addSnappedPiece(p);
-			System.out.println("snap bottom");
-		}
-		// Snap piece from the right
-		else if(this.getPieceID() + controller.ROWS == p.getPieceID()) {
-			addSnappedPiece(p);
-			System.out.println("snap right");
-		}
-		// Snap piece from the left
-		else if(this.getPieceID() - controller.ROWS == p.getPieceID()) {
-			addSnappedPiece(p);
-			System.out.println("snap left");
+		for(int i = 0; i < this.getCorners().length; i++) {
+
+			if(i % 2 == 0) {
+				updateCorners[i] = this.getCorners()[i] + dx;
+			} else {
+				updateCorners[i] = this.getCorners()[i] + dy;
+			}
 		}
 
-		// difference between centers
-		Double deltaCmX = this.center[0] - p.getCenter()[0];
-		Double deltaCmY = this.center[1] - p.getCenter()[1];
-
-		// actual difference between centers for correct snap
-		Double deltaX = p.getAdjacentPieces().get(this)[0];
-		Double deltaY = p.getAdjacentPieces().get(this)[1];
-
-		// how much each corner is supposed to move for snap
-		Double moveX = deltaCmX - deltaX;
-		Double moveY = deltaCmY - deltaY;
-
-		System.out.println("Diff cm's: " + deltaCmX + ", " + deltaCmY);
-		System.out.println("Snap: " + deltaX + ", " + deltaY);
-		System.out.println("Should move: " + moveX + ", " + moveY);
-
-		movePiece(moveX, moveY);
+		setCorners(updateCorners);
+		updatePiece();
 	}
-
 	// Method returning nearby pieces within some radius
 	public void computeNearbyPieces() {
 		ArrayList<Piece> nearbyPieces = new ArrayList<Piece>();
@@ -198,9 +207,21 @@ public class Piece extends Polygon {
 //				controller.getBoard().getChildren().addAll(c);
 //				p.setFill(Color.LIGHTBLUE);
 
-				nearbyPieces.add(p);
+				if(this.getPieceID() != p.getPieceID()) {
+					nearbyPieces.add(p);
+				}
 			}
 		}
+		System.out.print("Nearby pieces for " + this.getPieceID() + ": ");
+		for(Piece p : nearbyPieces) {
+			System.out.print(p.getPieceID()+", ");
+		}
+		System.out.print("\nAdjacent pieces for " + this.getPieceID() + ": ");
+		for(Piece p : adjacentPieces.keySet()) {
+			System.out.print(p.getPieceID()+", ");
+		}
+
+		System.out.println();
 
 		this.nearbyPieces = nearbyPieces;
 	}
@@ -220,6 +241,14 @@ public class Piece extends Polygon {
 
 		center[0] = (1/ (corners.length/2.0)) * sumX;
 		center[1] = (1/ (corners.length/2.0)) * sumY;
+
+//		Circle c = new Circle();
+//		c.setFill(Color.BLACK);
+//		c.setCenterX(center[0]);
+//		c.setCenterY(center[1]);
+//		if(controller.getBoard() != null) {
+//			controller.getBoard().getChildren().add(c);
+//		}
 	}
 
 	// set corner coordinates
@@ -230,36 +259,36 @@ public class Piece extends Polygon {
 	}
 
 	// set corner coordinates
-	public void shufflePiece() {
-		double distToCenterX =  controller.BOARD_SIZE[0]/2.0 - center[0];
-		double distToCenterY = controller.BOARD_SIZE[1]/2.0 - center[1];
-		double[] updateCorners = new double[corners.length];
-		double seed1 = Math.random() * controller.BOARD_SIZE[0] - controller.BOARD_SIZE[0];
-		double seed2 = Math.random() * controller.BOARD_SIZE[1] - controller.BOARD_SIZE[1];
-		double seed3 = Math.random() * 2*Math.PI;
-
-//		wait with random rotation too difficult ;)
-//		this.rotatePiece(seed3);
-
-		for(int i = 0; i < corners.length; i++) {
-			double updateCornerX = corners[i] + distToCenterX + seed1;
-			double updateCornerY = corners[i] + distToCenterY + seed2;
-
-			// Taking borders into consideration
-			//if(updateCornerX < 0 || updateCornerY < 0 || updateCornerX > controller.BOARD_SIZE[0] || updateCornerY > controller.BOARD_SIZE[1]) {
-			//	update = false;
-			//} else {
-			if(i % 2 == 0)
-				updateCorners[i] = updateCornerX;
-			else
-				updateCorners[i] = updateCornerY;
-			//}
-		}
-		for(int i = 0; i < corners.length; i++) {
-			corners[i] = updateCorners[i];
-		}
-		updatePiece();
-	}
+//	public void shufflePiece() {
+//		double distToCenterX =  controller.BOARD_SIZE[0]/2.0 - center[0];
+//		double distToCenterY = controller.BOARD_SIZE[1]/2.0 - center[1];
+//		double[] updateCorners = new double[corners.length];
+//		double seed1 = Math.random() * controller.BOARD_SIZE[0] - controller.BOARD_SIZE[0];
+//		double seed2 = Math.random() * controller.BOARD_SIZE[1] - controller.BOARD_SIZE[1];
+//		double seed3 = Math.random() * 2*Math.PI;
+//
+////		wait with random rotation too difficult ;)
+////		this.rotatePiece(seed3);
+//
+//		for(int i = 0; i < corners.length; i++) {
+//			double updateCornerX = corners[i] + distToCenterX + seed1;
+//			double updateCornerY = corners[i] + distToCenterY + seed2;
+//
+//			// Taking borders into consideration
+//			//if(updateCornerX < 0 || updateCornerY < 0 || updateCornerX > controller.BOARD_SIZE[0] || updateCornerY > controller.BOARD_SIZE[1]) {
+//			//	update = false;
+//			//} else {
+//			if(i % 2 == 0)
+//				updateCorners[i] = updateCornerX;
+//			else
+//				updateCorners[i] = updateCornerY;
+//			//}
+//		}
+//		for(int i = 0; i < corners.length; i++) {
+//			corners[i] = updateCorners[i];
+//		}
+//		updatePiece();
+//	}
 
 	// Method for moving piece
 	public void movePiece(double deltaX, double deltaY) {
