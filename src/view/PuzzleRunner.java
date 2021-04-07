@@ -19,6 +19,7 @@ import org.kynosarges.tektosyne.geometry.VoronoiResults;
 
 import java.awt.geom.Point2D;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
@@ -33,7 +34,7 @@ public class PuzzleRunner extends Application {
 		Group group = new Group();
 		// get instance of controller
 		Controller controller = Controller.getInstance();
-		controller.setGroup(group);
+		//controller.setGroup(group);
 
 		// Setting example board size
 
@@ -132,13 +133,18 @@ public class PuzzleRunner extends Application {
 		StackPane root = new StackPane();
 		root.setPadding(new Insets(10,10,10,10));
 		Group board = new Group();
-		int points = 1000;
+		int points = 15;
 		VoronoiBoard voronoi = new VoronoiBoard(points,800,800);
 		Piece[] pieces = voronoi.getPieces();
 		for(Piece p : pieces){
 			board.getChildren().add(p);
 		}
-
+		ArrayList<Piece> pieceArray = new ArrayList<>();
+		for(int i = 0; i < pieces.length; i++){
+			pieceArray.add(pieces[i]);
+		}
+		Controller.getInstance().setBoardPieces(pieceArray);
+		Controller.getInstance().setBoard(board);
 		root.getChildren().add(board);
 		Scene boardScene = new Scene(root, 820, 820);
 		stage.setScene(boardScene);

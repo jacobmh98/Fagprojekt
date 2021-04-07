@@ -109,6 +109,8 @@ public class VoronoiBoard {
         for(int i = 0; i < v.delaunayEdges().length; i++){
             int piece1 = findPieceID(v.delaunayEdges()[i].start.x, v.delaunayEdges()[i].start.y);
             int piece2 = findPieceID(v.delaunayEdges()[i].end.x, v.delaunayEdges()[i].end.y);
+            pieces[piece1].addAdjacentPiece(pieces[piece2]);
+            pieces[piece2].addAdjacentPiece(pieces[piece1]);
             if(piece1 == -1 || piece2 == -1){
                 System.out.println("Error finding matching x and y to a piece");
             }
