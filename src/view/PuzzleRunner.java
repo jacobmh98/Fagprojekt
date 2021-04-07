@@ -6,13 +6,21 @@ import javafx.geometry.Insets;
 import javafx.scene.Group;
 import javafx.scene.Scene;
 import javafx.scene.layout.StackPane;
+import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
 import javafx.scene.shape.Line;
 import javafx.stage.Stage;
 import model.CreatePuzzleBoard;
 import model.Piece;
+import model.VoronoiBoard;
+import org.delaunay.model.Triangle;
+import org.kynosarges.tektosyne.geometry.PointD;
+import org.kynosarges.tektosyne.geometry.VoronoiResults;
 
+import java.awt.geom.Point2D;
 import java.util.ArrayList;
+import java.util.LinkedHashSet;
+import java.util.Set;
 
 public class PuzzleRunner extends Application {
 
@@ -56,7 +64,8 @@ public class PuzzleRunner extends Application {
 			Scene scene = new Scene(group, controller.BOARD_SIZE[0], controller.BOARD_SIZE[1]);
 			stage.setScene(scene);
 			//testRowColGeneration(stage);
-			testPuzzleWithPolygons(stage);
+			//testPuzzleWithPolygons(stage);
+			testTriangulation(stage);
 
 			stage.setTitle("Puzzle");
 			stage.show();
@@ -105,7 +114,7 @@ public class PuzzleRunner extends Application {
 	public void testPuzzleWithPolygons(Stage stage){
 		int width = 800;
 		int height = 800;
-		CreatePuzzleBoard createPuzzleBoard = new CreatePuzzleBoard(15,20,height,width);
+		CreatePuzzleBoard createPuzzleBoard = new CreatePuzzleBoard(5,5,height,width);
 		createPuzzleBoard.createOneRowPuzzle();
 		Group board = new Group();
 		StackPane root = new StackPane();
@@ -117,6 +126,23 @@ public class PuzzleRunner extends Application {
 		}
 		Scene boardScene = new Scene(root, height+20, width+20);
 		stage.setScene((boardScene));
+	}
+
+	public void testTriangulation(Stage stage) throws Exception {
+		StackPane root = new StackPane();
+		root.setPadding(new Insets(10,10,10,10));
+		Group board = new Group();
+		int points = 100;
+		VoronoiBoard voronoi = new VoronoiBoard(points,800,800);
+
+		Piece[] pieces = voronoi.getPieces();
+		for(Piece p : pieces){
+			board.getChildren().add(p);
+		}
+
+		root.getChildren().add(board);
+		Scene boardScene = new Scene(root, 820, 820);
+		stage.setScene(boardScene);
 	}
 
 }
