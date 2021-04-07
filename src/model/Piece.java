@@ -9,6 +9,7 @@ import javafx.scene.paint.Color;
 import javafx.scene.shape.Polygon;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 public class Piece extends Polygon {
@@ -18,14 +19,14 @@ public class Piece extends Polygon {
 	private Double rotation = 0.0;
 	private double prevY = 0.0;
 	Controller controller = Controller.getInstance();
-	private ArrayList<Piece> adjacentPieces = new ArrayList<Piece>();
 	private ArrayList<Piece> nearbyPieces = new ArrayList<Piece>();
 	private Graph graph = controller.getGraph();
+	private HashMap<Piece, Double[]> adjacentPieces = new HashMap<Piece, Double[]>();
 
 	public Double getRotation() { return this.rotation; }
 	public Double[] getCenter() { return this.center; }
 	public Integer getPieceID() { return this.pieceID; }
-	public ArrayList<Piece> getAdjacentPieces() { return this.adjacentPieces; }
+	public HashMap<Piece, Double[]> getAdjacentPieces() { return this.adjacentPieces; }
 	public Double[] getCorners() {
 		return this.corners;
 	}
@@ -100,105 +101,81 @@ public class Piece extends Polygon {
 	public void intersect() {
 		for(Piece p : this.nearbyPieces) {
 			if(this.intersects(p.getBoundsInLocal())) {
-				if(adjacentPieces.contains(p)) {
+				if(adjacentPieces.containsKey(p)) {
 					double rotationMin = p.getRotation() - (Math.PI/8.0);
 					double rotationMax = p.getRotation() + (Math.PI/8.0);
 
 					if(this.getRotation() > rotationMin && this.getRotation() < rotationMax) {
 						boolean snap = false;
-						for(int i = 0; i < corners.length; i++) {
-							for(int k = 0; k < p.getCorners().length; k++) {
-								double cornerP = p.getCorners()[k];
+						double deltaX = p.getCenter()[0] - this.center[0];
+						double deltaY = p.getCenter()[1] - this.center[1];
+						Double[] distances = this.adjacentPieces.get(p);
 
-								double cornerPMin = cornerP - cornerP*1/300.0;
-								double cornerPMax = cornerP + cornerP*1/300.0;
+						double deltaXMin = Math.abs(deltaX * (9/10.0));
+						double deltaXMax = Math.abs(deltaX * (11/10.0));
+						double deltaYMin = Math.abs(deltaY * (9/10.0));
+						double deltaYMax = Math.abs(deltaY * (11/10.0));
 
-								if(corners[i] > cornerPMin && corners[i] < cornerPMax) {
-									double cornerPNext;
-									double cornerPPrev;
-									double cornerNext;
-									double cornerPrev;
-									double cornerPNextMin;
-									double cornerPNextMax;
-									double cornerPPrevMin;
-									double cornerPPrevMax;
+						if(deltaXMin < Math.abs(distances[0]) && deltaXMax >  Math.abs(distances[0]) &&
+							deltaYMin <  Math.abs(distances[1]) && deltaYMax >  Math.abs(distances[1])) {
+//							System.out.println("SNAP BITCH");
+//							System.out.println(deltaXMin + " < " + Math.abs(distances[0]) +  " < " + deltaXMax);
+//							System.out.println(deltaYMin + " < " + Math.abs(distances[1]) + " < " + deltaYMax);
+//							snap = true;
 
-									if(k < p.getCorners().length-1){
-										cornerPNext = p.getCorners()[k+1];
-									} else {
-										cornerPNext = p.getCorners()[0];
-									}
-									if(k > 0) {
-										cornerPPrev = p.getCorners()[k-1];
-									} else {
-										// k = 0
-										cornerPPrev = p.getCorners()[p.getCorners().length-1];
-									}
-
-									if(i < corners.length-1) {
-										cornerNext = corners[i+1];
-									} else {
-										cornerNext = corners[0];
-									}
-									if(i > 0) {
-										cornerPrev = corners[i-1];
-									} else {
-										// i = 0
-										cornerPrev = corners[corners.length-1];
-									}
-
-									cornerPNextMin = cornerPNext - cornerPNext*1/300.0;
-									cornerPNextMax = cornerPNext + cornerPNext*1/300.0;
-									cornerPPrevMin = cornerPPrev - cornerPPrev*1/300.0;
-									cornerPPrevMax = cornerPPrev + cornerPPrev*1/300.0;
-
-									if(cornerNext > cornerPNextMin && cornerNext < cornerPNextMax) {
-										snap = true;
-//										System.out.println("NEW SNAP NEXT *********************");
-//										// First corner criteria
-//										System.out.println(cornerPMin + " < " + corners[i] + " < " + cornerPMax);
-//										// Second corner criteria
-//										System.out.println(cornerPNextMin + " < " + cornerNext + " < " + cornerPNextMax);
-									}
-
-									if(cornerPrev > cornerPPrevMin && cornerPrev < cornerPPrevMax) {
-										snap = true;
-//										System.out.println("NEW SNAP PREV *********************");
-//										// First corner criteria
-//										System.out.println(cornerPMin + " < " + corners[i] + " < " + cornerPMax);
-//										// Second corner criteria
-//										System.out.println(cornerPPrevMin + " < " + cornerPrev+ " < " + cornerPPrevMax);
-									}
-								}
+							if(!graph.depthFirstTraversal(graph, p).contains(this)) {
+								snapPiece(p);
 							}
 						}
 
 						if(snap) {
-							//Snap piece from the top
-							if(this.getPieceID() - 1 == p.getPieceID()) {
-								addSnappedPiece(p);
-								System.out.println("snap top");
-							}
-							// Snap piece from the bottom
-							else if(this.getPieceID()+1 == p.getPieceID()) {
-								addSnappedPiece(p);
-								System.out.println("snap bottom");
-							}
-							// Snap piece from the right
-							else if(this.getPieceID() + controller.ROWS == p.getPieceID()) {
-								addSnappedPiece(p);
-								System.out.println("snap right");
-							}
-							// Snap piece from the left
-							else if(this.getPieceID() - controller.ROWS == p.getPieceID()) {
-								addSnappedPiece(p);
-								System.out.println("snap left");
-							}
+
 						}
 					}
 				}
 			}
 		}
+	}
+
+	private void snapPiece(Piece p) {
+		//Snap piece from the top
+		if(this.getPieceID() - 1 == p.getPieceID()) {
+			addSnappedPiece(p);
+			System.out.println("snap top");
+		}
+		// Snap piece from the bottom
+		else if(this.getPieceID()+1 == p.getPieceID()) {
+			addSnappedPiece(p);
+			System.out.println("snap bottom");
+		}
+		// Snap piece from the right
+		else if(this.getPieceID() + controller.ROWS == p.getPieceID()) {
+			addSnappedPiece(p);
+			System.out.println("snap right");
+		}
+		// Snap piece from the left
+		else if(this.getPieceID() - controller.ROWS == p.getPieceID()) {
+			addSnappedPiece(p);
+			System.out.println("snap left");
+		}
+
+		// difference between centers
+		Double deltaCmX = this.center[0] - p.getCenter()[0];
+		Double deltaCmY = this.center[1] - p.getCenter()[1];
+
+		// actual difference between centers for correct snap
+		Double deltaX = p.getAdjacentPieces().get(this)[0];
+		Double deltaY = p.getAdjacentPieces().get(this)[1];
+
+		// how much each corner is supposed to move for snap
+		Double moveX = deltaCmX - deltaX;
+		Double moveY = deltaCmY - deltaY;
+
+		System.out.println("Diff cm's: " + deltaCmX + ", " + deltaCmY);
+		System.out.println("Snap: " + deltaX + ", " + deltaY);
+		System.out.println("Should move: " + moveX + ", " + moveY);
+
+		movePiece(moveX, moveY);
 	}
 
 	// Method returning nearby pieces within some radius
@@ -434,7 +411,7 @@ public class Piece extends Polygon {
 				sum[r][c] = matrix1[r][c] + matrix2[r][c];
 			}
 		}
-		
+
 		return sum;
 	}
 	
@@ -449,6 +426,9 @@ public class Piece extends Polygon {
 	}
 
 	public void addAdjacentPiece(Piece p) {
-		adjacentPieces.add(p);
+		double deltaX = p.getCenter()[0] - this.center[0];
+		double deltaY = p.getCenter()[1] - this.center[1];
+		Double[] distances = {deltaX, deltaY};
+		adjacentPieces.put(p, distances);
 	}
 }

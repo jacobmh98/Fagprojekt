@@ -284,29 +284,37 @@ public class CreatePuzzleBoard {
                 // Left border
                 if(pieceID < rows) {
                     Piece pTemp = boardPieces.get(p.getPieceID()+rows);
-                    if(!p.getAdjacentPieces().contains(pTemp)) {
+                    if(!p.getAdjacentPieces().containsKey(pTemp)) {
                         p.addAdjacentPiece(pTemp);
+                        p.addAdjacentPiece(boardPieces.get(pieceID-1));
+                        p.addAdjacentPiece(boardPieces.get(pieceID+1));
                     }
                 }
                 // Right border
                 else if(pieceID >= rows*(columns-1)) {
                     Piece pTemp = boardPieces.get(p.getPieceID()-rows);
-                    if(!p.getAdjacentPieces().contains(pTemp)) {
+                    if(!p.getAdjacentPieces().containsKey(pTemp)) {
                         p.addAdjacentPiece(pTemp);
+                        p.addAdjacentPiece(boardPieces.get(pieceID-1));
+                        p.addAdjacentPiece(boardPieces.get(pieceID+1));
                     }
                 }
                 // Top border
                 else if(topRowIndexes.contains(pieceID)) {
                     Piece pTemp = boardPieces.get(p.getPieceID()+1);
-                    if(!p.getAdjacentPieces().contains(pTemp)) {
+                    if(!p.getAdjacentPieces().containsKey(pTemp)) {
                         p.addAdjacentPiece(pTemp);
+                        p.addAdjacentPiece(boardPieces.get(pieceID+rows));
+                        p.addAdjacentPiece(boardPieces.get(pieceID-rows));
                     }
                 }
                 // Bottom border
                 else if(bottomRowIndexes.contains(pieceID)) {
                     Piece pTemp = boardPieces.get(p.getPieceID()-1);
-                    if(!p.getAdjacentPieces().contains(pTemp)) {
+                    if(!p.getAdjacentPieces().containsKey(pTemp)) {
                         p.addAdjacentPiece(pTemp);
+                        p.addAdjacentPiece(boardPieces.get(pieceID+rows));
+                        p.addAdjacentPiece(boardPieces.get(pieceID-rows));
                     }
                 }
                 // For all pieces in the middle
@@ -317,6 +325,12 @@ public class CreatePuzzleBoard {
                     p.addAdjacentPiece(boardPieces.get(p.getPieceID()+rows));
                 }
             }
+            System.out.print("Piece with ID: " + p.getPieceID() + " has adjacent pieces: ");
+            for(Piece p2 : p.getAdjacentPieces().keySet()) {
+                System.out.print(p2.getPieceID() + ", ");
+            }
+            System.out.println();
         }
+
     }
 }
