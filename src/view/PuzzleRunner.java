@@ -13,7 +13,7 @@ import javafx.stage.Stage;
 import model.CreatePuzzleBoard;
 import model.Piece;
 import model.VoronoiBoard;
-import org.delaunay.model.Triangle;
+//import org.delaunay.model.Triangle;
 import org.kynosarges.tektosyne.geometry.PointD;
 import org.kynosarges.tektosyne.geometry.VoronoiResults;
 
@@ -45,7 +45,7 @@ public class PuzzleRunner extends Application {
 				150.0, 350.0,
 		};
 		Integer pieceID1 = 0;
-		
+
 		Double[] corners2 = {
 				50.0, 50.0,
 				350.0, 50.0,
@@ -54,13 +54,13 @@ public class PuzzleRunner extends Application {
 				150.0, 150.0,
 		};
 		Integer pieceID2 = 1;
-		
+
 		// generate the piece
 		//controller.generatePiece(pieceID1, corners1);
-		
+
 		// draw the pieces
 		//controller.drawPieces();
-		
+
 		try {
 			Scene scene = new Scene(group, controller.BOARD_SIZE[0], controller.BOARD_SIZE[1]);
 			stage.setScene(scene);
