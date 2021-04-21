@@ -94,6 +94,7 @@ public class PuzzleRunner extends Application {
 				@Override
 				public void handle(ActionEvent actionEvent) {
 					try {
+
 						int points = Integer.parseInt(txtNumberOfPieces.getText());
 						int width = Integer.parseInt(txtWidth.getText());
 						int height = Integer.parseInt(txtHeight.getText());
@@ -103,6 +104,7 @@ public class PuzzleRunner extends Application {
 
 						if(((RadioButton) toggleGroup.getSelectedToggle()).getText().equals("Shuffled")) {
 							shufflePieces(controller.getBoardPieces());
+
 						}
 					} catch(NumberFormatException e) {
 						System.out.println("error");
@@ -180,7 +182,11 @@ public class PuzzleRunner extends Application {
 	public void testTriangulation(Stage stage, int points, int width, int height) throws Exception {
 		StackPane root = new StackPane();
 		root.setPadding(new Insets(10,10,10,10));
+		Pane outerBoard = new Pane();
+		outerBoard.setMaxWidth(width);
+		outerBoard.setMaxHeight(height);
 		Group board = new Group();
+		outerBoard.getChildren().add(board);
 		VoronoiBoard voronoi = new VoronoiBoard(points,width,height);
 		Piece[] pieces = voronoi.getPieces();
 		for(Piece p : pieces){
@@ -192,8 +198,8 @@ public class PuzzleRunner extends Application {
 		}
 		Controller.getInstance().setBoardPieces(pieceArray);
 		Controller.getInstance().setBoard(board);
-		board.setStyle("-fx-border-color: black");
-		root.getChildren().add(board);
+		outerBoard.setStyle("-fx-border-color: black");
+		root.getChildren().add(outerBoard);
 		Scene boardScene = new Scene(root, width+20, height + 20);
 		stage.setScene(boardScene);
 	}

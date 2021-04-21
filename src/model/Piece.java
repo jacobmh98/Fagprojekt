@@ -236,37 +236,19 @@ public class Piece extends Polygon {
 
 	// set corner coordinates
 	public void shufflePiece() {
-		double distToCenterX =  controller.getBoardSize()[0]/2.0 - center[0];
-		double distToCenterY = controller.getBoardSize()[0]/2.0 - center[1];
-		double[] updateCorners = new double[corners.length];
-		double seed1 = Math.random() * controller.getBoardSize()[0] - controller.getBoardSize()[0];
-		double seed2 = Math.random() * controller.getBoardSize()[1] - controller.getBoardSize()[1];
+		double seed1 = (Math.random() * controller.getBoardSize()[0]);
+		double seed2 = (Math.random() * controller.getBoardSize()[1]);
+
+		movePieceAbsolute(seed1, seed2);
+
+		System.out.println("seeds: " + seed1 +", " + seed2);
 
 //		double seed3 = Math.random() * 2*Math.PI;
 //		wait with random rotation too difficult ;)
 //		this.rotatePiece(seed3);
-
-		for(int i = 0; i < corners.length; i++) {
-			double updateCornerX = corners[i] + distToCenterX + seed1;
-			double updateCornerY = corners[i] + distToCenterY + seed2;
-
-			// Taking borders into consideration
-			//if(updateCornerX < 0 || updateCornerY < 0 || updateCornerX > controller.getBoardSize()[0] || updateCornerY > controller.getBoardSize()[1]) {
-			//	update = false;
-			//} else {
-			if(i % 2 == 0)
-				updateCorners[i] = updateCornerX;
-			else
-				updateCorners[i] = updateCornerY;
-			//}
-		}
-		for(int i = 0; i < corners.length; i++) {
-			corners[i] = updateCorners[i];
-		}
-		updatePiece();
 	}
 
-	// Method for moving piece
+	// Method for moving piece relatively
 	public void movePiece(double deltaX, double deltaY) {
 		boolean update = true;
 		double c1 = deltaX - this.getCenter()[0];
@@ -288,6 +270,36 @@ public class Piece extends Polygon {
 				p.updatePiece();
 			}
 		}
+	}
+
+	public void movePieceAbsolute(double xCoordinate, double yCoordinate) {
+		double diffX = xCoordinate - this.center[0];
+		double diffY = yCoordinate - this.center[1];
+		int[] direction = {0,0};
+
+		for (int i = 0; i < corners.length; i++) {
+			if (i % 2 == 0) {
+				corners[i] += diffX;
+				if(corners[i] < 0) {
+					direction[0] = 1;
+				} else if(corners[i] > controller.getBoardSize()[0]) {
+					direction[0] = -1;
+				} else {
+					direction[0] = 0;
+				}
+			} else {
+				corners[i] += diffY;
+				if(corners[i] < 0) {
+					direction[1] = 1;
+				} else if(corners[i] > controller.getBoardSize()[0]) {
+					direction[1] = -1;
+				} else {
+					direction[1] = 0;
+				}
+			}
+		}
+
+		updatePiece();
 	}
 
 	// Method for rotating piece
