@@ -177,7 +177,7 @@ public class Piece extends Polygon {
 	// Method returning nearby pieces within some radius
 	public void computeNearbyPieces() {
 		ArrayList<Piece> nearbyPieces = new ArrayList<Piece>();
-		double radius = (2*(controller.BOARD_SIZE[0] + controller.BOARD_SIZE[1])) / (controller.ROWS + controller.COLUMNS);
+		double radius = (2*(controller.getBoardSize()[0] + controller.getBoardSize()[1])) / (controller.ROWS + controller.COLUMNS);
 
 		for(Piece p : controller.getBoardPieces()) {
 			Double[] p2Center = p.getCenter();
@@ -235,36 +235,36 @@ public class Piece extends Polygon {
 	}
 
 	// set corner coordinates
-//	public void shufflePiece() {
-//		double distToCenterX =  controller.BOARD_SIZE[0]/2.0 - center[0];
-//		double distToCenterY = controller.BOARD_SIZE[1]/2.0 - center[1];
-//		double[] updateCorners = new double[corners.length];
-//		double seed1 = Math.random() * controller.BOARD_SIZE[0] - controller.BOARD_SIZE[0];
-//		double seed2 = Math.random() * controller.BOARD_SIZE[1] - controller.BOARD_SIZE[1];
+	public void shufflePiece() {
+		double distToCenterX =  controller.getBoardSize()[0]/2.0 - center[0];
+		double distToCenterY = controller.getBoardSize()[0]/2.0 - center[1];
+		double[] updateCorners = new double[corners.length];
+		double seed1 = Math.random() * controller.getBoardSize()[0] - controller.getBoardSize()[0];
+		double seed2 = Math.random() * controller.getBoardSize()[1] - controller.getBoardSize()[1];
+
 //		double seed3 = Math.random() * 2*Math.PI;
-//
-////		wait with random rotation too difficult ;)
-////		this.rotatePiece(seed3);
-//
-//		for(int i = 0; i < corners.length; i++) {
-//			double updateCornerX = corners[i] + distToCenterX + seed1;
-//			double updateCornerY = corners[i] + distToCenterY + seed2;
-//
-//			// Taking borders into consideration
-//			//if(updateCornerX < 0 || updateCornerY < 0 || updateCornerX > controller.BOARD_SIZE[0] || updateCornerY > controller.BOARD_SIZE[1]) {
-//			//	update = false;
-//			//} else {
-//			if(i % 2 == 0)
-//				updateCorners[i] = updateCornerX;
-//			else
-//				updateCorners[i] = updateCornerY;
-//			//}
-//		}
-//		for(int i = 0; i < corners.length; i++) {
-//			corners[i] = updateCorners[i];
-//		}
-//		updatePiece();
-//	}
+//		wait with random rotation too difficult ;)
+//		this.rotatePiece(seed3);
+
+		for(int i = 0; i < corners.length; i++) {
+			double updateCornerX = corners[i] + distToCenterX + seed1;
+			double updateCornerY = corners[i] + distToCenterY + seed2;
+
+			// Taking borders into consideration
+			//if(updateCornerX < 0 || updateCornerY < 0 || updateCornerX > controller.getBoardSize()[0] || updateCornerY > controller.getBoardSize()[1]) {
+			//	update = false;
+			//} else {
+			if(i % 2 == 0)
+				updateCorners[i] = updateCornerX;
+			else
+				updateCorners[i] = updateCornerY;
+			//}
+		}
+		for(int i = 0; i < corners.length; i++) {
+			corners[i] = updateCorners[i];
+		}
+		updatePiece();
+	}
 
 	// Method for moving piece
 	public void movePiece(double deltaX, double deltaY) {
