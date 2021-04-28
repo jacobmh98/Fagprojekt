@@ -55,6 +55,7 @@ public class CreatePuzzleBoard {
         createRows(rows);
         findIntersectPoints();
         defineBoardPieceCorners();
+        addNeighbours();
     }
 
     private void createColumn(int totalColumns) {
@@ -223,15 +224,33 @@ public class CreatePuzzleBoard {
                 Double[] pieceCoordinateArray = new Double[pieceCorners.size()];
                 for(int k = 0; k < pieceCorners.size(); k++){
                     pieceCoordinateArray[k] = pieceCorners.get(k);
-                    if(i*5+j == 5){
-                        System.out.print(pieceCoordinateArray[k] + ", ");
-                    }
 
                 }
                 boardPieces.add(new Piece(pieceID, pieceCoordinateArray));
-                if(i*5+j == 5){
-                    System.out.println();
-                    System.out.println(pieceCorners);
+                pieceID++;
+            }
+        }
+    }
+
+    private void addNeighbours(){
+        for(int i = 0; i < columns; i++){
+            for(int j = 0; j < rows; j++){
+                int currentPiece = i*rows+j;
+                int right = (i+1)*rows+j;
+                int bottom = i*rows+j+1;
+                int left = (i-1)*rows+j;
+                int top = i*rows+j-1;
+                if(i < columns-1){
+                    boardPieces.get(currentPiece).addAdjacentPiece(boardPieces.get(right));
+                }
+                if(i > 0){
+                    boardPieces.get(currentPiece).addAdjacentPiece(boardPieces.get(left));
+                }
+                if(j < rows-1){
+                    boardPieces.get(currentPiece).addAdjacentPiece(boardPieces.get(bottom));
+                }
+                if(j > 0){
+                    boardPieces.get(currentPiece).addAdjacentPiece(boardPieces.get(top));
                 }
             }
         }
