@@ -21,12 +21,12 @@ public class ComparePieces {
         ArrayList<Double> newPiece1 = calculatePieceCenterOrigo(deleteObsoletePoints(piece1));
         ArrayList<Double> newPiece2 = calculatePieceCenterOrigo(deleteObsoletePoints(piece2));
         if(newPiece1.size() != newPiece2.size()){
-            System.out.println("Failed total corners check");
+            //System.out.println("Failed total corners check");
             return false;
         }
         ArrayList<Double> possibleRotations = calculateRotationTheta(newPiece1, newPiece2);
         if(possibleRotations.size() == 0){
-            System.out.println("Failed with no rotation possible");
+            //System.out.println("Failed with no rotation possible");
             return false;
         }
         return checkRotations(newPiece1, newPiece2, possibleRotations);
@@ -48,7 +48,8 @@ public class ComparePieces {
                 index3 = i+2;
             }
             double angle = findAngle(piece[index1], piece[index1+1], piece[i], piece[i+1], piece[index3], piece[index3+1]);
-            if(angle != Math.PI && angle != 0){
+            //angle == angle is because if we try to take acos() of something greater than 1 we get NaN and NaN != NaN
+            if(angle != Math.PI && angle != 0 && angle == angle){
                 newPoints.add(piece[i]);
                 newPoints.add(piece[i+1]);
             }
@@ -82,8 +83,8 @@ public class ComparePieces {
             sumX += piece.get(i);
             sumY += piece.get(i+1);
         }
-        double moveX = sumX/(piece.size()/2);
-        double moveY = sumY/(piece.size()/2);
+        double moveX = sumX/(piece.size()/2.0);
+        double moveY = sumY/(piece.size()/2.0);
         for(int i = 0; i < piece.size(); i+=2){
             newCoords.add(piece.get(i)-moveX);
             newCoords.add(piece.get(i+1)-moveY);
@@ -138,7 +139,6 @@ public class ComparePieces {
             }
             boolean isEqual = true;
             for(int j = 0; j < rotatedPiece1.size(); j++){
-                //System.out.println(rotatedPiece1.get(j) + ", " + piece2.get(j));
                 double upper = piece2.get(j) + epsilon;
                 double lower = piece2.get(j) - epsilon;
                 if (rotatedPiece1.get(j) > upper || rotatedPiece1.get(j) < lower) {
@@ -146,7 +146,6 @@ public class ComparePieces {
                     break;
                 }
             }
-            System.out.println();
             if(isEqual){
                 return true;
             }
