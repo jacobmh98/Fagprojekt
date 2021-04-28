@@ -75,8 +75,10 @@ public class Piece extends Polygon {
 				} else {
 					if(direction == 1) {
 						rotatePiece(Math.PI/50);
+						rotateNeighbours(Math.PI/50);
 					} else {
 						rotatePiece(-Math.PI/50);
+						rotateNeighbours(-Math.PI/50);
 					}
 				}
 			}
@@ -101,40 +103,31 @@ public class Piece extends Polygon {
 	public void checkForConnect() {
 		for(Piece p : nearbyPieces) {
 			Double[] temp = adjacentPieces.get(p);
+
 			if(temp != null) {
-				System.out.println("\nPiece " + this.pieceID + " should connect to " + p.getPieceID());
-				System.out.println("Distance between cm's should be: " + temp[0] + ", " + temp[1]);
 				Double dx = p.getCenter()[0] - this.getCenter()[0];
 				Double dy = p.getCenter()[1] - this.getCenter()[1];
 
-				Double dxMin = temp[0] - 5.0;
-				Double dxMax = temp[0] + 5.0;
-				Double dyMin = temp[1] - 5.0;
-				Double dyMax = temp[1] + 5.0;
-
-				System.out.println("Distance is currently: " + dx + ", " + dy);
-//				System.out.println(dxMin + " < " + dx + " < " + dxMax);
-//				System.out.println(dyMin + " < " + dy + " < " + dyMax);
+				Double dxMin = temp[0] - 25.0;
+				Double dxMax = temp[0] + 25.0;
+				Double dyMin = temp[1] - 25.0;
+				Double dyMax = temp[1] + 25.0;
 
 				if(dx > dxMin && dx < dxMax && dy > dyMin && dy < dyMax) {
-					System.out.println("Snap accepted");
 					if(!graph.depthFirstTraversal(graph, p).contains(this)) {
+						double angel = p.getRotation() - this.rotation;
+						rotatePiece(angel);
+						rotateNeighbours(angel);
+						temp = adjacentPieces.get(p);
 						Double moveDx = dx - temp[0];
 						Double moveDy = dy - temp[1];
-						Double[] oldCenter = {center[0], center[1]};
 						Set<Piece> connectedPieces = graph.depthFirstTraversal(graph, this);
-
 						snapPiece(p, moveDx, moveDy);
-
-						Double connectedPiecesMoveDx = this.getCenter()[0] - oldCenter[0];
-						Double connectedPiecesMoveDy = this.getCenter()[1] - oldCenter[1];
-
 						for(Piece pi : connectedPieces) {
 							if(pi != this && pi != p) {
-								pi.movePiece(connectedPiecesMoveDx, connectedPiecesMoveDy);
+								pi.movePiece(moveDx, moveDy);
 							}
 						}
-
 					}
 				}
 			}
@@ -302,9 +295,52 @@ public class Piece extends Polygon {
 		updatePiece();
 	}
 
+	public void rotateAdjacentPieces(Double angle) {
+		for(Piece p : adjacentPieces.keySet()) {
+			Double[][] R = {
+					{Math.cos(angle), Math.sin(angle)},
+					{Math.sin(angle) * (-1.0), Math.cos(angle)}
+			};
+			Double[] rotationCenter = this.center;
+			Double[] oldCenter = {rotationCenter[0] + adjacentPieces.get(p)[0], rotationCenter[1] + adjacentPieces.get(p)[1]};
+			Double[] tempVector = new Double[]{oldCenter[0] - rotationCenter[0], oldCenter[1] - rotationCenter[1]};
+
+			Double[] newCenter = new Double[] {
+					(R[0][0] * tempVector[0] + R[0][1] * tempVector[1]),
+					(R[1][0] * tempVector[0] + R[1][1] * tempVector[1])
+			};
+
+			adjacentPieces.put(p, newCenter);
+		}
+	}
+
+	public void rotateNeighbours(Double angle) {
+		for(Piece p : graph.depthFirstTraversal(graph, this)) {
+			if(p != this) {
+				p.rotatePiece(angle);
+
+				Double[][] R = {
+						{Math.cos(angle), Math.sin(angle)},
+						{Math.sin(angle) * (-1.0), Math.cos(angle)}
+				};
+				Double[] rotationCenter = this.center;
+				Double[] oldCenter = {p.getCenter()[0], p.getCenter()[1]};
+				Double[] tempVector = new Double[]{oldCenter[0] - rotationCenter[0], oldCenter[1] - rotationCenter[1]};
+
+				Double[] newCenter = new Double[] {
+						(R[0][0] * tempVector[0] + R[0][1] * tempVector[1]) + rotationCenter[0],
+						(R[1][0] * tempVector[0] + R[1][1] * tempVector[1]) + rotationCenter[1]
+				};
+
+				p.movePieceAbsolute(newCenter[0], newCenter[1]);
+			}
+		}
+	}
+
 	// Method for rotating piece
 	public void rotatePiece(Double angle) {
 		setRotation(angle);
+		rotateAdjacentPieces(angle);
 		Integer n = corners.length / 2;
 
 		// Variable C contains n pairs of the centroid
@@ -313,8 +349,8 @@ public class Piece extends Polygon {
 
 		// Variable for rotation matrix
 		Double[][] R = {
-				{Math.cos(angle), Math.sin(angle) * (-1.0)},
-				{Math.sin(angle), Math.cos(angle)}
+				{Math.cos(angle), Math.sin(angle)},
+				{Math.sin(angle) * (-1.0), Math.cos(angle)}
 		};
 
 		// Variable contains old coordinates
@@ -364,12 +400,12 @@ public class Piece extends Polygon {
 
 	public void setRotation(Double angle) {
 		this.rotation += angle;
-		if(this.rotation > 2*Math.PI) {
-			this.rotation = 0.0;
-		}
+		this.rotation %= 2*Math.PI;
 		if(this.rotation < 0) {
-			this.rotation = 2*Math.PI;
+			this.rotation += 2*Math.PI;
 		}
+//		int scale = (int) Math.pow(10, 2);
+//		System.out.println((double) Math.round(this.rotation * scale) / scale);
 	}
 
 	// Method for converting from 2d to 1d
