@@ -26,17 +26,11 @@ public class CreatePuzzleBoard {
 
     //Getters
     public ArrayList<ArrayList<Double>> getColumnX() { return columnX; }
-
     public ArrayList<ArrayList<Double>> getColumnY() { return columnY; }
-
     public ArrayList<ArrayList<Double>> getRowX() { return rowX; }
-
     public ArrayList<ArrayList<Double>> getRowY() { return rowY; }
-
     public ArrayList<Double> getPieceX() {return pieceX;}
-
     public ArrayList<Double> getPieceY() {return pieceY;}
-
     public ArrayList<Piece> getBoardPieces() {return boardPieces;}
 
     public CreatePuzzleBoard(int rows, int columns, int height, int width){
@@ -77,15 +71,19 @@ public class CreatePuzzleBoard {
                     columnListX.add(x);
                 }
             } else {
-                columnListX.add(i* pieceWidth);
-                columnListX.add(i* pieceWidth);
+                if(i == 0){
+                    columnListX.add(0.0);
+                    columnListX.add(0.0);
+                } else {
+                    columnListX.add((double) width);
+                    columnListX.add((double) width);
+                }
                 columnListY.add(0.0);
                 columnListY.add((double)height);
             }
             columnX.add(columnListX);
             columnY.add(columnListY);
         }
-
     }
 
     private void createRows(int rows){
