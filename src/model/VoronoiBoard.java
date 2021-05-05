@@ -1,26 +1,31 @@
 package model;
 
+import controller.Controller;
 import org.kynosarges.tektosyne.geometry.*;
 
 public class VoronoiBoard {
     private final int points;
     private final int width;
     private final int height;
-    private final PointD[] randomPoints;
-    private final VoronoiResults v;
+    private PointD[] randomPoints;
+    private VoronoiResults v;
     private Piece[] pieces;
     private final RectD clip;
 
-    public VoronoiBoard(int points, int width, int height) throws Exception {
+    public VoronoiBoard(int points) {
         this.points = points;
-        this.width = width;
-        this.height = height;
+        this.width = Controller.getInstance().BOARD_SIZE[0];
+        this.height = Controller.getInstance().BOARD_SIZE[1];
         randomPoints = createRandomPoints();
         this.clip = new RectD(0,0, width, height);
         v = Voronoi.findAll(randomPoints, clip); //Use of the library tektosyne to find the voronoi regions
         pieces = new Piece[points];
-        //fixPieceEdges();
         createPiecesArray();
+        while(!ComparePieces.compareAllPieces(pieces)){
+            randomPoints = createRandomPoints();
+            v = Voronoi.findAll(randomPoints, clip);
+            createPiecesArray();
+        }
         findNeighbours();
     }
 
@@ -39,28 +44,6 @@ public class VoronoiBoard {
             Piece piece = new Piece(pieceID, pieceCorners);
             pieces[pieceID] = piece;
             pieceID++;
-        }
-    }
-
-    private void fixPieceEdges(){
-        for(PointD[] region : v.voronoiRegions()){
-            for(int i = 0; i < region.length; i++){
-                PointD point1 = region[i];
-                if(point1.x < 0 || point1.x > width || point1.y < 0 || point1.y > height) {
-                    PointD point2;
-                    if (i > 0) {
-                        point2 = region[i - 1];
-                        if(point2.x < 0 || point2.x > width || point2.y < 0 || point2.y > height){
-                            point2 = region[i + 1];
-                        }
-                    } else {
-                        point2 = region[i + 1];
-                    }
-                    PointD newPoint = findIntersect(point1.x, point1.y, point2.x, point2.y);
-                    region[i] = newPoint;
-                    System.out.println("HELLO");
-                }
-            }
         }
     }
 
@@ -97,8 +80,6 @@ public class VoronoiBoard {
         for(int i = 0; i < points; i++){
             double x = (0.05*width) + Math.random()*(width*0.95-0.05*width);
             double y = (0.05*height) + Math.random()*(height*0.95-0.05*height);
-            //double x = Math.random()*width;
-            //double y = Math.random()*height;
             PointD pointD = new PointD(x, y);
             pointsArray[i] = pointD;
         }
@@ -111,9 +92,6 @@ public class VoronoiBoard {
             int piece2 = findPieceID(v.delaunayEdges()[i].end.x, v.delaunayEdges()[i].end.y);
             pieces[piece1].addAdjacentPiece(pieces[piece2]);
             pieces[piece2].addAdjacentPiece(pieces[piece1]);
-            if(piece1 == -1 || piece2 == -1){
-                System.out.println("Error finding matching x and y to a piece");
-            }
         }
     }
 

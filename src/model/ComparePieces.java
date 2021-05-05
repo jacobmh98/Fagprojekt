@@ -17,6 +17,19 @@ public class ComparePieces {
         return true;
     }
 
+    public static boolean compareAllPieces(ArrayList<Piece> pieceList){
+        for(int i = 0; i < pieceList.size(); i++){
+            for(int j = i; j < pieceList.size(); j++){
+                if(i != j){
+                    if(!comparePieces(pieceList.get(i).getCorners(), pieceList.get(j).getCorners())){
+                        return false;
+                    }
+                }
+            }
+        }
+        return true;
+    }
+
     public static boolean comparePieces(Double[] piece1, Double[] piece2){
         ArrayList<Double> newPiece1 = calculatePieceCenterOrigo(deleteObsoletePoints(piece1));
         ArrayList<Double> newPiece2 = calculatePieceCenterOrigo(deleteObsoletePoints(piece2));
@@ -57,7 +70,7 @@ public class ComparePieces {
         return newPoints;
     }
 
-    private static double findAngle(double x1, double y1, double x2, double y2, double x3, double y3){
+    public static double findAngle(double x1, double y1, double x2, double y2, double x3, double y3){
         double[] vector1 = {x1-x2,y1-y2};
         double[] vector2 = {x2-x3, y2-y3};
         double dotP = vector1[0]*vector2[0]+vector1[1]*vector2[1];

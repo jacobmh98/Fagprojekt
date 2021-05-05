@@ -1,17 +1,19 @@
 package model;
 
 
+import controller.Controller;
+
 import java.util.ArrayList;
 
 public class CreatePuzzleBoard {
-    private int rows;
-    private int columns;
-    private int height;
-    private int width;
-    private double pieceWidth;
-    private double pieceHeight;
-    private double maxWidth;
-    private double maxHeight;
+    private final int rows;
+    private final int columns;
+    private final int height;
+    private final int width;
+    private final double pieceWidth;
+    private final double pieceHeight;
+    private final double maxWidth;
+    private final double maxHeight;
     private ArrayList<ArrayList<Double>> columnX = new ArrayList<>();
     private ArrayList<ArrayList<Double>> columnY = new ArrayList<>();
     private ArrayList<ArrayList<Double>> rowX = new ArrayList<>();
@@ -25,26 +27,24 @@ public class CreatePuzzleBoard {
     private ArrayList<Piece> boardPieces = new ArrayList<>();
 
     //Getters
-    public ArrayList<ArrayList<Double>> getColumnX() { return columnX; }
-    public ArrayList<ArrayList<Double>> getColumnY() { return columnY; }
-    public ArrayList<ArrayList<Double>> getRowX() { return rowX; }
-    public ArrayList<ArrayList<Double>> getRowY() { return rowY; }
-    public ArrayList<Double> getPieceX() {return pieceX;}
-    public ArrayList<Double> getPieceY() {return pieceY;}
     public ArrayList<Piece> getBoardPieces() {return boardPieces;}
 
-    public CreatePuzzleBoard(int rows, int columns, int height, int width){
+    public CreatePuzzleBoard(int rows, int columns){
         this.rows = rows;
         this.columns = columns;
-        this.height = height;
-        this.width = width;
+        this.width = Controller.getInstance().BOARD_SIZE[0];
+        this.height = Controller.getInstance().BOARD_SIZE[1];
         this.pieceWidth =(double)width/columns;
         this.pieceHeight=(double)height/rows;
         this.maxWidth = pieceWidth *0.3;
         this.maxHeight = pieceHeight*0.3;
+        createPuzzle();
+        while(!ComparePieces.compareAllPieces(boardPieces)){
+            createPuzzle();
+        }
     }
 
-    public void createOneRowPuzzle(){
+    public void createPuzzle(){
         createColumn(columns);
         createRows(rows);
         findIntersectPoints();
