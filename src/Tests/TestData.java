@@ -1,3 +1,4 @@
+import controller.Controller;
 import model.Piece;
 
 import java.util.ArrayList;
@@ -40,8 +41,7 @@ public class TestData {
 
     public static Piece get1Piece(){
         Double[] pieceCorners = {3.0, 3.0, 3.0, 5.0, 5.0, 6.0, 5.0, 3.0};
-        Piece piece = new Piece(0, pieceCorners);
-        return piece;
+        return new Piece(0, pieceCorners);
     }
 
     public static ArrayList<Piece> getUnconnectedNeighbourPieces(){
@@ -54,6 +54,24 @@ public class TestData {
         piece2.addAdjacentPiece(piece1);
         pieceList.add(piece1);
         pieceList.add(piece2);
+        Controller.getInstance().setBoardPieces(pieceList);
         return pieceList;
     }
+
+    public static ArrayList<Piece> getConnectedNeighboursPieces(){
+        ArrayList<Piece> pieceList = new ArrayList<>();
+        Double[] piece1Corners = {3.0, 3.0, 3.0, 5.0, 5.0, 6.0, 5.0, 3.0};
+        Double[] piece2Corners = {3.0, 3.0, 2.0, 5.0, 2.0, 7.0, 3.0, 5.0};
+        Piece piece1 = new Piece(0, piece1Corners);
+        Piece piece2 = new Piece(1, piece2Corners);
+        piece1.addAdjacentPiece(piece2);
+        piece2.addAdjacentPiece(piece1);
+        pieceList.add(piece1);
+        pieceList.add(piece2);
+        Controller.getInstance().setBoardPieces(pieceList);
+        piece1.computeNearbyPieces();
+        piece1.checkForConnect();
+        return pieceList;
+    }
+
 }
