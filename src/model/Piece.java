@@ -6,11 +6,11 @@ import javafx.scene.Cursor;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.paint.Color;
-import javafx.scene.shape.Circle;
 import javafx.scene.shape.Polygon;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Set;
 
 public class Piece extends Polygon {
 	private Integer pieceID;
@@ -30,17 +30,17 @@ public class Piece extends Polygon {
 	public Double[] getCorners() {
 		return this.corners;
 	}
-	
+
 	// Constructor for piece
 	public Piece(Integer pieceID, Double[] corners) {
 		this.pieceID = pieceID;
 		this.corners = corners;
 		graph.addVertex(this);
-		
+
 		// Methods inherited from JavafX Polygon class
 		this.getPoints().addAll(this.corners);
 		this.setStroke(Color.BLACK);
-		this.setFill(Color.LIGHTBLUE);
+		this.setFill(Color.WHITE);
 		this.setCursor(Cursor.HAND);
 
 		this.setOnMousePressed(new EventHandler<MouseEvent>() {
@@ -69,16 +69,15 @@ public class Piece extends Polygon {
 				}
 				Piece.this.prevY = deltaY;
 
-//				computeNearbyPieces();
-//				intersect();
-
 				if(mouseEvent.getButton() == MouseButton.PRIMARY) {
 					movePiece(deltaX, deltaY);
 				} else {
 					if(direction == 1) {
 						rotatePiece(Math.PI/50);
+						rotateNeighbours(Math.PI/50);
 					} else {
 						rotatePiece(-Math.PI/50);
+						rotateNeighbours(-Math.PI/50);
 					}
 				}
 			}
@@ -103,74 +102,37 @@ public class Piece extends Polygon {
 	public void checkForConnect() {
 		for(Piece p : nearbyPieces) {
 			Double[] temp = adjacentPieces.get(p);
+
 			if(temp != null) {
-				System.out.println("\nPiece " + this.pieceID + " should connect to " + p.getPieceID());
-				System.out.println("Distance between cm's should be: " + temp[0] + ", " + temp[1]);
 				Double dx = p.getCenter()[0] - this.getCenter()[0];
 				Double dy = p.getCenter()[1] - this.getCenter()[1];
 
-				Double dxMin = temp[0] - 5.0;
-				Double dxMax = temp[0] + 5.0;
-				Double dyMin = temp[1] - 5.0;
-				Double dyMax = temp[1] + 5.0;
-
-				System.out.println("Distance is currently: " + dx + ", " + dy);
-//				System.out.println(dxMin + " < " + dx + " < " + dxMax);
-//				System.out.println(dyMin + " < " + dy + " < " + dyMax);
+				Double dxMin = temp[0] - 25.0;
+				Double dxMax = temp[0] + 25.0;
+				Double dyMin = temp[1] - 25.0;
+				Double dyMax = temp[1] + 25.0;
 
 				if(dx > dxMin && dx < dxMax && dy > dyMin && dy < dyMax) {
-					System.out.println("Snap accepted");
 					if(!graph.depthFirstTraversal(graph, p).contains(this)) {
+						double angel = p.getRotation() - this.rotation;
+						rotatePiece(angel);
+						rotateNeighbours(angel);
+						temp = adjacentPieces.get(p);
 						Double moveDx = dx - temp[0];
 						Double moveDy = dy - temp[1];
+						Set<Piece> connectedPieces = graph.depthFirstTraversal(graph, this);
 						snapPiece(p, moveDx, moveDy);
-					}
-				}
-			}
-		}
-	}
-
-/*
-	// Check intersect with other pieces nearby
-	public void intersect() {
-		for(Piece p : this.nearbyPieces) {
-			if(this.intersects(p.getBoundsInLocal())) {
-				if(adjacentPieces.containsKey(p)) {
-					double rotationMin = p.getRotation() - (Math.PI/8.0);
-					double rotationMax = p.getRotation() + (Math.PI/8.0);
-
-					if(this.getRotation() > rotationMin && this.getRotation() < rotationMax) {
-						boolean snap = false;
-						double deltaX = p.getCenter()[0] - this.center[0];
-						double deltaY = p.getCenter()[1] - this.center[1];
-						Double[] distances = this.adjacentPieces.get(p);
-
-						double deltaXMin = Math.abs(deltaX * (9/10.0));
-						double deltaXMax = Math.abs(deltaX * (11/10.0));
-						double deltaYMin = Math.abs(deltaY * (9/10.0));
-						double deltaYMax = Math.abs(deltaY * (11/10.0));
-
-						if(deltaXMin < Math.abs(distances[0]) && deltaXMax >  Math.abs(distances[0]) &&
-							deltaYMin <  Math.abs(distances[1]) && deltaYMax >  Math.abs(distances[1])) {
-//							System.out.println("SNAP BITCH");
-//							System.out.println(deltaXMin + " < " + Math.abs(distances[0]) +  " < " + deltaXMax);
-//							System.out.println(deltaYMin + " < " + Math.abs(distances[1]) + " < " + deltaYMax);
-//							snap = true;
-
-							if(!graph.depthFirstTraversal(graph, p).contains(this)) {
-								snapPiece(p);
+						for(Piece pi : connectedPieces) {
+							if(pi != this && pi != p) {
+								pi.movePiece(moveDx, moveDy);
 							}
 						}
-
-						if(snap) {
-
-						}
 					}
 				}
 			}
 		}
 	}
-*/
+
 	private void snapPiece(Piece p, Double dx, Double dy) {
 		graph.addEdge(this, p);
 		Double[] updateCorners = new Double[this.getCorners().length];
@@ -187,15 +149,32 @@ public class Piece extends Polygon {
 		setCorners(updateCorners);
 		updatePiece();
 	}
+
+	private void movePiece(Double dx, Double dy) {
+		Double[] updateCorners = new Double[this.getCorners().length];
+
+		for(int i = 0; i < this.getCorners().length; i++) {
+
+			if(i % 2 == 0) {
+				updateCorners[i] = this.getCorners()[i] + dx;
+			} else {
+				updateCorners[i] = this.getCorners()[i] + dy;
+			}
+		}
+
+		setCorners(updateCorners);
+		updatePiece();
+	}
+
 	// Method returning nearby pieces within some radius
 	public void computeNearbyPieces() {
 		ArrayList<Piece> nearbyPieces = new ArrayList<Piece>();
-		double radius = (2*(controller.BOARD_SIZE[0] + controller.BOARD_SIZE[1])) / (controller.ROWS + controller.COLUMNS);
+		double radius = (2*(controller.getBoardSize()[0] + controller.getBoardSize()[1])) / (controller.ROWS + controller.COLUMNS);
 
 		for(Piece p : controller.getBoardPieces()) {
 			Double[] p2Center = p.getCenter();
 			double d = Math.sqrt(Math.pow(center[0] - p2Center[0], 2) +
-								 Math.pow(center[1] - p2Center[1], 2));
+					Math.pow(center[1] - p2Center[1], 2));
 
 			if(d < radius) {
 //				Circle c = new Circle();
@@ -212,17 +191,6 @@ public class Piece extends Polygon {
 				}
 			}
 		}
-		System.out.print("Nearby pieces for " + this.getPieceID() + ": ");
-		for(Piece p : nearbyPieces) {
-			System.out.print(p.getPieceID()+", ");
-		}
-		System.out.print("\nAdjacent pieces for " + this.getPieceID() + ": ");
-		for(Piece p : adjacentPieces.keySet()) {
-			System.out.print(p.getPieceID()+", ");
-		}
-
-		System.out.println();
-
 		this.nearbyPieces = nearbyPieces;
 	}
 
@@ -259,38 +227,20 @@ public class Piece extends Polygon {
 	}
 
 	// set corner coordinates
-//	public void shufflePiece() {
-//		double distToCenterX =  controller.BOARD_SIZE[0]/2.0 - center[0];
-//		double distToCenterY = controller.BOARD_SIZE[1]/2.0 - center[1];
-//		double[] updateCorners = new double[corners.length];
-//		double seed1 = Math.random() * controller.BOARD_SIZE[0] - controller.BOARD_SIZE[0];
-//		double seed2 = Math.random() * controller.BOARD_SIZE[1] - controller.BOARD_SIZE[1];
-//		double seed3 = Math.random() * 2*Math.PI;
-//
-////		wait with random rotation too difficult ;)
-////		this.rotatePiece(seed3);
-//
-//		for(int i = 0; i < corners.length; i++) {
-//			double updateCornerX = corners[i] + distToCenterX + seed1;
-//			double updateCornerY = corners[i] + distToCenterY + seed2;
-//
-//			// Taking borders into consideration
-//			//if(updateCornerX < 0 || updateCornerY < 0 || updateCornerX > controller.BOARD_SIZE[0] || updateCornerY > controller.BOARD_SIZE[1]) {
-//			//	update = false;
-//			//} else {
-//			if(i % 2 == 0)
-//				updateCorners[i] = updateCornerX;
-//			else
-//				updateCorners[i] = updateCornerY;
-//			//}
-//		}
-//		for(int i = 0; i < corners.length; i++) {
-//			corners[i] = updateCorners[i];
-//		}
-//		updatePiece();
-//	}
+	public void shufflePiece() {
+		double seed1 = (Math.random() * controller.getBoardSize()[0]);
+		double seed2 = (Math.random() * controller.getBoardSize()[1]);
 
-	// Method for moving piece
+		movePieceAbsolute(seed1, seed2);
+
+		System.out.println("seeds: " + seed1 +", " + seed2);
+
+//		double seed3 = Math.random() * 2*Math.PI;
+//		wait with random rotation too difficult ;)
+//		this.rotatePiece(seed3);
+	}
+
+	// Method for moving piece relatively
 	public void movePiece(double deltaX, double deltaY) {
 		boolean update = true;
 		double c1 = deltaX - this.getCenter()[0];
@@ -314,27 +264,100 @@ public class Piece extends Polygon {
 		}
 	}
 
+	public void movePieceAbsolute(double xCoordinate, double yCoordinate) {
+		double diffX = xCoordinate - this.center[0];
+		double diffY = yCoordinate - this.center[1];
+		int[] direction = {0,0};
+
+		for (int i = 0; i < corners.length; i++) {
+			if (i % 2 == 0) {
+				corners[i] += diffX;
+				if(corners[i] < 0) {
+					direction[0] = 1;
+				} else if(corners[i] > controller.getBoardSize()[0]) {
+					direction[0] = -1;
+				} else {
+					direction[0] = 0;
+				}
+			} else {
+				corners[i] += diffY;
+				if(corners[i] < 0) {
+					direction[1] = 1;
+				} else if(corners[i] > controller.getBoardSize()[0]) {
+					direction[1] = -1;
+				} else {
+					direction[1] = 0;
+				}
+			}
+		}
+
+		updatePiece();
+	}
+
+	public void rotateAdjacentPieces(Double angle) {
+		for(Piece p : adjacentPieces.keySet()) {
+			Double[][] R = {
+					{Math.cos(angle), Math.sin(angle)},
+					{Math.sin(angle) * (-1.0), Math.cos(angle)}
+			};
+			Double[] rotationCenter = this.center;
+			Double[] oldCenter = {rotationCenter[0] + adjacentPieces.get(p)[0], rotationCenter[1] + adjacentPieces.get(p)[1]};
+			Double[] tempVector = new Double[]{oldCenter[0] - rotationCenter[0], oldCenter[1] - rotationCenter[1]};
+
+			Double[] newCenter = new Double[] {
+					(R[0][0] * tempVector[0] + R[0][1] * tempVector[1]),
+					(R[1][0] * tempVector[0] + R[1][1] * tempVector[1])
+			};
+
+			adjacentPieces.put(p, newCenter);
+		}
+	}
+
+	public void rotateNeighbours(Double angle) {
+		for(Piece p : graph.depthFirstTraversal(graph, this)) {
+			if(p != this) {
+				p.rotatePiece(angle);
+
+				Double[][] R = {
+						{Math.cos(angle), Math.sin(angle)},
+						{Math.sin(angle) * (-1.0), Math.cos(angle)}
+				};
+				Double[] rotationCenter = this.center;
+				Double[] oldCenter = {p.getCenter()[0], p.getCenter()[1]};
+				Double[] tempVector = new Double[]{oldCenter[0] - rotationCenter[0], oldCenter[1] - rotationCenter[1]};
+
+				Double[] newCenter = new Double[] {
+						(R[0][0] * tempVector[0] + R[0][1] * tempVector[1]) + rotationCenter[0],
+						(R[1][0] * tempVector[0] + R[1][1] * tempVector[1]) + rotationCenter[1]
+				};
+
+				p.movePieceAbsolute(newCenter[0], newCenter[1]);
+			}
+		}
+	}
+
 	// Method for rotating piece
 	public void rotatePiece(Double angle) {
 		setRotation(angle);
-		Integer n = corners.length / 2;		
-		
+		rotateAdjacentPieces(angle);
+		Integer n = corners.length / 2;
+
 		// Variable C contains n pairs of the centroid
 		Double[] centroid = new Double[2];
 		Double[][] C = new Double[2][n];
-		
+
 		// Variable for rotation matrix
 		Double[][] R = {
-					{Math.cos(angle), Math.sin(angle) * (-1.0)},
-					{Math.sin(angle), Math.cos(angle)}
-				};
-		
+				{Math.cos(angle), Math.sin(angle)},
+				{Math.sin(angle) * (-1.0), Math.cos(angle)}
+		};
+
 		// Variable contains old coordinates
 		Double[][] pOld = new Double[2][n];
-		
+
 		// Variable contains rotated coordinates
 		Double[][] pNew = new Double[2][n];
-		
+
 		// Represent the corners as a matrix
 		int pos = 0;
 		Double sumX = 0.0;
@@ -347,7 +370,7 @@ public class Piece extends Polygon {
 			sumY += corners[pos];
 			pos++;
 		}
-		
+
 		// Compute the centroid of the polygon
 		centroid[0] = (1/(double) n) * sumX;
 		centroid[1] = (1/(double) n) * sumY;
@@ -355,7 +378,7 @@ public class Piece extends Polygon {
 			C[0][col] = centroid[0];
 			C[1][col] = centroid[1];
 		}
-		
+
 		pNew = addition(dot(R, subtract(pOld,C,n)), C,n);
 		Double[] newCorners = convertFrom2D(pNew);
 		boolean update = true;
@@ -376,11 +399,9 @@ public class Piece extends Polygon {
 
 	public void setRotation(Double angle) {
 		this.rotation += angle;
-		if(this.rotation > 2*Math.PI) {
-			this.rotation = 0.0;
-		}
+		this.rotation %= 2*Math.PI;
 		if(this.rotation < 0) {
-			this.rotation = 2*Math.PI;
+			this.rotation += 2*Math.PI;
 		}
 	}
 
@@ -402,23 +423,23 @@ public class Piece extends Polygon {
 	// Method for matrix subtraction
 	private Double[][] subtract(Double[][] matrix1, Double[][] matrix2, int n) {
 		Double[][] sum = new Double[2][n];
-	
+
 		for (int r = 0; r < 2; r++) {
 			for (int c = 0; c < n; c++) {
 				sum[r][c] = matrix1[r][c] - matrix2[r][c];
 			}
 		}
-		
+
 		return sum;
 	}
-	
+
 	// Method for matrix multiplication
 	private Double[][] dot(Double[][] matrix1, Double[][] matrix2) {
 		int row = matrix1.length;
 		int column = matrix2[0].length;
-		
+
 		Double[][] result = new Double[row][column];
-		
+
 		for(int r = 0; r < row; r++) {
 			for(int c = 0; c < column; c++) {
 				result[r][c] = 0.0;
@@ -427,14 +448,14 @@ public class Piece extends Polygon {
 				}
 			}
 		}
-		
+
 		return result;
 	}
-	
+
 	// Method for matrix addition
 	private Double[][] addition(Double[][] matrix1, Double[][] matrix2, int n) {
 		Double[][] sum = new Double[2][n];
-	
+
 		for (int r = 0; r < 2; r++) {
 			for (int c = 0; c < n; c++) {
 				sum[r][c] = matrix1[r][c] + matrix2[r][c];
@@ -443,7 +464,7 @@ public class Piece extends Polygon {
 
 		return sum;
 	}
-	
+
 	// Method for printing matrices
 	private void print2dArray(Double[][] matrix) {
 		for(int r = 0; r < 2; r++) {

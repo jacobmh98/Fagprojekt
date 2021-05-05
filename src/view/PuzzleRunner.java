@@ -2,20 +2,26 @@ package view;
 
 import controller.Controller;
 import javafx.application.Application;
+import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.scene.Group;
+import javafx.scene.Node;
 import javafx.scene.Scene;
-import javafx.scene.layout.StackPane;
+import javafx.scene.control.*;
+import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
 import javafx.scene.shape.Line;
+import javafx.scene.text.Font;
 import javafx.stage.Stage;
 import model.CreatePuzzleBoard;
 import model.Piece;
 import model.VoronoiBoard;
-import org.delaunay.model.Triangle;
-import org.kynosarges.tektosyne.geometry.PointD;
-import org.kynosarges.tektosyne.geometry.VoronoiResults;
+//import org.delaunay.model.Triangle;
+//import org.kynosarges.tektosyne.geometry.PointD;
+//import org.kynosarges.tektosyne.geometry.VoronoiResults;
+
 
 import java.awt.geom.Point2D;
 import java.util.ArrayList;
@@ -31,45 +37,89 @@ public class PuzzleRunner extends Application {
 
 	@Override
 	public void start(Stage stage) throws Exception {
-		Group group = new Group();
+
 		// get instance of controller
 		Controller controller = Controller.getInstance();
-		//controller.setGroup(group);
 
-		// Setting example board size
-
-		// set example piece 1,2
-		Double[] corners1 = {
-				150.0, 150.0,
-				250.0, 250.0,
-				150.0, 350.0,
-		};
-		Integer pieceID1 = 0;
-		
-		Double[] corners2 = {
-				50.0, 50.0,
-				350.0, 50.0,
-				350.0, 250.0,
-				50.0, 250.0,
-				150.0, 150.0,
-		};
-		Integer pieceID2 = 1;
-		
-		// generate the piece
-		//controller.generatePiece(pieceID1, corners1);
-		
-		// draw the pieces
-		//controller.drawPieces();
-		
 		try {
-			Scene scene = new Scene(group, controller.BOARD_SIZE[0], controller.BOARD_SIZE[1]);
+			GridPane pane = new GridPane();
+			pane.setPadding(new Insets(10, 10, 30, 10));
+			pane.setVgap(5);
+			pane.setHgap(5);
+
+			Label lblLogin = new Label("Fill out how many pieces you want to solve and the preferred board size");
+			lblLogin.setFont(new Font(15.0));
+			TextField txtNumberOfPieces = new TextField();
+			txtNumberOfPieces.setPromptText("Number of pieces");
+			txtNumberOfPieces.setPrefColumnCount(5);
+			txtNumberOfPieces.setText("50");
+			TextField txtWidth = new TextField();
+			txtWidth.setPromptText("Puzzle width");
+			txtWidth.setPrefColumnCount(5);
+			txtWidth.setText("600");
+			TextField txtHeight = new TextField();
+			txtHeight.setPromptText("Puzzle height");
+			txtHeight.setPrefColumnCount(5);
+			txtHeight.setText("600");
+			Button btnLogin = new Button("Initialize puzzle");
+			HBox rbContainer = new HBox();
+			ToggleGroup toggleGroup = new ToggleGroup();
+			RadioButton rb1 = new RadioButton();
+			rb1.setText("Solved");
+			rb1.setToggleGroup(toggleGroup);
+			rb1.setSelected(true);
+			RadioButton rb2 = new RadioButton();
+			rb2.setText("Shuffled");
+			rb2.setToggleGroup(toggleGroup);
+			rbContainer.getChildren().addAll(rb1, rb2);
+
+			GridPane.setConstraints(lblLogin, 0, 0);
+			GridPane.setConstraints(txtNumberOfPieces, 0, 1);
+			GridPane.setConstraints(txtWidth, 0, 2);
+			GridPane.setConstraints(txtHeight, 0, 3);
+			GridPane.setConstraints(btnLogin, 0, 5);
+			GridPane.setConstraints(rbContainer, 0, 4);
+
+			pane.getChildren().addAll(lblLogin, txtNumberOfPieces, txtWidth, txtHeight, rbContainer, btnLogin);
+
+			Scene scene = new Scene(pane);
 			stage.setScene(scene);
+
+			scene.setRoot(pane);
+
+			stage.setTitle("Initialize Puzzle");
+			stage.show();
+
+			btnLogin.setOnAction(new EventHandler<ActionEvent>() {
+				@Override
+				public void handle(ActionEvent actionEvent) {
+					try {
+
+						int points = Integer.parseInt(txtNumberOfPieces.getText());
+						int width = Integer.parseInt(txtWidth.getText());
+						int height = Integer.parseInt(txtHeight.getText());
+
+						controller.setBoardSize(width, height);
+						testTriangulation(stage, points, width, height);
+
+						if(((RadioButton) toggleGroup.getSelectedToggle()).getText().equals("Shuffled")) {
+							shufflePieces(controller.getBoardPieces());
+
+						}
+					} catch(NumberFormatException e) {
+						System.out.println("error");
+						Label lblError = new Label("Insert valid arguments");
+						GridPane.setConstraints(lblError, 0, 6);
+						pane.getChildren().add(lblError);
+					} catch(Exception e) {
+
+					}
+				}
+			});
+
 			//testRowColGeneration(stage);
 			//testPuzzleWithPolygons(stage);
-			testTriangulation(stage);
 
-			stage.setTitle("Puzzle");
-			stage.show();
 		} catch(Exception e) {
 			e.printStackTrace();
 		}
@@ -129,12 +179,15 @@ public class PuzzleRunner extends Application {
 		stage.setScene((boardScene));
 	}
 
-	public void testTriangulation(Stage stage) throws Exception {
+	public void testTriangulation(Stage stage, int points, int width, int height) throws Exception {
 		StackPane root = new StackPane();
 		root.setPadding(new Insets(10,10,10,10));
+		Pane outerBoard = new Pane();
+		outerBoard.setMaxWidth(width);
+		outerBoard.setMaxHeight(height);
 		Group board = new Group();
-		int points = 15;
-		VoronoiBoard voronoi = new VoronoiBoard(points,800,800);
+		outerBoard.getChildren().add(board);
+		VoronoiBoard voronoi = new VoronoiBoard(points,width,height);
 		Piece[] pieces = voronoi.getPieces();
 		for(Piece p : pieces){
 			board.getChildren().add(p);
@@ -145,9 +198,16 @@ public class PuzzleRunner extends Application {
 		}
 		Controller.getInstance().setBoardPieces(pieceArray);
 		Controller.getInstance().setBoard(board);
-		root.getChildren().add(board);
-		Scene boardScene = new Scene(root, 820, 820);
+		outerBoard.setStyle("-fx-border-color: black");
+		root.getChildren().add(outerBoard);
+		Scene boardScene = new Scene(root, width+20, height + 20);
 		stage.setScene(boardScene);
 	}
 
+	// method shuffling the pieces on the board
+	public void shufflePieces(ArrayList<Piece> pieces) {
+		for(Piece p : pieces) {
+			p.shufflePiece();
+		}
+	}
 }

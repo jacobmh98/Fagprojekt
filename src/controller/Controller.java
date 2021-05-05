@@ -9,7 +9,7 @@ import model.Piece;
 public class Controller {
 	private static Controller controller = new Controller();;
 	private ArrayList<Piece> boardPieces = new ArrayList<Piece>();
-	public final int[] BOARD_SIZE = {500, 500};
+	private int[] BOARD_SIZE = new int[2];
 	public final int ROWS = 3;
 	public final int COLUMNS = 3;
 	private Group board;
@@ -19,6 +19,7 @@ public class Controller {
 	public Group getBoard() { return this.board; }
 	public Graph getGraph() { return this.graph; }
 	public static Controller getInstance() { return controller; }
+	public int[] getBoardSize(){ return this.BOARD_SIZE; }
 
 	public Controller() {
 		graph = new Graph();
@@ -31,4 +32,6 @@ public class Controller {
 	public void setBoard(Group board) {
 		this.board = board;
 	}
+
+	public void setBoardSize(int width, int height) { BOARD_SIZE[0] = width; BOARD_SIZE[1] = height; }
 }
