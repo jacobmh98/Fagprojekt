@@ -6,7 +6,6 @@ import javafx.scene.Cursor;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.paint.Color;
-import javafx.scene.shape.Circle;
 import javafx.scene.shape.Polygon;
 
 import java.util.ArrayList;
@@ -41,7 +40,7 @@ public class Piece extends Polygon {
 		// Methods inherited from JavafX Polygon class
 		this.getPoints().addAll(this.corners);
 		this.setStroke(Color.BLACK);
-		this.setFill(Color.LIGHTBLUE);
+		this.setFill(Color.WHITE);
 		this.setCursor(Cursor.HAND);
 
 		this.setOnMousePressed(new EventHandler<MouseEvent>() {
@@ -404,8 +403,6 @@ public class Piece extends Polygon {
 		if(this.rotation < 0) {
 			this.rotation += 2*Math.PI;
 		}
-//		int scale = (int) Math.pow(10, 2);
-//		System.out.println((double) Math.round(this.rotation * scale) / scale);
 	}
 
 	// Method for converting from 2d to 1d

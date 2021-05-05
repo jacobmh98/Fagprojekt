@@ -240,18 +240,8 @@ public class CreatePuzzleBoard {
             }
         }
 
-        // shuffling pieces on board
-//        shufflePieces();
-
         controller.setBoardPieces(boardPieces);
     }
-
-    // Shuffle board
-//    public void shufflePieces() {
-//        for(Piece p : boardPieces) {
-////            p.shufflePiece();
-//        }
-//    }
 
     // Method assigning neighbours to pieces
     public void setAdjacentPieces() {
@@ -325,11 +315,6 @@ public class CreatePuzzleBoard {
                     p.addAdjacentPiece(boardPieces.get(p.getPieceID()+rows));
                 }
             }
-//            System.out.print("Piece with ID: " + p.getPieceID() + " has adjacent pieces: ");
-//            for(Piece p2 : p.getAdjacentPieces().keySet()) {
-//                System.out.print(p2.getPieceID() + ", ");
-//            }
-//            System.out.println();
         }
 
     }
