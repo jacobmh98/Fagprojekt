@@ -46,17 +46,16 @@ public class Piece extends Polygon {
 		this.setOnMousePressed(new EventHandler<MouseEvent>() {
 			@Override
 			public void handle(MouseEvent mouseEvent) {
-
-				mouseEvent.setDragDetect(true);
 				Piece.this.setMouseTransparent(true);
+				mouseEvent.setDragDetect(true);
 			}
 		});
 
 		this.setOnMouseDragged(new EventHandler<MouseEvent>() {
 			@Override
 			public void handle(MouseEvent mouseEvent) {
-				Piece.this.setMouseTransparent(false);
-				mouseEvent.setDragDetect(true);
+
+				mouseEvent.setDragDetect(false);
 
 				double deltaX = mouseEvent.getX();
 				double deltaY = mouseEvent.getY();
@@ -86,6 +85,7 @@ public class Piece extends Polygon {
 		this.setOnMouseReleased(new EventHandler<MouseEvent>() {
 			@Override
 			public void handle(MouseEvent mouseEvent) {
+				Piece.this.setMouseTransparent(false);
 				computeNearbyPieces();
 				checkForConnect();
 			}
