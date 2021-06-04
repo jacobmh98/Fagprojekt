@@ -42,22 +42,23 @@ public class CreatePuzzleBoard {
 
     public ArrayList<Piece> getBoardPieces() {return boardPieces;}
 
-    public CreatePuzzleBoard(int rows, int columns, int height, int width){
-        this.rows = rows;
-        this.columns = columns;
-        this.height = height;
-        this.width = width;
+    public CreatePuzzleBoard(){
+        this.rows = controller.ROWS;
+        this.columns = controller.COLUMNS;
+        this.height = controller.getBoardSize()[1];
+        this.width = controller.getBoardSize()[0];
         this.pieceWidth =(double)width/columns;
         this.pieceHeight=(double)height/rows;
         this.maxWidth = pieceWidth *0.3;
         this.maxHeight = pieceHeight*0.3;
     }
 
-    public void createOneRowPuzzle(){
+    public void createPuzzle(){
         createColumn(columns);
         createRows(rows);
         findIntersectPoints();
         defineBoardPieceCorners();
+        setAdjacentPieces();
     }
 
     private void createColumn(int totalColumns) {

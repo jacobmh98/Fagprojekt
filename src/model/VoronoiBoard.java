@@ -11,21 +11,24 @@ public class VoronoiBoard {
     private VoronoiResults v;
     private Piece[] pieces;
     private final RectD clip;
+    private Controller controller = Controller.getInstance();
 
     public VoronoiBoard(int points) {
         this.points = points;
-        this.width = Controller.getInstance().BOARD_SIZE[0];
-        this.height = Controller.getInstance().BOARD_SIZE[1];
+        this.width = controller.getBoardSize()[0];
+        this.height = controller.getBoardSize()[1];
         randomPoints = createRandomPoints();
         this.clip = new RectD(0,0, width, height);
         v = Voronoi.findAll(randomPoints, clip); //Use of the library tektosyne to find the voronoi regions
         pieces = new Piece[points];
         createPiecesArray();
+        /*
         while(!ComparePieces.compareAllPieces(pieces)){
             randomPoints = createRandomPoints();
             v = Voronoi.findAll(randomPoints, clip);
             createPiecesArray();
         }
+        */
         findNeighbours();
     }
 

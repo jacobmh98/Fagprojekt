@@ -5,6 +5,12 @@ import java.util.ArrayList;
 
 public class TestData {
 
+    public static Controller setControllerValues(){
+        Controller controller = Controller.getInstance();
+        controller.setBoardSize(1000,1000);
+        return controller;
+    }
+
     public static ArrayList<Double[]> getComparePieces03(){
         Double[] piece1 = {0.0,0.0,1.0,0.0,1.0,1.0,0.6,1.0,0.5,1.4,0.4,1.0,0.0,1.0};
         Double[] piece2 = {1.5622530923125946,2.192909539629902,2.4230311324075267,2.7018900556522025, 1.914050616385226, 3.5626680957471346, 1.5697394003472531, 3.3590758893382144, 1.2800693899288398, 3.652489053773957, 1.3975837923282668, 3.257279786133754, 1.053272576290294, 3.053687579724834};
