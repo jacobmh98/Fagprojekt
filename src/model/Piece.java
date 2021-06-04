@@ -9,12 +9,14 @@ import javafx.scene.paint.Color;
 import javafx.scene.shape.Polygon;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Set;
 
 public class Piece extends Polygon {
 	private Integer pieceID;
 	private Double[] corners;
+	private ArrayList<SideLength> sideLengths = new ArrayList<>();
 	private Double[] center = new Double[2];
 	private Double rotation = 0.0;
 	private double prevY = 0.0;
@@ -93,10 +95,36 @@ public class Piece extends Polygon {
 
 		updatePiece();
 	}
+
+
 	public void updatePiece() {
 		this.getPoints().removeAll();
 		this.getPoints().setAll(this.corners);
 		this.computeCenter();
+		updateSideLengths();
+		System.out.println("\n");
+	}
+
+	public void updateSideLengths() {
+		sideLengths = new ArrayList<>();
+		for (int i = 0; i < corners.length; i += 2) {
+			if (i < corners.length - 3) {
+				Double dx = (corners[i + 2] - corners[i]);
+				Double dy = (corners[i + 3] - corners[i + 1]);
+				Double sideLength = Math.sqrt(Math.pow(dx, 2) + Math.pow(dy, 2));
+				sideLengths.add(new SideLength(pieceID, sideLength, dx, dy));
+				continue;
+			} else {
+				Double dx = (corners[0] - corners[i]);
+				Double dy = (corners[1] - corners[i + 1]);
+				Double sideLength = Math.sqrt(Math.pow(dx, 2) + Math.pow(dy, 2));
+				sideLengths.add(new SideLength(pieceID, sideLength, dx, dy));
+				break;
+			}
+		}
+		for(SideLength l : sideLengths) {
+			System.out.print("(" + l.getDx() + ", " + l.getDy() + "), ");
+		}
 	}
 
 	public void checkForConnect() {
@@ -392,8 +420,7 @@ public class Piece extends Polygon {
 
 		if(update) {
 			corners = newCorners;
-			Piece.this.getPoints().removeAll();
-			Piece.this.getPoints().setAll(corners);
+			updatePiece();
 		}
 	}
 
@@ -480,5 +507,41 @@ public class Piece extends Polygon {
 		double deltaY = p.getCenter()[1] - this.center[1];
 		Double[] distances = {deltaX, deltaY};
 		adjacentPieces.put(p, distances);
+	}
+
+	public ArrayList<SideLength> getSideLengths() {
+		return this.sideLengths;
+	}
+}
+
+class SideLength implements Comparable {
+	private Integer id;
+	private Double length;
+	private Double dx;
+	private Double dy;
+
+	public SideLength(Integer id, Double length, Double dx, Double dy) {
+		this.id = id;
+		this.length = length;
+		this.dx = dx;
+		this.dy = dy;
+	}
+
+	public Integer getPieceID() {
+		return this.id;
+	}
+	public Double getValue() {
+		return this.length;
+	}
+	public Double getDx() {
+		return this.dx;
+	}
+	public Double getDy() {
+		return this.dy;
+	}
+
+	@Override
+	public int compareTo(Object l) {
+		return (int)(this.length - ((SideLength) l).getValue());
 	}
 }

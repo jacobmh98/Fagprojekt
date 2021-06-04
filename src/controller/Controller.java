@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import javafx.scene.Group;
 import model.Graph;
 import model.Piece;
+import model.SolvePuzzle;
 
 public class Controller {
 	private static Controller controller = new Controller();;
@@ -14,6 +15,7 @@ public class Controller {
 	public final int COLUMNS = 3;
 	private Group board;
 	private Graph graph;
+	private SolvePuzzle solvePuzzle;
 
 	public ArrayList<Piece> getBoardPieces() { return this.boardPieces; }
 	public Group getBoard() { return this.board; }
@@ -27,7 +29,15 @@ public class Controller {
 
 	public void setBoardPieces(ArrayList<Piece> boardPieces) {
 		this.boardPieces = boardPieces;
+		setSolvePuzzle();
 	}
+
+	public void setSolvePuzzle() {
+		System.out.println("setting solve puzzle");
+		solvePuzzle = new SolvePuzzle(Controller.getInstance().getBoardPieces());
+	}
+
+	public SolvePuzzle getSolvePuzzle() {return this.solvePuzzle; };
 
 	public void setBoard(Group board) {
 		this.board = board;
