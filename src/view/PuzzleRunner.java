@@ -216,7 +216,8 @@ public class PuzzleRunner extends Application {
 		solveBtn.setOnAction(new EventHandler<ActionEvent>() {
 			@Override
 			public void handle(ActionEvent actionEvent) {
-				Controller.getInstance().getSolvePuzzle();
+				SolvePuzzle solvePuzzle = Controller.getInstance().getSolvePuzzle();
+				solvePuzzle.runner();
 			}
 		});
 	}

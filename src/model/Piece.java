@@ -102,29 +102,51 @@ public class Piece extends Polygon {
 		this.getPoints().setAll(this.corners);
 		this.computeCenter();
 		updateSideLengths();
-		System.out.println("\n");
 	}
 
 	public void updateSideLengths() {
-		sideLengths = new ArrayList<>();
-		for (int i = 0; i < corners.length; i += 2) {
-			if (i < corners.length - 3) {
-				Double dx = (corners[i + 2] - corners[i]);
-				Double dy = (corners[i + 3] - corners[i + 1]);
-				Double sideLength = Math.sqrt(Math.pow(dx, 2) + Math.pow(dy, 2));
-				sideLengths.add(new SideLength(pieceID, sideLength, dx, dy));
-				continue;
-			} else {
-				Double dx = (corners[0] - corners[i]);
-				Double dy = (corners[1] - corners[i + 1]);
-				Double sideLength = Math.sqrt(Math.pow(dx, 2) + Math.pow(dy, 2));
-				sideLengths.add(new SideLength(pieceID, sideLength, dx, dy));
-				break;
+		if(sideLengths.isEmpty()) {
+			for (int i = 0; i < corners.length; i += 2) {
+				if (i < corners.length - 3) {
+					Double dx = (corners[i + 2] - corners[i]);
+					Double dy = (corners[i + 3] - corners[i + 1]);
+					Double sideLength = Math.sqrt(Math.pow(dx, 2) + Math.pow(dy, 2));
+					sideLengths.add(new SideLength(pieceID, i / 2, sideLength, dx, dy));
+					continue;
+				} else {
+					Double dx = (corners[0] - corners[i]);
+					Double dy = (corners[1] - corners[i + 1]);
+					Double sideLength = Math.sqrt(Math.pow(dx, 2) + Math.pow(dy, 2));
+					sideLengths.add(new SideLength(pieceID, i / 2, sideLength, dx, dy));
+					break;
+				}
+			}
+		} else {
+			for (int i = 0; i < corners.length; i += 2) {
+				if (i < corners.length - 3) {
+					Double dx = (corners[i + 2] - corners[i]);
+					Double dy = (corners[i + 3] - corners[i + 1]);
+					Double sideLength = Math.sqrt(Math.pow(dx, 2) + Math.pow(dy, 2));
+					sideLengths.get(i/2).update(sideLength, dx, dy);
+					continue;
+				} else {
+					Double dx = (corners[0] - corners[i]);
+					Double dy = (corners[1] - corners[i + 1]);
+					Double sideLength = Math.sqrt(Math.pow(dx, 2) + Math.pow(dy, 2));
+					sideLengths.get(i/2).update(sideLength, dx, dy);
+					break;
+				}
 			}
 		}
-		for(SideLength l : sideLengths) {
-			System.out.print("(" + l.getDx() + ", " + l.getDy() + "), ");
-		}
+//		Controller.getInstance().getSolvePuzzle().updateSolvePuzzle();
+//		System.out.println("After Update");
+//		for (SideLength l : sideLengths) {
+//			System.out.println(l.getPieceId() + ", " +
+//					l.getLineId() + ", " +
+//					l.getValue() + ", " +
+//					l.getDx() + ", " +
+//					l.getDy());
+//		}
 	}
 
 	public void checkForConnect() {
@@ -515,20 +537,25 @@ public class Piece extends Polygon {
 }
 
 class SideLength implements Comparable {
-	private Integer id;
+	private Integer pieceId;
+	private Integer lineId;
 	private Double length;
 	private Double dx;
 	private Double dy;
 
-	public SideLength(Integer id, Double length, Double dx, Double dy) {
-		this.id = id;
+	public SideLength(Integer pieceId, Integer lineId, Double length, Double dx, Double dy) {
+		this.pieceId = pieceId;
+		this.lineId = lineId;
 		this.length = length;
 		this.dx = dx;
 		this.dy = dy;
 	}
 
-	public Integer getPieceID() {
-		return this.id;
+	public Integer getPieceId() {
+		return this.pieceId;
+	}
+	public Integer getLineId() {
+		return this.lineId;
 	}
 	public Double getValue() {
 		return this.length;
@@ -543,5 +570,11 @@ class SideLength implements Comparable {
 	@Override
 	public int compareTo(Object l) {
 		return (int)(this.length - ((SideLength) l).getValue());
+	}
+
+	public void update(Double sideLength, Double dx, Double dy) {
+		this.length = sideLength;
+		this.dx = dx;
+		this.dy = dy;
 	}
 }
