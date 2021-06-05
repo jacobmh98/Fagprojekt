@@ -8,6 +8,8 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Polygon;
 
+import java.math.RoundingMode;
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -108,14 +110,14 @@ public class Piece extends Polygon {
 		if(sideLengths.isEmpty()) {
 			for (int i = 0; i < corners.length; i += 2) {
 				if (i < corners.length - 3) {
-					Double dx = (corners[i + 2] - corners[i]);
-					Double dy = (corners[i + 3] - corners[i + 1]);
+					Double dx = (corners[i] - corners[i + 2]);
+					Double dy = (corners[i + 1] - corners[i + 3]);
 					Double sideLength = Math.sqrt(Math.pow(dx, 2) + Math.pow(dy, 2));
 					sideLengths.add(new SideLength(pieceID, i / 2, sideLength, dx, dy));
 					continue;
 				} else {
-					Double dx = (corners[0] - corners[i]);
-					Double dy = (corners[1] - corners[i + 1]);
+					Double dx = (corners[i] - corners[0]);
+					Double dy = (corners[i + 1] - corners[1]);
 					Double sideLength = Math.sqrt(Math.pow(dx, 2) + Math.pow(dy, 2));
 					sideLengths.add(new SideLength(pieceID, i / 2, sideLength, dx, dy));
 					break;
@@ -124,21 +126,20 @@ public class Piece extends Polygon {
 		} else {
 			for (int i = 0; i < corners.length; i += 2) {
 				if (i < corners.length - 3) {
-					Double dx = (corners[i + 2] - corners[i]);
-					Double dy = (corners[i + 3] - corners[i + 1]);
+					Double dx = (corners[i] - corners[i + 2]);
+					Double dy = (corners[i + 1] - corners[i + 3]);
 					Double sideLength = Math.sqrt(Math.pow(dx, 2) + Math.pow(dy, 2));
 					sideLengths.get(i/2).update(sideLength, dx, dy);
 					continue;
 				} else {
-					Double dx = (corners[0] - corners[i]);
-					Double dy = (corners[1] - corners[i + 1]);
+					Double dx = (corners[i] - corners[0]);
+					Double dy = (corners[i + 1] - corners[1]);
 					Double sideLength = Math.sqrt(Math.pow(dx, 2) + Math.pow(dy, 2));
 					sideLengths.get(i/2).update(sideLength, dx, dy);
 					break;
 				}
 			}
 		}
-//		Controller.getInstance().getSolvePuzzle().updateSolvePuzzle();
 //		System.out.println("After Update");
 //		for (SideLength l : sideLengths) {
 //			System.out.println(l.getPieceId() + ", " +

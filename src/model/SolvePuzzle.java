@@ -1,5 +1,9 @@
 package model;
 
+import controller.Controller;
+
+import java.math.RoundingMode;
+import java.text.DecimalFormat;
 import java.util.*;
 
 public class SolvePuzzle {
@@ -20,20 +24,25 @@ public class SolvePuzzle {
     }
 
     public void updateSolvePuzzle() {
-        Collections.sort(sideLengthsSorted);
+        Collections.sort(this.sideLengthsSorted);
     }
 
     public void runner() {
+        Controller.getInstance().getSolvePuzzle().updateSolvePuzzle();
+        for(SideLength l : sideLengthsSorted) {
+            System.out.println(l.getPieceId()+", "+
+                    l.getLineId()+", "+
+                    l.getValue()+", "+
+                    l.getDx()+", "+
+                    l.getDy());
+        }
+        System.out.println();
+
         for(int i = 0; i < sideLengthsSorted.size() - 1; i++) {
-            System.out.println(sideLengthsSorted.get(i).getPieceId()+", "+
-                                sideLengthsSorted.get(i).getLineId()+", "+
-                                sideLengthsSorted.get(i).getValue()+", "+
-                                sideLengthsSorted.get(i).getDx()+", "+
-                                sideLengthsSorted.get(i).getDy());
 
             if(sideLengthsSorted.get(i).getValue().equals(sideLengthsSorted.get(i+1).getValue())) {
                 double angle = findRotationAngle(sideLengthsSorted.get(i), sideLengthsSorted.get(i+1));
-                System.out.println(angle);
+//                System.out.println(angle);
             }
         }
     }

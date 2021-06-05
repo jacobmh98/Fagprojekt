@@ -183,11 +183,10 @@ public class PuzzleRunner extends Application {
 
 	public void testTriangulation(Stage stage, int points, int width, int height) throws Exception {
 		HBox root = new HBox(8);
+
 		StackPane pane = new StackPane();
-		pane.setPadding(new Insets(10,10,10,20));
+		pane.setPadding(new Insets(0,10,10,20));
 		Pane outerBoard = new Pane();
-		outerBoard.setPrefWidth(width);
-		outerBoard.setPrefHeight(height);
 		outerBoard.setMaxWidth(width);
 		outerBoard.setMaxHeight(height);
 		outerBoard.setMinWidth(width);
@@ -206,11 +205,16 @@ public class PuzzleRunner extends Application {
 		Controller.getInstance().setBoardPieces(pieceArray);
 		Controller.getInstance().setBoard(board);
 		outerBoard.setStyle("-fx-border-color: black");
-		Button solveBtn = new Button("Solve");
-		solveBtn.setPadding(new Insets(5,10,5,10));
+		Label solveLbl = new Label("Solve the puzzle");
+		solveLbl.getStyleClass().add("headerlbl");
+		Button solveBtn = new Button("Solve Puzzle");
+		root.setPadding(new Insets(10,10,10,10));
 		pane.getChildren().add(outerBoard);
-		root.getChildren().addAll(pane, solveBtn);
-		Scene boardScene = new Scene(root, width+150, height + 20);
+		VBox rightSide = new VBox(8);
+		rightSide.getChildren().addAll(solveLbl, solveBtn);
+		root.getChildren().addAll(pane, rightSide);
+		Scene boardScene = new Scene(root, width+300, height + 20);
+		boardScene.getStylesheets().add(PuzzleRunner.class.getResource("styles.css").toExternalForm());
 		stage.setScene(boardScene);
 
 		solveBtn.setOnAction(new EventHandler<ActionEvent>() {
