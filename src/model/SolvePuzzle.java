@@ -21,7 +21,7 @@ public class SolvePuzzle {
             }
         }
 
-        updateSolvePuzzle();
+        sortSideLength();
 
     }
 
@@ -71,48 +71,56 @@ public class SolvePuzzle {
         }
     }
 
-    public void updateSolvePuzzle() {
-        Collections.sort(this.sideLengthsSorted);
-    }
-
     public void runner() {
-        Controller.getInstance().getSolvePuzzle().updateSolvePuzzle();
+        sortSideLength();
         for(SideLength l : sideLengthsSorted) {
             System.out.println(l.getPieceId()+", "+
                     l.getLineId()+", "+
                     l.getValue()+", ");
-//                    l.getDx()+", "+
-//                    l.getDy());
         }
         System.out.println();
 
         for(int i = 0; i < sideLengthsSorted.size() - 1; i++) {
             double epsilon = 0.001;
-            if(sideLengthsSorted.get(i).getValue()+epsilon >= sideLengthsSorted.get(i+1).getValue() &&
-                sideLengthsSorted.get(i).getValue()-epsilon <= sideLengthsSorted.get(i+1).getValue() &&
-                sideLengthsSorted.get(i).getPieceId() != sideLengthsSorted.get(i+1).getPieceId()) {
-                double angle = findRotationAngle(sideLengthsSorted.get(i), sideLengthsSorted.get(i+1));
+            SideLength currentSideLength = sideLengthsSorted.get(i);
+            SideLength nextSideLength = sideLengthsSorted.get(i+1);
 
-                if(Controller.getInstance().getBoardPieces().get(sideLengthsSorted.get(i+1).getPieceId()).checkForConnect()) {
-                    System.out.println("removing sidelength " + sideLengthsSorted.get(i).getValue());
+            Piece currentPiece = Controller.getInstance().getBoardPieces().get(currentSideLength.getPieceId());
+            Piece nextPiece = Controller.getInstance().getBoardPieces().get(nextSideLength.getPieceId());
+
+            if(currentSideLength.getValue()+epsilon >= nextSideLength.getValue() &&
+               currentSideLength.getValue()-epsilon <= nextSideLength.getValue() &&
+               currentSideLength.getPieceId() != nextSideLength.getPieceId()) {
+                double angle = findRotationAngle(currentSideLength, nextSideLength);
+
+                if(currentPiece.checkForConnect()) {
                     Graph graph = Controller.getInstance().getGraph();
-//                    graph.depthFirstTraversal(graph, Controller.getInstance().getBoardPieces().get(sideLengthsSorted.get(i).getPieceId()));
 
-                    Set<Piece> connectedPieces = graph.depthFirstTraversal(graph, Controller.getInstance().getBoardPieces().get(sideLengthsSorted.get(i).getPieceId()));
-
-                    for(Piece p : connectedPieces) {
-                        System.out.println("Connected to: " + p.getPieceID());
+                    Set<Piece> connectedPiecesGraph = graph.depthFirstTraversal(graph, currentPiece);
+                    ArrayList<Integer> connectedPieces = new ArrayList<Integer>();
+                    for(Piece p : connectedPiecesGraph) {
+                        connectedPieces.add(p.getPieceID());
+                        System.out.print(p.getPieceID()+", ");
                     }
 
-                    sideLengthsSorted.remove(sideLengthsSorted.get(i));
-                    sideLengthsSorted.remove(sideLengthsSorted.get(i));
+                    for(int j = 0; j < sideLengthsSorted.size() - 1; j++) {
+                        if(sideLengthsSorted.get(j).getValue() + epsilon >= sideLengthsSorted.get(j+1).getValue() &&
+                                sideLengthsSorted.get(j).getValue() - epsilon <= sideLengthsSorted.get(j+1).getValue()) {
+
+                            if(connectedPieces.contains(sideLengthsSorted.get(j).getPieceId()) &&
+                                    connectedPieces.contains(sideLengthsSorted.get(j+1).getPieceId())) {
+
+                                System.out.println("remove sidelength " + sideLengthsSorted.get(j).getValue());
+                                sideLengthsSorted.remove(j);
+                                sideLengthsSorted.remove(j);
+                            }
+                        }
+                    }
 
                     break;
-                } else {
-
                 }
 
-                System.out.println(angle);
+                System.out.println("angle: " + angle);
             }
         }
     }
@@ -148,6 +156,7 @@ public class SolvePuzzle {
         angle = Math.atan2(det, dotProduct);
         Controller.getInstance().getBoardPieces().get(s2.getPieceId()).rotatePiece(angle);
         Controller.getInstance().getBoardPieces().get(s2.getPieceId()).rotateNeighbours(angle);
+
         s1Corners = s1.getCorners();
         s2Corners = s2.getCorners();
 
@@ -164,20 +173,6 @@ public class SolvePuzzle {
 //        System.out.println("dy: " + dy);
         Double[] s2Center = Controller.getInstance().getBoardPieces().get(s2.getPieceId()).getCenter();
         Controller.getInstance().getBoardPieces().get(s2.getPieceId()).movePiece(dx+s2Center[0],dy+s2Center[1]);
-
-//        m1 = s1.getDy()/s1.getDx();
-//        m2 = s2.getDy()/s1.getDx();
-//        if(m1 == m1 && m2 == m2){
-//            angle = Math.atan(Math.abs((m2-m1)/(1+m1*m2)));
-//        } else if (m1 == m1){
-//            angle = (Math.PI/2)-Math.atan(m2);
-//        } else if (m2 == m2){
-//            angle = (Math.PI/2)-Math.atan(m1);
-//        } else {
-//            angle = 0;
-//        }
-//        System.out.println("dx: (" + s1.getDx()+", "+s2.getDx() + ")");
-//        System.out.println("dy: (" + s1.getDy()+", "+s2.getDy() + ")");
         return angle;
     }
 }
