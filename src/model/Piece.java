@@ -8,6 +8,7 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Polygon;
 
+import java.awt.*;
 import java.math.RoundingMode;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
@@ -112,30 +113,38 @@ public class Piece extends Polygon {
 				if (i < corners.length - 3) {
 					Double dx = (corners[i] - corners[i + 2]);
 					Double dy = (corners[i + 1] - corners[i + 3]);
+					Double[] corner1 = {corners[i], corners[i + 1]};
+					Double[] corner2 = {corners[i + 2], corners[i + 3]};
 					Double sideLength = Math.sqrt(Math.pow(dx, 2) + Math.pow(dy, 2));
-					sideLengths.add(new SideLength(pieceID, i / 2, sideLength, dx, dy));
+					sideLengths.add(new SideLength(pieceID, i / 2, sideLength, corner1, corner2));
 					continue;
 				} else {
 					Double dx = (corners[i] - corners[0]);
 					Double dy = (corners[i + 1] - corners[1]);
+					Double[] corner1 = {corners[i], corners[i + 1]};
+					Double[] corner2 = {corners[0], corners[1]};
 					Double sideLength = Math.sqrt(Math.pow(dx, 2) + Math.pow(dy, 2));
-					sideLengths.add(new SideLength(pieceID, i / 2, sideLength, dx, dy));
+					sideLengths.add(new SideLength(pieceID, i / 2, sideLength, corner1, corner2));
 					break;
 				}
 			}
 		} else {
 			for (int i = 0; i < corners.length; i += 2) {
 				if (i < corners.length - 3) {
+					Double[] corner1 = {corners[i], corners[i + 1]};
+					Double[] corner2 = {corners[i + 2], corners[i + 3]};
 					Double dx = (corners[i] - corners[i + 2]);
 					Double dy = (corners[i + 1] - corners[i + 3]);
 					Double sideLength = Math.sqrt(Math.pow(dx, 2) + Math.pow(dy, 2));
-					sideLengths.get(i/2).update(sideLength, dx, dy);
+					sideLengths.get(i/2).update(sideLength, corner1, corner2);
 					continue;
 				} else {
+					Double[] corner1 = {corners[i], corners[i + 1]};
+					Double[] corner2 = {corners[0], corners[1]};
 					Double dx = (corners[i] - corners[0]);
 					Double dy = (corners[i + 1] - corners[1]);
 					Double sideLength = Math.sqrt(Math.pow(dx, 2) + Math.pow(dy, 2));
-					sideLengths.get(i/2).update(sideLength, dx, dy);
+					sideLengths.get(i/2).update(sideLength, corner1, corner2);
 					break;
 				}
 			}
@@ -541,15 +550,15 @@ class SideLength implements Comparable {
 	private Integer pieceId;
 	private Integer lineId;
 	private Double length;
-	private Double dx;
-	private Double dy;
+	private Double[] corner1;
+	private Double[] corner2;
 
-	public SideLength(Integer pieceId, Integer lineId, Double length, Double dx, Double dy) {
+	public SideLength(Integer pieceId, Integer lineId, Double length, Double[] corner1, Double[] corner2) {
 		this.pieceId = pieceId;
 		this.lineId = lineId;
 		this.length = length;
-		this.dx = dx;
-		this.dy = dy;
+		this.corner1 = corner1;
+		this.corner2 = corner2;
 	}
 
 	public Integer getPieceId() {
@@ -561,11 +570,11 @@ class SideLength implements Comparable {
 	public Double getValue() {
 		return this.length;
 	}
-	public Double getDx() {
-		return this.dx;
-	}
-	public Double getDy() {
-		return this.dy;
+
+	public Double[][] getCorners() {
+		System.out.println("Corner 1: ( + " + corner1[0] + ", " + corner1[1] + " )");
+		System.out.println("Corner 2: ( + " + corner2[0] + ", " + corner2[1] + " )");
+		return new Double[][] {new Double[]{this.corner1[0], this.corner1[1]}, new Double[]{this.corner2[0], this.corner2[1]}};
 	}
 
 	@Override
@@ -573,9 +582,9 @@ class SideLength implements Comparable {
 		return (int)(this.length - ((SideLength) l).getValue());
 	}
 
-	public void update(Double sideLength, Double dx, Double dy) {
+	public void update(Double sideLength, Double[] corner1, Double[] corner2) {
 		this.length = sideLength;
-		this.dx = dx;
-		this.dy = dy;
+		this.corner1 = corner1;
+		this.corner2 = corner2;
 	}
 }
