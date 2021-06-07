@@ -33,7 +33,6 @@ public class Controller {
 	}
 
 	public void setSolvePuzzle() {
-		System.out.println("setting solve puzzle");
 		solvePuzzle = new SolvePuzzle(Controller.getInstance().getBoardPieces());
 	}
 

@@ -91,7 +91,6 @@ public class Piece extends Polygon {
 			@Override
 			public void handle(MouseEvent mouseEvent) {
 				Piece.this.setMouseTransparent(false);
-				computeNearbyPieces();
 				checkForConnect();
 			}
 		});
@@ -159,7 +158,8 @@ public class Piece extends Polygon {
 //		}
 	}
 
-	public void checkForConnect() {
+	public boolean checkForConnect() {
+		computeNearbyPieces();
 		for(Piece p : nearbyPieces) {
 			Double[] temp = adjacentPieces.get(p);
 
@@ -187,10 +187,12 @@ public class Piece extends Polygon {
 								pi.movePiece(moveDx, moveDy);
 							}
 						}
+						return true;
 					}
 				}
 			}
 		}
+		return false;
 	}
 
 	private void snapPiece(Piece p, Double dx, Double dy) {
@@ -210,7 +212,7 @@ public class Piece extends Polygon {
 		updatePiece();
 	}
 
-	public void movePieceRelative(Double dx, Double dy) {
+	public void movePiece(Double dx, Double dy) {
 		Double[] updateCorners = new Double[this.getCorners().length];
 
 		for(int i = 0; i < this.getCorners().length; i++) {
@@ -572,8 +574,8 @@ class SideLength implements Comparable {
 	}
 
 	public Double[][] getCorners() {
-		System.out.println("Corner 1: ( + " + corner1[0] + ", " + corner1[1] + " )");
-		System.out.println("Corner 2: ( + " + corner2[0] + ", " + corner2[1] + " )");
+//		System.out.println("Corner 1: ( + " + corner1[0] + ", " + corner1[1] + " )");
+//		System.out.println("Corner 2: ( + " + corner2[0] + ", " + corner2[1] + " )");
 		return new Double[][] {new Double[]{this.corner1[0], this.corner1[1]}, new Double[]{this.corner2[0], this.corner2[1]}};
 	}
 
