@@ -210,7 +210,7 @@ public class Piece extends Polygon {
 		updatePiece();
 	}
 
-	private void movePiece(Double dx, Double dy) {
+	public void movePieceRelative(Double dx, Double dy) {
 		Double[] updateCorners = new Double[this.getCorners().length];
 
 		for(int i = 0; i < this.getCorners().length; i++) {

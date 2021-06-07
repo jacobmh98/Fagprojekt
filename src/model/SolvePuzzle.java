@@ -23,6 +23,11 @@ public class SolvePuzzle {
 
     }
 
+    public void sortSideLength(){
+        ArrayList<SideLength> tempArray = sideLengthsSorted;
+        
+    }
+
     public void updateSolvePuzzle() {
         Collections.sort(this.sideLengthsSorted);
     }
@@ -39,7 +44,9 @@ public class SolvePuzzle {
         System.out.println();
 
         for(int i = 0; i < sideLengthsSorted.size() - 1; i++) {
-            if(Math.round(sideLengthsSorted.get(i).getValue()) == Math.round(sideLengthsSorted.get(i+1).getValue()) &&
+            double epsilon = 0.001;
+            if(sideLengthsSorted.get(i).getValue()+epsilon >= sideLengthsSorted.get(i+1).getValue() &&
+                    sideLengthsSorted.get(i).getValue()-epsilon <= sideLengthsSorted.get(i+1).getValue() &&
                sideLengthsSorted.get(i).getPieceId() != sideLengthsSorted.get(i+1).getPieceId()) {
                 double angle = findRotationAngle(sideLengthsSorted.get(i), sideLengthsSorted.get(i+1));
                 System.out.println(angle);
@@ -59,18 +66,41 @@ public class SolvePuzzle {
         System.out.println("dx: " + dx);
         System.out.println("dy: " + dy);
 
-        double[] tempVector1 = {s1Corners[1][0], s1Corners[1][1]};
-        double[] tempVector2 = {s2Corners[1][0] + dx, s2Corners[1][1] + dy};
+        double[] tempVector1 = {s1Corners[0][0]-s1Corners[1][0], s1Corners[0][1]-s1Corners[1][1]};
+        double[] tempVector2 = {s2Corners[0][0]-s2Corners[1][0], s2Corners[0][1]-s2Corners[1][1]};
 
         double dotProduct = (tempVector1[0] * tempVector2[0]) + (tempVector1[1] * tempVector2[1]);
-        double magnitude1 = Math.sqrt(Math.pow(tempVector1[0], 2) + Math.pow(tempVector1[1], 2));
-        double magnitude2 = Math.sqrt(Math.pow(tempVector2[0], 2) + Math.pow(tempVector2[1], 2));
+        //double magnitude1 = Math.sqrt(Math.pow(tempVector1[0], 2) + Math.pow(tempVector1[1], 2));
+        //double magnitude2 = Math.sqrt(Math.pow(tempVector2[0], 2) + Math.pow(tempVector2[1], 2));
 
-        System.out.println("vector 1 <" + tempVector1[0] + ", " + tempVector1[1] +">");
-        System.out.println("vector 2 <" + tempVector2[0] + ", " + tempVector2[1] +">");
+        //System.out.println("vector 1 <" + tempVector1[0] + ", " + tempVector1[1] +">");
+        //System.out.println("vector 2 <" + tempVector2[0] + ", " + tempVector2[1] +">");
+        //System.out.println("Angle: " + dotProduct/(magnitude1*magnitude2));
 
-        angle = Math.acos(dotProduct / (magnitude1*magnitude2));
+        //angle = Math.acos(dotProduct / (magnitude1*magnitude2));
+        //if(!(angle == angle)){
+        //    angle = 0;
+        //}
+        double det = tempVector1[0]*tempVector2[1]-tempVector1[1]*tempVector2[0];
+        angle = Math.atan2(det, dotProduct);
         Controller.getInstance().getBoardPieces().get(s2.getPieceId()).rotatePiece(angle);
+        s1Corners = s1.getCorners();
+        s2Corners = s2.getCorners();
+
+
+        double vector1 = s1Corners[0][0]-s1Corners[1][0];
+        double vector2 = s2Corners[0][0]-s2Corners[1][0];
+        if(vector1+0.001 >= vector2 && vector1-0.001 <= vector2){
+            dx = s1Corners[0][0] - s2Corners[0][0];
+            dy = s1Corners[0][1] - s2Corners[0][1];
+        } else {
+            dx = s1Corners[0][0] - s2Corners[1][0];
+            dy = s1Corners[0][1] - s2Corners[1][1];
+        }
+        System.out.println("dx: " + dx);
+        System.out.println("dy: " + dy);
+        Double[] s2Center = Controller.getInstance().getBoardPieces().get(s2.getPieceId()).getCenter();
+        Controller.getInstance().getBoardPieces().get(s2.getPieceId()).movePiece(dx+s2Center[0],dy+s2Center[1]);
 
 //        m1 = s1.getDy()/s1.getDx();
 //        m2 = s2.getDy()/s1.getDx();
