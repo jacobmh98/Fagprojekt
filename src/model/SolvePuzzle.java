@@ -1,6 +1,7 @@
 package model;
 
 import controller.Controller;
+import javafx.geometry.Side;
 
 import java.math.RoundingMode;
 import java.text.DecimalFormat;
@@ -24,8 +25,49 @@ public class SolvePuzzle {
     }
 
     public void sortSideLength(){
-        ArrayList<SideLength> tempArray = sideLengthsSorted;
-        
+        SideLength[] tempArray = new SideLength[sideLengthsSorted.size()];
+        for(int i = 0; i < sideLengthsSorted.size(); i++){
+            tempArray[i] = sideLengthsSorted.get(i);
+        }
+        mergeSort(tempArray, tempArray.length);
+        for(int i = 0; i < sideLengthsSorted.size(); i++){
+            sideLengthsSorted.set(i, tempArray[i]);
+        }
+    }
+
+    private void mergeSort(SideLength[] tempArray, int entries){
+        if(entries <= 1){
+            return;
+        }
+        int middle = entries/2;
+        SideLength[] left = new SideLength[middle];
+        SideLength[] right = new SideLength[entries-middle];
+        for(int i = 0; i  < middle; i++){
+            left[i] = tempArray[i];
+        }
+        for(int i = middle; i < entries; i++){
+            right[i-middle] = tempArray[i];
+        }
+        mergeSort(left, middle);
+        mergeSort(right, entries-middle);
+        merge(tempArray, left, right, middle, entries-middle);
+    }
+
+    private void merge(SideLength[] tempArray, SideLength[] left, SideLength[] right, int entriesL, int entriesR){
+        int i = 0, j = 0, k = 0;
+        while(i < entriesL && j < entriesR){
+            if(left[i].getValue() <= right[j].getValue()){
+                tempArray[k++] = left[i++];
+            } else {
+                tempArray[k++] = right[j++];
+            }
+        }
+        while(i < entriesL){
+            tempArray[k++] = left[i++];
+        }
+        while(j < entriesR){
+            tempArray[k++] = right[j++];
+        }
     }
 
     public void updateSolvePuzzle() {
