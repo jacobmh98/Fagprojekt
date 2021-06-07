@@ -178,6 +178,46 @@ public class SolvePuzzle {
 //        }
 //        System.out.println("dx: (" + s1.getDx()+", "+s2.getDx() + ")");
 //        System.out.println("dy: (" + s1.getDy()+", "+s2.getDy() + ")");
+        if(!checkIntersection(s1, s2)){
+            Controller.getInstance().getBoardPieces().get(s2.getPieceId()).rotatePiece(Math.PI);
+            Controller.getInstance().getBoardPieces().get(s2.getPieceId()).rotateNeighbours(Math.PI);
+            s1Corners = s1.getCorners();
+            s2Corners = s2.getCorners();
+            dx = s1Corners[0][0] - s2Corners[1][0];
+            dy = s1Corners[0][1] - s2Corners[1][1];
+            s2Center = Controller.getInstance().getBoardPieces().get(s2.getPieceId()).getCenter();
+            Controller.getInstance().getBoardPieces().get(s2.getPieceId()).movePiece(dx+s2Center[0],dy+s2Center[1]);
+        }
         return angle;
+    }
+
+    private int orientation(Double[] p1, Double[] p2, Double[] p3){
+        double val = (p2[1]-p1[1])*(p3[0]-p2[0])-(p2[0]-p1[0])*(p3[1]-p2[1]);
+        if(val > 0){
+            return 1;
+        }
+        return 2;
+    }
+
+    private boolean checkIntersection(SideLength s1, SideLength s2){
+        Double[][] linePoints = s1.getCorners();
+        Double[] p1 = new Double[2];
+        Double[] p2 = new Double[2];
+        Double[] c1 = Controller.getInstance().getBoardPieces().get(s1.getPieceId()).getCenter();
+        Double[] c2 = Controller.getInstance().getBoardPieces().get(s2.getPieceId()).getCenter();
+        for(int i = 0; i < 2; i++){
+            p1[i] = linePoints[0][i];
+            p2[i] = linePoints[1][i];
+        } //p1p2 c1c2
+        int o1 = orientation(p1, p2, c1);
+        int o2 = orientation(p1, p2, c2);
+        int o3 = orientation(c1, c2, p1);
+        int o4 = orientation(c1, c2, p2);
+        if(o1 != o2 && o3 != o4){
+            System.out.println("----------------------INTERSECT--------------");
+            return true;
+        }
+        System.out.println("---------------------NO INTERSECT-----------------------");
+        return false;
     }
 }
