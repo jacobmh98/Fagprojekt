@@ -2,6 +2,8 @@ package view;
 
 import controller.Controller;
 import javafx.application.Application;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.Insets;
@@ -15,17 +17,16 @@ import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
 import javafx.scene.shape.Line;
 import javafx.scene.text.Font;
+import javafx.stage.FileChooser;
 import javafx.stage.Stage;
-import model.CreatePuzzleBoard;
-import model.Piece;
-import model.SolvePuzzle;
-import model.VoronoiBoard;
+import model.*;
 //import org.delaunay.model.Triangle;
 //import org.kynosarges.tektosyne.geometry.PointD;
 //import org.kynosarges.tektosyne.geometry.VoronoiResults;
 
 
 import java.awt.geom.Point2D;
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedHashSet;
@@ -49,8 +50,26 @@ public class PuzzleRunner extends Application {
 			pane.setVgap(5);
 			pane.setHgap(5);
 
-			Label lblLogin = new Label("Fill out how many pieces you want to solve and the preferred board size");
+			HBox rbContainer1 = new HBox();
+			ToggleGroup toggleGroup1 = new ToggleGroup();
+			RadioButton tg1Rb1 = new RadioButton();
+			RadioButton tg1Rb2 = new RadioButton();
+			tg1Rb1.setText("Generate board");
+			tg1Rb1.setSelected(true);
+			tg1Rb1.setToggleGroup(toggleGroup1);
+			tg1Rb2.setText("JSon import");
+			tg1Rb2.setToggleGroup(toggleGroup1);
+			rbContainer1.getChildren().addAll(tg1Rb1, tg1Rb2);
+
+			Label lblLogin = new Label("Choose a puzzle and fill out how many pieces you want to solve and the preferred board size");
 			lblLogin.setFont(new Font(15.0));
+
+			Button selectFile = new Button("Select JSon File");
+			selectFile.setVisible(false);
+			final File[] selectedFile = {null};
+			Label lblSelectedFile = new Label("No file selected");
+			lblSelectedFile.setVisible(false);
+
 			TextField txtNumberOfPieces = new TextField();
 			txtNumberOfPieces.setPromptText("Number of pieces");
 			txtNumberOfPieces.setPrefColumnCount(5);
@@ -63,26 +82,30 @@ public class PuzzleRunner extends Application {
 			txtHeight.setPromptText("Puzzle height");
 			txtHeight.setPrefColumnCount(5);
 			txtHeight.setText("600");
+
 			Button btnLogin = new Button("Initialize puzzle");
 			HBox rbContainer = new HBox();
-			ToggleGroup toggleGroup = new ToggleGroup();
+			ToggleGroup toggleGroup2 = new ToggleGroup();
 			RadioButton rb1 = new RadioButton();
 			rb1.setText("Solved");
-			rb1.setToggleGroup(toggleGroup);
+			rb1.setToggleGroup(toggleGroup2);
 			rb1.setSelected(true);
 			RadioButton rb2 = new RadioButton();
 			rb2.setText("Shuffled");
-			rb2.setToggleGroup(toggleGroup);
+			rb2.setToggleGroup(toggleGroup2);
 			rbContainer.getChildren().addAll(rb1, rb2);
 
 			GridPane.setConstraints(lblLogin, 0, 0);
-			GridPane.setConstraints(txtNumberOfPieces, 0, 1);
-			GridPane.setConstraints(txtWidth, 0, 2);
-			GridPane.setConstraints(txtHeight, 0, 3);
-			GridPane.setConstraints(btnLogin, 0, 5);
-			GridPane.setConstraints(rbContainer, 0, 4);
+			GridPane.setConstraints(rbContainer1, 0, 1);
+			GridPane.setConstraints(selectFile, 0, 2);
+			GridPane.setConstraints(lblSelectedFile, 0, 3);
+			GridPane.setConstraints(txtNumberOfPieces, 0, 2);
+			GridPane.setConstraints(txtWidth, 0, 3);
+			GridPane.setConstraints(txtHeight, 0, 4);
+			GridPane.setConstraints(rbContainer, 0, 5);
+			GridPane.setConstraints(btnLogin, 0, 6);
 
-			pane.getChildren().addAll(lblLogin, txtNumberOfPieces, txtWidth, txtHeight, rbContainer, btnLogin);
+			pane.getChildren().addAll(lblLogin, rbContainer1, selectFile, lblSelectedFile, txtNumberOfPieces, txtWidth, txtHeight, rbContainer, btnLogin);
 
 			Scene scene = new Scene(pane);
 			stage.setScene(scene);
@@ -91,6 +114,41 @@ public class PuzzleRunner extends Application {
 
 			stage.setTitle("Initialize Puzzle");
 			stage.show();
+
+			tg1Rb1.selectedProperty().addListener(new ChangeListener<Boolean>() {
+				@Override
+				public void changed(ObservableValue<? extends Boolean> observableValue, Boolean aBoolean, Boolean t1) {
+					if(t1) {
+						txtHeight.setVisible(true);
+						txtWidth.setVisible(true);
+						txtNumberOfPieces.setVisible(true);
+						rbContainer.setVisible(true);
+						selectFile.setVisible(false);
+						lblSelectedFile.setVisible(false);
+					} else {
+						txtHeight.setVisible(false);
+						txtWidth.setVisible(false);
+						txtNumberOfPieces.setVisible(false);
+						rbContainer.setVisible(false);
+						selectFile.setVisible(true);
+
+						lblSelectedFile.setVisible(true);
+					}
+				}
+			});
+
+			selectFile.setOnAction(new EventHandler<ActionEvent>() {
+				@Override
+				public void handle(ActionEvent actionEvent) {
+					FileChooser fileChooser = new FileChooser();
+					fileChooser.setTitle("Select JSON file");
+
+					selectedFile[0] = fileChooser.showOpenDialog(stage);
+					if(selectedFile[0] != null) {
+						lblSelectedFile.setText("File: " + selectedFile[0].getName());
+					}
+				}
+			});
 
 			btnLogin.setOnAction(new EventHandler<ActionEvent>() {
 				@Override
@@ -102,9 +160,17 @@ public class PuzzleRunner extends Application {
 						int height = Integer.parseInt(txtHeight.getText());
 
 						controller.setBoardSize(width, height);
-						testTriangulation(stage, points, width, height);
+						if(tg1Rb1.isSelected()) {
+							testTriangulation(stage, points, width, height);
+						} else {
+							if(selectedFile != null) {
+								generateBoardFromJson(stage, width, height, selectedFile[0].getAbsolutePath());
+							}
+						}
+//
 
-						if(((RadioButton) toggleGroup.getSelectedToggle()).getText().equals("Shuffled")) {
+
+						if(((RadioButton) toggleGroup2.getSelectedToggle()).getText().equals("Shuffled")) {
 							shufflePieces(controller.getBoardPieces());
 
 						}
@@ -222,6 +288,50 @@ public class PuzzleRunner extends Application {
 			public void handle(ActionEvent actionEvent) {
 				SolvePuzzle solvePuzzle = Controller.getInstance().getSolvePuzzle();
 				solvePuzzle.runner();
+			}
+		});
+	}
+
+	public void generateBoardFromJson(Stage stage, int width, int height, String filename) throws Exception {
+		HBox root = new HBox(8);
+
+		StackPane pane = new StackPane();
+		pane.setPadding(new Insets(0,10,10,20));
+		Pane outerBoard = new Pane();
+		outerBoard.setMaxWidth(width);
+		outerBoard.setMaxHeight(height);
+		outerBoard.setMinWidth(width);
+		outerBoard.setMinHeight(height);
+		Group board = new Group();
+		outerBoard.getChildren().add(board);
+
+		JsonImport jsonImport = new JsonImport();
+		ArrayList<Piece> boardPieces = jsonImport.readJson(filename);
+
+		for(Piece p : boardPieces){
+			System.out.println(p.getPieceID());
+			board.getChildren().add(p);
+		}
+
+		Controller.getInstance().setBoardPieces(boardPieces);
+		Controller.getInstance().setBoard(board);
+		outerBoard.setStyle("-fx-border-color: black");
+		Label solveLbl = new Label("Solve the puzzle");
+		solveLbl.getStyleClass().add("headerlbl");
+		Button solveBtn = new Button("Solve Puzzle");
+		root.setPadding(new Insets(10,10,10,10));
+		pane.getChildren().add(outerBoard);
+		VBox rightSide = new VBox(8);
+		rightSide.getChildren().addAll(solveLbl, solveBtn);
+		root.getChildren().addAll(pane, rightSide);
+		Scene boardScene = new Scene(root, width+300, height + 20);
+		boardScene.getStylesheets().add(PuzzleRunner.class.getResource("styles.css").toExternalForm());
+		stage.setScene(boardScene);
+
+		solveBtn.setOnAction(new EventHandler<ActionEvent>() {
+			@Override
+			public void handle(ActionEvent actionEvent) {
+
 			}
 		});
 	}

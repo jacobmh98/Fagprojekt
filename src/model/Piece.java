@@ -173,14 +173,14 @@ public class Piece extends Polygon {
 				Double dyMax = temp[1] + 25.0;
 
 				if(dx > dxMin && dx < dxMax && dy > dyMin && dy < dyMax) {
-					if(!graph.depthFirstTraversal(graph, p).contains(this)) {
+					if(!graph.depthFirstTraversal(p).contains(this)) {
 						double angel = p.getRotation() - this.rotation;
 						rotatePiece(angel);
 						rotateNeighbours(angel);
 						temp = adjacentPieces.get(p);
 						Double moveDx = dx - temp[0];
 						Double moveDy = dy - temp[1];
-						Set<Piece> connectedPieces = graph.depthFirstTraversal(graph, this);
+						Set<Piece> connectedPieces = graph.depthFirstTraversal(this);
 						snapPiece(p, moveDx, moveDy);
 						for(Piece pi : connectedPieces) {
 							if(pi != this && pi != p) {
@@ -212,21 +212,21 @@ public class Piece extends Polygon {
 		updatePiece();
 	}
 
-	public void movePiece(Double dx, Double dy) {
-		Double[] updateCorners = new Double[this.getCorners().length];
-
-		for(int i = 0; i < this.getCorners().length; i++) {
-
-			if(i % 2 == 0) {
-				updateCorners[i] = this.getCorners()[i] + dx;
-			} else {
-				updateCorners[i] = this.getCorners()[i] + dy;
-			}
-		}
-
-		setCorners(updateCorners);
-		updatePiece();
-	}
+//	public void movePiece(Double dx, Double dy) {
+//		Double[] updateCorners = new Double[this.getCorners().length];
+//
+//		for(int i = 0; i < this.getCorners().length; i++) {
+//
+//			if(i % 2 == 0) {
+//				updateCorners[i] = this.getCorners()[i] + dx;
+//			} else {
+//				updateCorners[i] = this.getCorners()[i] + dy;
+//			}
+//		}
+//
+//		setCorners(updateCorners);
+//		updatePiece();
+//	}
 
 	// Method returning nearby pieces within some radius
 	public void computeNearbyPieces() {
@@ -308,7 +308,7 @@ public class Piece extends Polygon {
 		double c1 = deltaX - this.getCenter()[0];
 		double c2 = deltaY - this.getCenter()[1];
 
-		for(Piece p : graph.depthFirstTraversal(graph, this)) {
+		for(Piece p : graph.depthFirstTraversal(this)) {
 			Double[] updateCorners = new Double[p.getCorners().length];
 			for(int i = 0; i < p.getCorners().length; i++) {
 				double updateCornerX = p.getCorners()[i] + c1;
@@ -376,7 +376,7 @@ public class Piece extends Polygon {
 	}
 
 	public void rotateNeighbours(Double angle) {
-		for(Piece p : graph.depthFirstTraversal(graph, this)) {
+		for(Piece p : graph.depthFirstTraversal(this)) {
 			if(p != this) {
 				p.rotatePiece(angle);
 
