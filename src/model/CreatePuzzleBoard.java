@@ -242,6 +242,7 @@ public class CreatePuzzleBoard {
         }
 
         controller.setBoardPieces(boardPieces);
+
     }
 
     // Method assigning neighbours to pieces

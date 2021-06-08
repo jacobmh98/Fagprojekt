@@ -8,13 +8,18 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Polygon;
 
+import java.awt.*;
+import java.math.RoundingMode;
+import java.text.DecimalFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Set;
 
 public class Piece extends Polygon {
 	private Integer pieceID;
 	private Double[] corners;
+	private ArrayList<SideLength> sideLengths = new ArrayList<>();
 	private Double[] center = new Double[2];
 	private Double rotation = 0.0;
 	private double prevY = 0.0;
@@ -86,20 +91,75 @@ public class Piece extends Polygon {
 			@Override
 			public void handle(MouseEvent mouseEvent) {
 				Piece.this.setMouseTransparent(false);
-				computeNearbyPieces();
 				checkForConnect();
 			}
 		});
 
 		updatePiece();
 	}
+
+
 	public void updatePiece() {
 		this.getPoints().removeAll();
 		this.getPoints().setAll(this.corners);
 		this.computeCenter();
+		updateSideLengths();
 	}
 
-	public void checkForConnect() {
+	public void updateSideLengths() {
+		if(sideLengths.isEmpty()) {
+			for (int i = 0; i < corners.length; i += 2) {
+				if (i < corners.length - 3) {
+					Double dx = (corners[i] - corners[i + 2]);
+					Double dy = (corners[i + 1] - corners[i + 3]);
+					Double[] corner1 = {corners[i], corners[i + 1]};
+					Double[] corner2 = {corners[i + 2], corners[i + 3]};
+					Double sideLength = Math.sqrt(Math.pow(dx, 2) + Math.pow(dy, 2));
+					sideLengths.add(new SideLength(pieceID, i / 2, sideLength, corner1, corner2));
+					continue;
+				} else {
+					Double dx = (corners[i] - corners[0]);
+					Double dy = (corners[i + 1] - corners[1]);
+					Double[] corner1 = {corners[i], corners[i + 1]};
+					Double[] corner2 = {corners[0], corners[1]};
+					Double sideLength = Math.sqrt(Math.pow(dx, 2) + Math.pow(dy, 2));
+					sideLengths.add(new SideLength(pieceID, i / 2, sideLength, corner1, corner2));
+					break;
+				}
+			}
+		} else {
+			for (int i = 0; i < corners.length; i += 2) {
+				if (i < corners.length - 3) {
+					Double[] corner1 = {corners[i], corners[i + 1]};
+					Double[] corner2 = {corners[i + 2], corners[i + 3]};
+					Double dx = (corners[i] - corners[i + 2]);
+					Double dy = (corners[i + 1] - corners[i + 3]);
+					Double sideLength = Math.sqrt(Math.pow(dx, 2) + Math.pow(dy, 2));
+					sideLengths.get(i/2).update(sideLength, corner1, corner2);
+					continue;
+				} else {
+					Double[] corner1 = {corners[i], corners[i + 1]};
+					Double[] corner2 = {corners[0], corners[1]};
+					Double dx = (corners[i] - corners[0]);
+					Double dy = (corners[i + 1] - corners[1]);
+					Double sideLength = Math.sqrt(Math.pow(dx, 2) + Math.pow(dy, 2));
+					sideLengths.get(i/2).update(sideLength, corner1, corner2);
+					break;
+				}
+			}
+		}
+//		System.out.println("After Update");
+//		for (SideLength l : sideLengths) {
+//			System.out.println(l.getPieceId() + ", " +
+//					l.getLineId() + ", " +
+//					l.getValue() + ", " +
+//					l.getDx() + ", " +
+//					l.getDy());
+//		}
+	}
+
+	public boolean checkForConnect() {
+		computeNearbyPieces();
 		for(Piece p : nearbyPieces) {
 			Double[] temp = adjacentPieces.get(p);
 
@@ -127,10 +187,12 @@ public class Piece extends Polygon {
 								pi.movePiece(moveDx, moveDy);
 							}
 						}
+						return true;
 					}
 				}
 			}
 		}
+		return false;
 	}
 
 	private void snapPiece(Piece p, Double dx, Double dy) {
@@ -150,7 +212,7 @@ public class Piece extends Polygon {
 		updatePiece();
 	}
 
-	private void movePiece(Double dx, Double dy) {
+	public void movePiece(Double dx, Double dy) {
 		Double[] updateCorners = new Double[this.getCorners().length];
 
 		for(int i = 0; i < this.getCorners().length; i++) {
@@ -392,8 +454,7 @@ public class Piece extends Polygon {
 
 		if(update) {
 			corners = newCorners;
-			Piece.this.getPoints().removeAll();
-			Piece.this.getPoints().setAll(corners);
+			updatePiece();
 		}
 	}
 
@@ -480,5 +541,52 @@ public class Piece extends Polygon {
 		double deltaY = p.getCenter()[1] - this.center[1];
 		Double[] distances = {deltaX, deltaY};
 		adjacentPieces.put(p, distances);
+	}
+
+	public ArrayList<SideLength> getSideLengths() {
+		return this.sideLengths;
+	}
+}
+
+class SideLength implements Comparable {
+	private Integer pieceId;
+	private Integer lineId;
+	private Double length;
+	private Double[] corner1;
+	private Double[] corner2;
+
+	public SideLength(Integer pieceId, Integer lineId, Double length, Double[] corner1, Double[] corner2) {
+		this.pieceId = pieceId;
+		this.lineId = lineId;
+		this.length = length;
+		this.corner1 = corner1;
+		this.corner2 = corner2;
+	}
+
+	public Integer getPieceId() {
+		return this.pieceId;
+	}
+	public Integer getLineId() {
+		return this.lineId;
+	}
+	public Double getValue() {
+		return this.length;
+	}
+
+	public Double[][] getCorners() {
+//		System.out.println("Corner 1: ( + " + corner1[0] + ", " + corner1[1] + " )");
+//		System.out.println("Corner 2: ( + " + corner2[0] + ", " + corner2[1] + " )");
+		return new Double[][] {new Double[]{this.corner1[0], this.corner1[1]}, new Double[]{this.corner2[0], this.corner2[1]}};
+	}
+
+	@Override
+	public int compareTo(Object l) {
+		return (int)(this.length - ((SideLength) l).getValue());
+	}
+
+	public void update(Double sideLength, Double[] corner1, Double[] corner2) {
+		this.length = sideLength;
+		this.corner1 = corner1;
+		this.corner2 = corner2;
 	}
 }

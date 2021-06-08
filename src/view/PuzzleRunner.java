@@ -9,6 +9,7 @@ import javafx.scene.Group;
 import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
@@ -17,6 +18,7 @@ import javafx.scene.text.Font;
 import javafx.stage.Stage;
 import model.CreatePuzzleBoard;
 import model.Piece;
+import model.SolvePuzzle;
 import model.VoronoiBoard;
 //import org.delaunay.model.Triangle;
 //import org.kynosarges.tektosyne.geometry.PointD;
@@ -127,8 +129,8 @@ public class PuzzleRunner extends Application {
 
 	public void testRowColGeneration(Stage stage){
 		Group board = new Group();
-		CreatePuzzleBoard createPuzzleBoard = new CreatePuzzleBoard(5,5,500,500);
-		createPuzzleBoard.createOneRowPuzzle();
+		CreatePuzzleBoard createPuzzleBoard = new CreatePuzzleBoard();
+		createPuzzleBoard.createPuzzle();
 		ArrayList<ArrayList<Double>> columnX = createPuzzleBoard.getColumnX();
 		ArrayList<ArrayList<Double>> columnY = createPuzzleBoard.getColumnY();
 		ArrayList<ArrayList<Double>> rowX = createPuzzleBoard.getRowX();
@@ -165,8 +167,8 @@ public class PuzzleRunner extends Application {
 	public void testPuzzleWithPolygons(Stage stage){
 		int width = 800;
 		int height = 800;
-		CreatePuzzleBoard createPuzzleBoard = new CreatePuzzleBoard(5,5,height,width);
-		createPuzzleBoard.createOneRowPuzzle();
+		CreatePuzzleBoard createPuzzleBoard = new CreatePuzzleBoard();
+		createPuzzleBoard.createPuzzle();
 		Group board = new Group();
 		StackPane root = new StackPane();
 		root.setPadding(new Insets(10,10,10,10));
@@ -180,14 +182,18 @@ public class PuzzleRunner extends Application {
 	}
 
 	public void testTriangulation(Stage stage, int points, int width, int height) throws Exception {
-		StackPane root = new StackPane();
-		root.setPadding(new Insets(10,10,10,10));
+		HBox root = new HBox(8);
+
+		StackPane pane = new StackPane();
+		pane.setPadding(new Insets(0,10,10,20));
 		Pane outerBoard = new Pane();
 		outerBoard.setMaxWidth(width);
 		outerBoard.setMaxHeight(height);
+		outerBoard.setMinWidth(width);
+		outerBoard.setMinHeight(height);
 		Group board = new Group();
 		outerBoard.getChildren().add(board);
-		VoronoiBoard voronoi = new VoronoiBoard(points,width,height);
+		VoronoiBoard voronoi = new VoronoiBoard(points);
 		Piece[] pieces = voronoi.getPieces();
 		for(Piece p : pieces){
 			board.getChildren().add(p);
@@ -199,9 +205,25 @@ public class PuzzleRunner extends Application {
 		Controller.getInstance().setBoardPieces(pieceArray);
 		Controller.getInstance().setBoard(board);
 		outerBoard.setStyle("-fx-border-color: black");
-		root.getChildren().add(outerBoard);
-		Scene boardScene = new Scene(root, width+20, height + 20);
+		Label solveLbl = new Label("Solve the puzzle");
+		solveLbl.getStyleClass().add("headerlbl");
+		Button solveBtn = new Button("Solve Puzzle");
+		root.setPadding(new Insets(10,10,10,10));
+		pane.getChildren().add(outerBoard);
+		VBox rightSide = new VBox(8);
+		rightSide.getChildren().addAll(solveLbl, solveBtn);
+		root.getChildren().addAll(pane, rightSide);
+		Scene boardScene = new Scene(root, width+300, height + 20);
+		boardScene.getStylesheets().add(PuzzleRunner.class.getResource("styles.css").toExternalForm());
 		stage.setScene(boardScene);
+
+		solveBtn.setOnAction(new EventHandler<ActionEvent>() {
+			@Override
+			public void handle(ActionEvent actionEvent) {
+				SolvePuzzle solvePuzzle = Controller.getInstance().getSolvePuzzle();
+				solvePuzzle.runner();
+			}
+		});
 	}
 
 	// method shuffling the pieces on the board
