@@ -131,7 +131,6 @@ public class PuzzleRunner extends Application {
 						txtNumberOfPieces.setVisible(false);
 						rbContainer.setVisible(false);
 						selectFile.setVisible(true);
-
 						lblSelectedFile.setVisible(true);
 					}
 				}
@@ -167,8 +166,6 @@ public class PuzzleRunner extends Application {
 								generateBoardFromJson(stage, width, height, selectedFile[0].getAbsolutePath());
 							}
 						}
-//
-
 
 						if(((RadioButton) toggleGroup2.getSelectedToggle()).getText().equals("Shuffled")) {
 							shufflePieces(controller.getBoardPieces());
@@ -283,6 +280,8 @@ public class PuzzleRunner extends Application {
 		boardScene.getStylesheets().add(PuzzleRunner.class.getResource("styles.css").toExternalForm());
 		stage.setScene(boardScene);
 
+		Controller.getInstance().setSolvePuzzle();
+
 		solveBtn.setOnAction(new EventHandler<ActionEvent>() {
 			@Override
 			public void handle(ActionEvent actionEvent) {
@@ -313,6 +312,7 @@ public class PuzzleRunner extends Application {
 			board.getChildren().add(p);
 		}
 
+
 		Controller.getInstance().setBoardPieces(boardPieces);
 		Controller.getInstance().setBoard(board);
 		outerBoard.setStyle("-fx-border-color: black");
@@ -331,7 +331,7 @@ public class PuzzleRunner extends Application {
 		solveBtn.setOnAction(new EventHandler<ActionEvent>() {
 			@Override
 			public void handle(ActionEvent actionEvent) {
-
+				SolvePuzzleJSON.runner(boardPieces);
 			}
 		});
 	}
