@@ -6,6 +6,7 @@ import javafx.scene.Group;
 import model.Graph;
 import model.Piece;
 import model.SolvePuzzle;
+import model.SolvePuzzleJSON;
 
 public class Controller {
 	private static Controller controller = new Controller();;
@@ -29,11 +30,10 @@ public class Controller {
 
 	public void setBoardPieces(ArrayList<Piece> boardPieces) {
 		this.boardPieces = boardPieces;
-		setSolvePuzzle();
 	}
 
 	public void setSolvePuzzle() {
-		solvePuzzle = new SolvePuzzle(Controller.getInstance().getBoardPieces());
+		solvePuzzle = new SolvePuzzle(boardPieces);
 	}
 
 	public SolvePuzzle getSolvePuzzle() {return this.solvePuzzle; };
@@ -43,4 +43,5 @@ public class Controller {
 	}
 
 	public void setBoardSize(int width, int height) { BOARD_SIZE[0] = width; BOARD_SIZE[1] = height; }
+
 }

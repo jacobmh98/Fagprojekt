@@ -109,7 +109,7 @@ public class SolvePuzzle {
                     if (currentPiece.checkForConnect()) {
                         Graph graph = Controller.getInstance().getGraph();
 
-                        Set<Piece> connectedPiecesGraph = graph.depthFirstTraversal(graph, currentPiece);
+                        Set<Piece> connectedPiecesGraph = graph.depthFirstTraversal(currentPiece);
                         ArrayList<Integer> connectedPieces = new ArrayList<Integer>();
                         for (Piece p : connectedPiecesGraph) {
                             connectedPieces.add(p.getPieceID());
@@ -137,6 +137,24 @@ public class SolvePuzzle {
                 }
             }
         }
+
+        int rand = (int) Math.random()*boardPieces.size();
+        Piece p = boardPieces.get(rand);
+        double cmSumX = p.getCenter()[0];
+        double cmSumY = p.getCenter()[1];
+        double width = Controller.getInstance().getBoardSize()[0];
+        double height = Controller.getInstance().getBoardSize()[1];
+        Set<Piece> solution = Controller.getInstance().getGraph().depthFirstTraversal(p);
+        for(Piece pi : solution) {
+            cmSumX += pi.getCenter()[0];
+            cmSumY += pi.getCenter()[1];
+        }
+        double cmX = cmSumX/solution.size();
+        double cmY = cmSumY/solution.size();
+
+        double dx = width/2.0 - cmX;
+        double dy = height/2.0 - cmY;
+        p.movePiece(dx + p.getCenter()[0], dy + p.getCenter()[1]);
     }
 
     public double findRotationAngle(SideLength s1, SideLength s2){

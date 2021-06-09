@@ -91,7 +91,7 @@ public class Graph {
         return adjVertices.get(new Vertex(p));
     }
 
-    Set<Piece> depthFirstTraversal(Graph graph, Piece root) {
+    Set<Piece> depthFirstTraversal(Piece root) {
         Set<Piece> visited = new LinkedHashSet<Piece>();
         Stack<Piece> stack = new Stack<Piece>();
         stack.push(root);
@@ -99,7 +99,7 @@ public class Graph {
             Piece vertex = stack.pop();
             if (!visited.contains(vertex)) {
                 visited.add(vertex);
-                for (Vertex v : graph.getAdjVertices(vertex)) {
+                for (Vertex v : this.getAdjVertices(vertex)) {
                     stack.push(v.piece);
                 }
             }

@@ -17,7 +17,7 @@ public class Tester {
         graph.addEdge(p0, p1);
 
         System.out.println("Traversed: ");
-        for(Piece p : graph.depthFirstTraversal(graph, p2)) {
+        for(Piece p : graph.depthFirstTraversal(p2)) {
             System.out.print(p.getPieceID()+", ");
         }
     }
