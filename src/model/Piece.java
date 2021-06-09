@@ -54,6 +54,8 @@ public class Piece extends Polygon {
 			public void handle(MouseEvent mouseEvent) {
 				Piece.this.setMouseTransparent(true);
 				mouseEvent.setDragDetect(true);
+
+				System.out.println("Piece id = " + Piece.this.pieceID);
 			}
 		});
 
