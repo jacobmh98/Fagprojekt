@@ -214,9 +214,9 @@ public class Piece extends Polygon {
 
 				if(dx > dxMin && dx < dxMax && dy > dyMin && dy < dyMax) {
 					if(!graph.depthFirstTraversal(p).contains(this)) {
-						double angel = p.getRotation() - this.rotation;
-						rotatePiece(angel);
-						rotateNeighbours(angel);
+						double angle = p.getRotation() - this.rotation;
+						rotatePiece(angle);
+						rotateNeighbours(angle);
 						temp = adjacentPieces.get(p);
 						Double moveDx = dx - temp[0];
 						Double moveDy = dy - temp[1];
