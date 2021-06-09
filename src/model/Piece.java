@@ -662,6 +662,7 @@ class Corner {
 	private Double[] vector2;
 	private Double[] coordinates;
 	private double angle;
+	private boolean hasAdjacent = false;
 
 	public Corner(Double[] vector1, Double[] vector2, Double[] coordinates, double angle) {
 		this.vector1 = vector1;
@@ -683,6 +684,12 @@ class Corner {
 		this.vector2 = vector2;
 		this.coordinates = coordinates;
 	}
+
+	public void setHasAdjacent(boolean hasAdjacent ) {
+		this.hasAdjacent = hasAdjacent;
+	}
+
+	public boolean getHasAdjacent() { return this.hasAdjacent; }
 
 	public Double[][] getVectors() {
 		return new Double[][]{this.vector1, this.vector2};
