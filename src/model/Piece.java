@@ -174,9 +174,9 @@ public class Piece extends Polygon {
 
 				if(dx > dxMin && dx < dxMax && dy > dyMin && dy < dyMax) {
 					if(!graph.depthFirstTraversal(graph, p).contains(this)) {
-						double angel = p.getRotation() - this.rotation;
-						rotatePiece(angel);
-						rotateNeighbours(angel);
+						double angle = p.getRotation() - this.rotation;
+						rotatePiece(angle);
+						rotateNeighbours(angle);
 						temp = adjacentPieces.get(p);
 						Double moveDx = dx - temp[0];
 						Double moveDy = dy - temp[1];
@@ -541,6 +541,24 @@ public class Piece extends Polygon {
 		double deltaY = p.getCenter()[1] - this.center[1];
 		Double[] distances = {deltaX, deltaY};
 		adjacentPieces.put(p, distances);
+	}
+
+	public void addPossibleAdjacentPiece(Piece p, SideLength s1, SideLength s2){
+		if(adjacentPieces.get(p) == null) {
+			double toMoveX, toMoveY;
+			double x1 = s1.getCorners()[0][0]-s1.getCorners()[1][0];
+			double x2 = s2.getCorners()[0][0]-s2.getCorners()[1][0];
+			if(x2 > 0 && x1 < 0 || x2 < 0 && x1 > 0){
+				toMoveX = s1.getCorners()[0][0] - s2.getCorners()[1][0];
+				toMoveY = s1.getCorners()[0][1] - s2.getCorners()[1][1];
+			} else {
+				toMoveX = s1.getCorners()[0][0] - s2.getCorners()[0][0];
+				toMoveY = s1.getCorners()[0][1] - s2.getCorners()[0][1];
+			}
+			p.movePiece(toMoveX + p.getCenter()[0], toMoveY + p.getCenter()[1]);
+			addAdjacentPiece(p);
+			p.movePiece(-toMoveX + p.getCenter()[0], -toMoveY + p.getCenter()[1]);
+		}
 	}
 
 	public ArrayList<SideLength> getSideLengths() {

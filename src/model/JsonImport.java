@@ -20,6 +20,7 @@ public class JsonImport {
         long totalPieces = (long) jsonObject.get("no. of pieces");
         double factor = extractCoordFactor(formArray);
         ArrayList<Piece> pieceArray = extractReformattetPieces(totalPieces, jsonPieces, factor);
+        addSnapToPossibleNeighbours(pieceArray);
         return pieceArray;
     }
 
@@ -74,6 +75,7 @@ public class JsonImport {
         System.out.println(lowestY);
         for(int i = 0; i < allPieceCorners.size(); i++){
             pieceArray.add(createPiece(allPieceCorners.get(i), pieceNumber, lowestX, lowestY, factor));
+            pieceNumber++;
         }
         return pieceArray;
     }
@@ -108,5 +110,22 @@ public class JsonImport {
         }
         Piece piece = new Piece(pieceNumber, corners);
         return piece;
+    }
+
+    public static void addSnapToPossibleNeighbours(ArrayList<Piece> pieces){
+        double epsilon = 0.00001;
+        for(Piece p1: pieces){
+            for(Piece p2: pieces){
+                if(p2.getPieceID() != p1.getPieceID()){
+                    for(SideLength s1 : p1.getSideLengths()){
+                        for(SideLength s2 : p2.getSideLengths()){
+                            if(s1.getValue()+epsilon >= s2.getValue() && s1.getValue()-epsilon <= s2.getValue()){
+                                p1.addPossibleAdjacentPiece(p2, s1, s2);
+                            }
+                        }
+                    }
+                }
+            }
+        }
     }
 }
