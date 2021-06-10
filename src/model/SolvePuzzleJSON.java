@@ -9,13 +9,12 @@ public class SolvePuzzleJSON extends Thread{
 
     public static void runner(ArrayList<Piece> boardPieces) throws InterruptedException {
         Piece root = null;
-        double epsilon = 0.00000000001;
         outerloop:
         for (Piece p : boardPieces) {
 
 
             for (Corner c : p.getVectorCorners()) {
-
+                double epsilon = 0.00000000001;
                 if (c.getAngle() + epsilon >= Math.PI / 2.0 && c.getAngle() - epsilon <= Math.PI / 2.0) {
                     root = p;
 
@@ -42,10 +41,10 @@ public class SolvePuzzleJSON extends Thread{
                     vector1 = c.getVectors()[0];
                     vector2 = c.getVectors()[1];
 
-                    System.out.println("Vector 1 " + vector1[0] + ", " + vector1[1]);
-                    System.out.println("Vector 2 " + vector2[0] + ", " + vector2[1]);
-                    System.out.println("angle1 between vertical " + angleVertical1);
-                    System.out.println("angle2 between vertical " + angleVertical2);
+//                    System.out.println("Vector 1 " + vector1[0] + ", " + vector1[1]);
+//                    System.out.println("Vector 2 " + vector2[0] + ", " + vector2[1]);
+//                    System.out.println("angle1 between vertical " + angleVertical1);
+//                    System.out.println("angle2 between vertical " + angleVertical2);
 
 
                     if(angleVertical1 + epsilon >= 0.0 && angleVertical1 - epsilon <= 0.0) {
@@ -82,7 +81,7 @@ public class SolvePuzzleJSON extends Thread{
 
                     for (Corner c : vectorCornersP1) {
                         for (Corner c2 : vectorCornersP2) {
-
+                            double epsilon = 0.00000000001;
                             if (c.getAngle() + epsilon >= c2.getAngle() &&
                                     c.getAngle() - epsilon <= c2.getAngle() &&
                                     !(c.getAngle() + epsilon >= Math.PI / 2.0 && c.getAngle() - epsilon <= Math.PI / 2.0)) {
@@ -92,38 +91,29 @@ public class SolvePuzzleJSON extends Thread{
                     }
 
                     for (Corner[] cs : matchingCorners) {
-                        System.out.println("matching corner " + cs[0].getAngle() + ", " + cs[1].getAngle());
-
                         Double angle1 = findAngleBetweenVectors(cs[0].getVectors()[0], cs[1].getVectors()[0]);
-
+                        double epsilon = 0.001;
                         while (!((angle1 + epsilon >= 0.0 && angle1 - epsilon <= 0.0)) && !Double.isNaN(angle1)) {
-                            Double finalAngle1 = angle1;
-                            p.rotatePiece(finalAngle1);
+                            p.rotatePiece(angle1);
                             angle1 = findAngleBetweenVectors(cs[0].getVectors()[0], cs[1].getVectors()[0]);
                         }
                         Double angle2 = findAngleBetweenVectors(cs[0].getVectors()[1], cs[1].getVectors()[1]);
+
                         if (!(angle2 + epsilon >= 0.0 && angle2 - epsilon <= 0.0) && !Double.isNaN(angle2)) {
                             angle1 = findAngleBetweenVectors(cs[0].getVectors()[0], cs[1].getVectors()[1]);
                             while (!((angle1 + epsilon >= 0.0 && angle1 - epsilon <= 0.0)) && !Double.isNaN(angle1)) {
-                                //                                        System.out.println("Angle" +  angle1);
-                                Double finalAngle = angle1;
-                                p.rotatePiece(finalAngle);
+                                p.rotatePiece(angle1);
                                 angle1 = findAngleBetweenVectors(cs[0].getVectors()[0], cs[1].getVectors()[1]);
                             }
                         }
 
                         Double dx = cs[0].getCoordinates()[0] - cs[1].getCoordinates()[0];
                         Double dy = cs[0].getCoordinates()[1] - cs[1].getCoordinates()[1];
-                        Platform.runLater(new Runnable() {
-                            @Override
-                            public void run() {
-                                p.movePiece(dx, dy);
+                        p.movePiece(dx, dy);
 
-                            }
-                        });
 
                         queue.add(p);
-                        sleep(30);
+//                        sleep(30);
                     }
                 }
             }
