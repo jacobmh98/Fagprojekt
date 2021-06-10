@@ -333,13 +333,13 @@ public class PuzzleRunner extends Application {
 		solveBtn.setOnAction(new EventHandler<ActionEvent>() {
 			@Override
 			public void handle(ActionEvent actionEvent) {
-				try {
-					SolvePuzzleJSON.runner(boardPieces);
-				} catch (InterruptedException e) {
-					e.printStackTrace();
-				}
-//				Thread t = new SolvePuzzleJSON();
-//				t.start();
+//				try {
+//					SolvePuzzleJSON.runner(boardPieces);
+//				} catch (InterruptedException e) {
+//					e.printStackTrace();
+//				}
+				Thread t = new SolvePuzzleJSON();
+				t.start();
 			}
 		});
 	}
