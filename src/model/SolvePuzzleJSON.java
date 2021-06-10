@@ -102,4 +102,107 @@ public class SolvePuzzleJSON extends Thread{
             System.out.println("Thread ended");
         }
     }
+
+    public static boolean checkIfSolved(ArrayList<Piece> boardPieces){
+        if(Controller.getInstance().getGraph().getAdjVertices().size() < boardPieces.size()){
+            System.out.println("Not all pieces are snapped together");
+            return false;
+        }
+        double[] boundaryBox = findBoundaryBox(boardPieces);
+        for(Piece p1 : boardPieces){
+            for(SideLength s1 : p1.getSideLengths()){
+                int position = checkBoundaryBox(boundaryBox, s1);
+                if(position == 0){
+                    System.out.println("One side was out of bounds");
+                    return false;
+                } else if(position == 2) {
+                    boolean foundMatch = false;
+                    p2Loop:
+                    for (Piece p2 : boardPieces) {
+                        if (!p1.equals(p2)) {
+                            for (SideLength s2 : p2.getSideLengths()) {
+                                if(checkMatchingSides(s1, s2)){
+                                    foundMatch = true;
+                                    break p2Loop;
+                                }
+                            }
+                        }
+                    }
+                    if(!foundMatch){
+                        System.out.println("An inner side didn't have a matching side");
+                        return false;
+                    }
+                }
+            }
+        }
+        return true;
+    }
+
+    private static double[] findBoundaryBox(ArrayList<Piece> boardPieces){
+        Double lowX = null, lowY = null, highX = null, highY = null;
+        for(Piece p : boardPieces){
+            Double[] corners = p.getCorners();
+            for(int i = 0; i < corners.length; i++){
+                double value = corners[i];
+                if(i%2 == 0){
+                    if(lowX == null && highX == null){
+                        lowX = value;
+                        highX = value;
+                    } else if (lowX > value){
+                        lowX = value;
+                    } else if (highX < value){
+                        highX = value;
+                    }
+                } else {
+                    if(lowY == null && highY == null){
+                        lowY = value;
+                        highY = value;
+                    } else if (lowY > value){
+                        lowY = value;
+                    } else if (highY < value){
+                        highY = value;
+                    }
+                }
+            }
+        }
+        double[] boundaryBox = {lowX, highX, lowY, highY};
+        return boundaryBox;
+    }
+
+    private static int checkBoundaryBox(double[] boundary, SideLength s1) {
+        Double[][] corners = s1.getCorners();
+        //return values 0 -> outside box -- 1 -> on the side of the box -- 2 -> inside the box
+        if (corners[0][0] > boundary[1] || corners[1][0] > boundary[1] ||
+                corners[0][0] < boundary[0] || corners[1][0] < boundary[0]) { //Check inside x values
+            return 0;
+        }
+        if (corners[0][1] > boundary[3] || corners[1][1] > boundary[3] ||
+                corners[0][1] < boundary[2] || corners[1][1] < boundary[2]) { //Check inside y values
+            return 0;
+        }
+        if (corners[0][0] == boundary[0] || corners[0][0] == boundary[1] ||
+                corners[1][0] == boundary[0] || corners[1][0] == boundary[1]) { //Check x on the boundary
+            return 1;
+        }
+        if (corners[0][1] == boundary[2] || corners[0][1] == boundary[3] ||
+                corners[1][1] == boundary[2] || corners[1][1] == boundary[3]) { //Check y on the boundary
+            return 1;
+        }
+        return 2;
+    }
+
+    private static boolean checkMatchingSides(SideLength s1, SideLength s2){
+        Double[][] corners1 = s1.getCorners();
+        Double[][] corners2 = s2.getCorners();
+        if(corners1[0][0] == corners2[0][0] && corners1[0][1] == corners2[0][1] && corners1[1][0] == corners2[1][0] && corners1[1][1] == corners2[1][1]){
+            return true;
+        }
+        if(corners1[0][0] == corners2[1][0] && corners1[0][1] == corners2[1][1] && corners1[1][0] == corners2[0][0] && corners1[1][1] == corners2[0][1]){
+            return true;
+        }
+        return false;
+    }
+
+
+
 }

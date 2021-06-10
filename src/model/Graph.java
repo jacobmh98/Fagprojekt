@@ -7,6 +7,7 @@ public class Graph {
     public Graph() {
         this.adjVertices = new HashMap<Vertex, List<Vertex>>();
     }
+    public Map<Vertex, List<Vertex>> getAdjVertices(){return adjVertices;}
 
     class Vertex {
         Piece piece;
