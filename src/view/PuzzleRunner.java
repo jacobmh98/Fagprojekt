@@ -321,14 +321,29 @@ public class PuzzleRunner extends Application {
 		Label solveLbl = new Label("Solve the puzzle");
 		solveLbl.getStyleClass().add("headerlbl");
 		Button solveBtn = new Button("Solve Puzzle");
+		Slider speedSlider = new Slider(0,100,1);
+		speedSlider.setValue(30);
+		Controller.getInstance().setSolveSpeed((int)speedSlider.getValue());
+		Label speedLabel = new Label("Solve speed");
+		Label currentSpeedLabel = new Label("Current: " + Controller.getInstance().getSolveSpeed());
 		root.setPadding(new Insets(10,10,10,10));
 		pane.getChildren().add(outerBoard);
 		VBox rightSide = new VBox(8);
-		rightSide.getChildren().addAll(solveLbl, solveBtn);
+		rightSide.getChildren().addAll(solveLbl, solveBtn,speedLabel, speedSlider, currentSpeedLabel);
 		root.getChildren().addAll(pane, rightSide);
 		Scene boardScene = new Scene(root, width+300, height + 20);
 		boardScene.getStylesheets().add(PuzzleRunner.class.getResource("styles.css").toExternalForm());
 		stage.setScene(boardScene);
+
+		speedSlider.valueProperty().addListener(
+				new ChangeListener<Number>() {
+					@Override
+					public void changed(ObservableValue<? extends Number> observableValue, Number OldValue, Number newValue) {
+						Controller.getInstance().setSolveSpeed(newValue.intValue());
+						currentSpeedLabel.setText("Current: " + Controller.getInstance().getSolveSpeed());
+					}
+				}
+		);
 
 		solveBtn.setOnAction(new EventHandler<ActionEvent>() {
 			@Override
@@ -339,6 +354,7 @@ public class PuzzleRunner extends Application {
 //					e.printStackTrace();
 //				}
 				Thread t = new SolvePuzzleJSON();
+				t.setDaemon(true);
 				t.start();
 			}
 		});

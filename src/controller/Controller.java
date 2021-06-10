@@ -17,6 +17,7 @@ public class Controller {
 	private Group board;
 	private Graph graph;
 	private SolvePuzzle solvePuzzle;
+	private int solveSpeed;
 
 	public ArrayList<Piece> getBoardPieces() { return this.boardPieces; }
 	public Group getBoard() { return this.board; }
@@ -43,5 +44,9 @@ public class Controller {
 	}
 
 	public void setBoardSize(int width, int height) { BOARD_SIZE[0] = width; BOARD_SIZE[1] = height; }
+
+	public void setSolveSpeed(int speed){solveSpeed = speed;}
+
+	public int getSolveSpeed(){return solveSpeed;}
 
 }
