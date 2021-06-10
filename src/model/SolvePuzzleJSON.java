@@ -1,10 +1,12 @@
 package model;
 
+import controller.Controller;
+
 import java.util.ArrayList;
 
-public class SolvePuzzleJSON {
+public class SolvePuzzleJSON extends Thread{
 
-    public static void runner(ArrayList<Piece> boardPieces) {
+    public static void runner(ArrayList<Piece> boardPieces) throws InterruptedException {
         Piece root = null;
         outerloop:
         for (Piece p : boardPieces) {
@@ -73,6 +75,7 @@ public class SolvePuzzleJSON {
 
                         p.movePiece(dx, dy);
                         queue.add(p);
+                        sleep(30);
                     }
                 }
             }
@@ -89,5 +92,14 @@ public class SolvePuzzleJSON {
         angle = Math.acos(dotProduct/(magnitude1 * magnitude2));
 
         return angle;
+    }
+
+    public void run(){
+        ArrayList<Piece> pieces = Controller.getInstance().getBoardPieces();
+        try {
+            runner(pieces);
+        } catch (InterruptedException e) {
+            System.out.println("Thread ended");
+        }
     }
 }

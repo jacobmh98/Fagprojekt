@@ -7,7 +7,7 @@ import java.math.RoundingMode;
 import java.text.DecimalFormat;
 import java.util.*;
 
-public class SolvePuzzle {
+public class SolvePuzzle extends Thread{
     ArrayList<Piece> boardPieces;
     ArrayList<SideLength> sideLengthsSorted = new ArrayList<>();
     int[] idConnected;
@@ -73,7 +73,7 @@ public class SolvePuzzle {
         }
     }
 
-    public void runner() {
+    public void runner() throws InterruptedException {
         for(int k = 0; k < boardPieces.size()*2; k++){
             sortSideLength();
             for (SideLength l : sideLengthsSorted) {
@@ -157,7 +157,7 @@ public class SolvePuzzle {
         p.movePiece(dx + p.getCenter()[0], dy + p.getCenter()[1]);
     }
 
-    public double findRotationAngle(SideLength s1, SideLength s2){
+    public double findRotationAngle(SideLength s1, SideLength s2) throws InterruptedException {
         double angle, m1, m2;
         System.out.println("\n equals sidelengths " + s1.getValue() + " = " + s2.getValue());
         Double[][] s1Corners = s1.getCorners();
@@ -200,6 +200,7 @@ public class SolvePuzzle {
             s2Center = Controller.getInstance().getBoardPieces().get(s2.getPieceId()).getCenter();
             Controller.getInstance().getBoardPieces().get(s2.getPieceId()).movePiece(dx+s2Center[0],dy+s2Center[1]);
         }
+        sleep(30);
         return angle;
     }
 
@@ -256,5 +257,13 @@ public class SolvePuzzle {
         }
         System.out.println("---------------------NO INTERSECT-----------------------");
         return false;
+    }
+
+    public void run(){
+        try {
+            runner();
+        } catch (InterruptedException e) {
+            System.out.println("Thread ended");
+        }
     }
 }

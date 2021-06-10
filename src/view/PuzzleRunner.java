@@ -286,7 +286,9 @@ public class PuzzleRunner extends Application {
 			@Override
 			public void handle(ActionEvent actionEvent) {
 				SolvePuzzle solvePuzzle = Controller.getInstance().getSolvePuzzle();
-				solvePuzzle.runner();
+				//solvePuzzle.runner();
+				Thread t = new SolvePuzzle(Controller.getInstance().getBoardPieces());
+				t.start();
 			}
 		});
 	}
@@ -331,7 +333,9 @@ public class PuzzleRunner extends Application {
 		solveBtn.setOnAction(new EventHandler<ActionEvent>() {
 			@Override
 			public void handle(ActionEvent actionEvent) {
-				SolvePuzzleJSON.runner(boardPieces);
+				//SolvePuzzleJSON.runner(boardPieces);
+				Thread t = new SolvePuzzleJSON();
+				t.start();
 			}
 		});
 	}
