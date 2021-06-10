@@ -43,8 +43,8 @@ public class CreatePuzzleBoard {
     public ArrayList<Piece> getBoardPieces() {return boardPieces;}
 
     public CreatePuzzleBoard(){
-        this.rows = controller.ROWS;
-        this.columns = controller.COLUMNS;
+        this.rows = controller.getRows();
+        this.columns = controller.getColumns();
         this.height = controller.getBoardSize()[1];
         this.width = controller.getBoardSize()[0];
         this.pieceWidth =(double)width/columns;
@@ -58,6 +58,14 @@ public class CreatePuzzleBoard {
         createRows(rows);
         findIntersectPoints();
         defineBoardPieceCorners();
+        while(ComparePieces.checkForDuplicates(boardPieces)){
+            System.out.println("HELLO");
+            clearData();
+            createColumn(columns);
+            createRows(rows);
+            findIntersectPoints();
+            defineBoardPieceCorners();
+        }
         setAdjacentPieces();
     }
 
@@ -247,8 +255,8 @@ public class CreatePuzzleBoard {
 
     // Method assigning neighbours to pieces
     public void setAdjacentPieces() {
-        int rows = controller.ROWS;
-        int columns = controller.COLUMNS;
+        int rows = controller.getRows();
+        int columns = controller.getColumns();
         ArrayList<Integer> topRowIndexes = new ArrayList<Integer>(0);
         ArrayList<Integer> bottomRowIndexes = new ArrayList<Integer>(rows-1);
 
@@ -319,5 +327,17 @@ public class CreatePuzzleBoard {
             }
         }
 
+    }
+
+    private void clearData(){
+        columnX = new ArrayList<>();
+        columnY = new ArrayList<>();
+        rowY = new ArrayList<>();
+        rowX = new ArrayList<>();
+        pieceX = new ArrayList<>();
+        pieceY = new ArrayList<>();
+        boardPieces = new ArrayList<>();
+        rowIntersectPoint = new ArrayList<>();
+        columnIntersectPoint = new ArrayList<>();
     }
 }

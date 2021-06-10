@@ -14,6 +14,8 @@ public class Controller {
 	private int[] BOARD_SIZE = new int[2];
 	public final int ROWS = 3;
 	public final int COLUMNS = 3;
+	private int rows;
+	private int columns;
 	private Group board;
 	private Graph graph;
 	private SolvePuzzle solvePuzzle;
@@ -44,6 +46,14 @@ public class Controller {
 	}
 
 	public void setBoardSize(int width, int height) { BOARD_SIZE[0] = width; BOARD_SIZE[1] = height; }
+
+	public void setRows(int rows){this.rows = rows;}
+
+	public int getRows(){return rows;}
+
+	public void setColumns(int columns){this.columns = columns;}
+
+	public int getColumns(){return columns;}
 
 	public void setSolveSpeed(int speed){solveSpeed = speed;}
 
