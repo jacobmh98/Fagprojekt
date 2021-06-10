@@ -1,6 +1,7 @@
 package model;
 
 import controller.Controller;
+import javafx.application.Platform;
 import javafx.event.EventHandler;
 import javafx.scene.Cursor;
 import javafx.scene.input.MouseButton;
@@ -141,11 +142,20 @@ public class Piece extends Polygon {
 
 
 	public void updatePiece() {
-		this.getPoints().removeAll();
-		this.getPoints().setAll(this.corners);
+		Platform.runLater(new Runnable() {
+			@Override
+			public void run() {
+				setPoints();
+			}
+		});
 		this.computeCenter();
 		updateSideLengths();
 		updateVectorCorners();
+	}
+
+	public void setPoints(){
+		this.getPoints().removeAll();
+		this.getPoints().setAll(this.corners);
 	}
 
 	public void updateSideLengths() {

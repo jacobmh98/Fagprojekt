@@ -1,7 +1,6 @@
 package model;
 
 import controller.Controller;
-import javafx.application.Platform;
 
 import java.util.ArrayList;
 
@@ -97,8 +96,7 @@ public class SolvePuzzleJSON extends Thread{
                         Double angle1 = findAngleBetweenVectors(cs[0].getVectors()[0], cs[1].getVectors()[0]);
 
                         while (!((angle1 + epsilon >= 0.0 && angle1 - epsilon <= 0.0)) && !Double.isNaN(angle1)) {
-                            Double finalAngle1 = angle1;
-                            p.rotatePiece(finalAngle1);
+                            p.rotatePiece(angle1);
                             angle1 = findAngleBetweenVectors(cs[0].getVectors()[0], cs[1].getVectors()[0]);
                         }
                         Double angle2 = findAngleBetweenVectors(cs[0].getVectors()[1], cs[1].getVectors()[1]);
@@ -106,29 +104,23 @@ public class SolvePuzzleJSON extends Thread{
                             angle1 = findAngleBetweenVectors(cs[0].getVectors()[0], cs[1].getVectors()[1]);
                             while (!((angle1 + epsilon >= 0.0 && angle1 - epsilon <= 0.0)) && !Double.isNaN(angle1)) {
                                 //                                        System.out.println("Angle" +  angle1);
-                                Double finalAngle = angle1;
-                                p.rotatePiece(finalAngle);
+                                p.rotatePiece(angle1);
                                 angle1 = findAngleBetweenVectors(cs[0].getVectors()[0], cs[1].getVectors()[1]);
                             }
                         }
 
                         Double dx = cs[0].getCoordinates()[0] - cs[1].getCoordinates()[0];
                         Double dy = cs[0].getCoordinates()[1] - cs[1].getCoordinates()[1];
-                        Platform.runLater(new Runnable() {
-                            @Override
-                            public void run() {
-                                p.movePiece(dx, dy);
-
-                            }
-                        });
-
+                        p.movePiece(dx, dy);
+                        sleep(5);
                         queue.add(p);
-                        sleep(30);
                     }
                 }
             }
         }
+        System.out.println(checkIfSolved(boardPieces));
     }
+
 
     public static double findAngleBetweenVectors(Double[] vector1, Double[] vector2){
         double angle;
