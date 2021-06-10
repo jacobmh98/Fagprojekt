@@ -206,6 +206,8 @@ public class SolvePuzzleJSON extends Thread{
             }
         }
         double[] boundaryBox = {lowX, highX, lowY, highY};
+        System.out.println("X: " + lowX + " - " + highX);
+        System.out.println("Y: " + lowY + " - " + highY);
         return boundaryBox;
     }
 
@@ -220,12 +222,12 @@ public class SolvePuzzleJSON extends Thread{
                 corners[0][1] < boundary[2] || corners[1][1] < boundary[2]) { //Check inside y values
             return 0;
         }
-        if (corners[0][0] == boundary[0] || corners[0][0] == boundary[1] ||
-                corners[1][0] == boundary[0] || corners[1][0] == boundary[1]) { //Check x on the boundary
+        if (compareEpsilon(corners[0][0], boundary[0]) || compareEpsilon(corners[0][0], boundary[1]) ||
+                compareEpsilon(corners[1][0], boundary[0]) || compareEpsilon(corners[1][0], boundary[1])) { //Check x on the boundary
             return 1;
         }
-        if (corners[0][1] == boundary[2] || corners[0][1] == boundary[3] ||
-                corners[1][1] == boundary[2] || corners[1][1] == boundary[3]) { //Check y on the boundary
+        if (compareEpsilon(corners[0][1], boundary[2]) || compareEpsilon(corners[0][1], boundary[3]) ||
+                compareEpsilon(corners[1][1], boundary[2]) || compareEpsilon(corners[1][1], boundary[3])) { //Check y on the boundary
             return 1;
         }
         return 2;
@@ -234,10 +236,18 @@ public class SolvePuzzleJSON extends Thread{
     private static boolean checkMatchingSides(SideLength s1, SideLength s2){
         Double[][] corners1 = s1.getCorners();
         Double[][] corners2 = s2.getCorners();
-        if(corners1[0][0] == corners2[0][0] && corners1[0][1] == corners2[0][1] && corners1[1][0] == corners2[1][0] && corners1[1][1] == corners2[1][1]){
+        if(compareEpsilon(corners1[0][0], corners2[0][0]) && compareEpsilon(corners1[0][1], corners2[0][1]) && compareEpsilon(corners1[1][0], corners2[1][0]) && compareEpsilon(corners1[1][1], corners2[1][1])){
             return true;
         }
-        if(corners1[0][0] == corners2[1][0] && corners1[0][1] == corners2[1][1] && corners1[1][0] == corners2[0][0] && corners1[1][1] == corners2[0][1]){
+        if(compareEpsilon(corners1[0][0], corners2[1][0]) && compareEpsilon(corners1[0][1], corners2[1][1]) && compareEpsilon(corners1[1][0], corners2[0][0]) && compareEpsilon(corners1[1][1], corners2[0][1])){
+            return true;
+        }
+        return false;
+    }
+
+    private static boolean compareEpsilon(double value1, double value2){
+        double epsilon = 0.00001;
+        if(value1 + epsilon >= value2 && value1 - epsilon <= value2){
             return true;
         }
         return false;
