@@ -210,6 +210,10 @@ public class Piece extends Polygon {
 //		}
 	}
 
+	public Double[] checkIfConnect(Piece p) {
+		return adjacentPieces.get(p);
+	}
+
 	public boolean checkForConnect() {
 		computeNearbyPieces();
 		for(Piece p : nearbyPieces) {

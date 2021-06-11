@@ -32,11 +32,11 @@ public class Controller {
 		this.boardPieces = boardPieces;
 	}
 
-	public void setSolvePuzzle() {
-		solvePuzzle = new SolvePuzzle(boardPieces);
-	}
+//	public void setSolvePuzzle() {
+//		solvePuzzle = new SolvePuzzle(boardPieces);
+//	}
 
-	public SolvePuzzle getSolvePuzzle() {return this.solvePuzzle; };
+//	public SolvePuzzle getSolvePuzzle() {return this.solvePuzzle; };
 
 	public void setBoard(Group board) {
 		this.board = board;

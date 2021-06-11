@@ -53,6 +53,13 @@ public class Graph {
         }
 
     }
+//
+//    void reset() {
+//        System.out.println(adjVertices);
+//        adjVertices.replaceAll((k,v) -> Collections.<Vertex>emptyList());
+////        adjVertices.clear();
+//        System.out.println(adjVertices);
+//    }
 
     void addVertex(Piece p) {
         adjVertices.putIfAbsent(new Vertex(p), new ArrayList<>());

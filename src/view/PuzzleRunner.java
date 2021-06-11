@@ -280,12 +280,12 @@ public class PuzzleRunner extends Application {
 		boardScene.getStylesheets().add(PuzzleRunner.class.getResource("styles.css").toExternalForm());
 		stage.setScene(boardScene);
 
-		Controller.getInstance().setSolvePuzzle();
+//		Controller.getInstance().setSolvePuzzle();
 
 		solveBtn.setOnAction(new EventHandler<ActionEvent>() {
 			@Override
 			public void handle(ActionEvent actionEvent) {
-				SolvePuzzle solvePuzzle = Controller.getInstance().getSolvePuzzle();
+//				SolvePuzzle solvePuzzle = Controller.getInstance().getSolvePuzzle();
 				//solvePuzzle.runner();
 				Thread t = new SolvePuzzle(Controller.getInstance().getBoardPieces());
 				t.start();
