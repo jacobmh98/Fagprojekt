@@ -125,9 +125,11 @@ public class SolvePuzzleJSON extends Thread{
         double dotProduct = (vector1[0] * vector2[0]) + (vector1[1] * vector2[1]);
         double magnitude1 = Math.sqrt(Math.pow(vector1[0], 2) + Math.pow(vector1[1], 2));
         double magnitude2 = Math.sqrt(Math.pow(vector2[0], 2) + Math.pow(vector2[1], 2));
-
-        angle = Math.acos(dotProduct/(magnitude1 * magnitude2));
-
+        double preCos = dotProduct/(magnitude1 * magnitude2);
+        if(preCos <= -1.0){
+            return Math.PI;
+        }
+        angle = Math.acos(preCos);
         return angle;
     }
 
@@ -243,7 +245,7 @@ public class SolvePuzzleJSON extends Thread{
     }
 
     private static boolean compareEpsilon(double value1, double value2){
-        double epsilon = 0.00001;
+        double epsilon = 0.1;
         if(value1 + epsilon >= value2 && value1 - epsilon <= value2){
             return true;
         }
