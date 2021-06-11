@@ -59,7 +59,6 @@ public class CreatePuzzleBoard {
         findIntersectPoints();
         defineBoardPieceCorners();
         while(ComparePieces.checkForDuplicates(boardPieces)){
-            System.out.println("HELLO");
             clearData();
             createColumn(columns);
             createRows(rows);

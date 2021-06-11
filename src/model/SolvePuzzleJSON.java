@@ -69,6 +69,8 @@ public class SolvePuzzleJSON extends Thread{
         System.out.println("Start piece " + root.getPieceID());
 
         ArrayList<Piece> queue = new ArrayList<>();
+        ArrayList<Integer> PossibleWrongIndexes = new ArrayList<>();
+        ArrayList<ArrayList<Piece>> possibleMatchingPieces = new ArrayList<>();
         queue.add(root);
         for(int i = 0; i < queue.size(); i++) {
             ArrayList<Corner> vectorCornersP1 = queue.get(i).getVectorCorners();
@@ -168,6 +170,8 @@ public class SolvePuzzleJSON extends Thread{
                         }
                     }
                     if(!foundMatch){
+                        System.out.println("Corners: (" + s1.getCorners()[0][0] + ", " + s1.getCorners()[1][0] + "); (" + s1.getCorners()[0][1] + ", " + s1.getCorners()[1][1] + ")");
+                        System.out.println("Boundary: (" + boundaryBox[0] + ", " + boundaryBox[1] + "); (" + boundaryBox[2] + ", " + boundaryBox[3] + ")");
                         System.out.println("An inner side didn't have a matching side");
                         return false;
                     }
