@@ -69,6 +69,8 @@ public class SolvePuzzleJSON extends Thread{
         System.out.println("Start piece " + root.getPieceID());
 
         ArrayList<Piece> queue = new ArrayList<>();
+        ArrayList<Integer> PossibleWrongIndexes = new ArrayList<>();
+        ArrayList<ArrayList<Piece>> possibleMatchingPieces = new ArrayList<>();
         queue.add(root);
         for(int i = 0; i < queue.size(); i++) {
             ArrayList<Corner> vectorCornersP1 = queue.get(i).getVectorCorners();
@@ -109,7 +111,7 @@ public class SolvePuzzleJSON extends Thread{
                         Double dx = cs[0].getCoordinates()[0] - cs[1].getCoordinates()[0];
                         Double dy = cs[0].getCoordinates()[1] - cs[1].getCoordinates()[1];
                         p.movePiece(dx, dy);
-                        sleep(30);
+                        sleep(Controller.getInstance().getSolveSpeed());
                         queue.add(p);
                     }
                 }
@@ -125,9 +127,11 @@ public class SolvePuzzleJSON extends Thread{
         double dotProduct = (vector1[0] * vector2[0]) + (vector1[1] * vector2[1]);
         double magnitude1 = Math.sqrt(Math.pow(vector1[0], 2) + Math.pow(vector1[1], 2));
         double magnitude2 = Math.sqrt(Math.pow(vector2[0], 2) + Math.pow(vector2[1], 2));
-
-        angle = Math.acos(dotProduct/(magnitude1 * magnitude2));
-
+        double preCos = dotProduct/(magnitude1 * magnitude2);
+        if(preCos <= -1.0){
+            return Math.PI;
+        }
+        angle = Math.acos(preCos);
         return angle;
     }
 
@@ -150,7 +154,7 @@ public class SolvePuzzleJSON extends Thread{
             for(SideLength s1 : p1.getSideLengths()){
                 int position = checkBoundaryBox(boundaryBox, s1);
                 if(position == 0){
-                    System.out.println("One side was out of bounds");
+                    System.out.println("One side was out of bounds"); //Doesn't do anything right now
                     return false;
                 } else if(position == 2) {
                     boolean foundMatch = false;
@@ -166,6 +170,8 @@ public class SolvePuzzleJSON extends Thread{
                         }
                     }
                     if(!foundMatch){
+                        System.out.println("Corners: (" + s1.getCorners()[0][0] + ", " + s1.getCorners()[1][0] + "); (" + s1.getCorners()[0][1] + ", " + s1.getCorners()[1][1] + ")");
+                        System.out.println("Boundary: (" + boundaryBox[0] + ", " + boundaryBox[1] + "); (" + boundaryBox[2] + ", " + boundaryBox[3] + ")");
                         System.out.println("An inner side didn't have a matching side");
                         return false;
                     }
@@ -179,7 +185,7 @@ public class SolvePuzzleJSON extends Thread{
         Double lowX = null, lowY = null, highX = null, highY = null;
         for(Piece p : boardPieces){
             Double[] corners = p.getCorners();
-            for(int i = 0; i < corners.length; i++){
+            for(int i = 2; i < corners.length; i++){
                 double value = corners[i];
                 if(i%2 == 0){
                     if(lowX == null && highX == null){
@@ -203,20 +209,20 @@ public class SolvePuzzleJSON extends Thread{
             }
         }
         double[] boundaryBox = {lowX, highX, lowY, highY};
-        System.out.println("X: " + lowX + " - " + highX);
-        System.out.println("Y: " + lowY + " - " + highY);
         return boundaryBox;
     }
 
     private static int checkBoundaryBox(double[] boundary, SideLength s1) {
         Double[][] corners = s1.getCorners();
+        double epsilon = 0.00001;
         //return values 0 -> outside box -- 1 -> on the side of the box -- 2 -> inside the box
-        if (corners[0][0] > boundary[1] || corners[1][0] > boundary[1] ||
-                corners[0][0] < boundary[0] || corners[1][0] < boundary[0]) { //Check inside x values
+        if (corners[0][0] > boundary[1]+epsilon || corners[1][0] > boundary[1]+epsilon ||
+                corners[0][0] < boundary[0]-epsilon || corners[1][0] < boundary[0]-epsilon) { //Check inside x values
+
             return 0;
         }
-        if (corners[0][1] > boundary[3] || corners[1][1] > boundary[3] ||
-                corners[0][1] < boundary[2] || corners[1][1] < boundary[2]) { //Check inside y values
+        if (corners[0][1] > boundary[3]+epsilon || corners[1][1] > boundary[3]+epsilon ||
+                corners[0][1] < boundary[2]-epsilon || corners[1][1] < boundary[2]-epsilon) { //Check inside y values
             return 0;
         }
         if (compareEpsilon(corners[0][0], boundary[0]) || compareEpsilon(corners[0][0], boundary[1]) ||
@@ -243,7 +249,7 @@ public class SolvePuzzleJSON extends Thread{
     }
 
     private static boolean compareEpsilon(double value1, double value2){
-        double epsilon = 0.00001;
+        double epsilon = 0.1;
         if(value1 + epsilon >= value2 && value1 - epsilon <= value2){
             return true;
         }

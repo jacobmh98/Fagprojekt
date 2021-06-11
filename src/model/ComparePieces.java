@@ -4,33 +4,33 @@ import java.util.ArrayList;
 
 public class ComparePieces {
 
-    public static boolean compareAllPieces(Piece[] pieceList){
+    public static boolean checkForDuplicates(Piece[] pieceList){
         for(int i = 0; i < pieceList.length; i++){
             for(int j = i; j < pieceList.length; j++){
                 if(i != j){
-                    if(!comparePieces(pieceList[i].getCorners(), pieceList[j].getCorners())){
-                        return false;
+                    if(comparePieces(pieceList[i].getCorners(), pieceList[j].getCorners())){
+                        return true;
                     }
                 }
             }
         }
-        return true;
+        return false;
     }
 
-    public static boolean compareAllPieces(ArrayList<Piece> pieceList){
+    public static boolean checkForDuplicates(ArrayList<Piece> pieceList){
         for(int i = 0; i < pieceList.size(); i++){
             for(int j = i; j < pieceList.size(); j++){
                 if(i != j){
-                    if(!comparePieces(pieceList.get(i).getCorners(), pieceList.get(j).getCorners())){
-                        return false;
+                    if(comparePieces(pieceList.get(i).getCorners(), pieceList.get(j).getCorners())){
+                        return true;
                     }
                 }
             }
         }
-        return true;
+        return false;
     }
 
-    public static boolean comparePieces(Double[] piece1, Double[] piece2){
+    public static boolean comparePieces(Double[] piece1, Double[] piece2){ //return false if pieces are different
         ArrayList<Double> newPiece1 = calculatePieceCenterOrigo(deleteObsoletePoints(piece1));
         ArrayList<Double> newPiece2 = calculatePieceCenterOrigo(deleteObsoletePoints(piece2));
         if(newPiece1.size() != newPiece2.size()){

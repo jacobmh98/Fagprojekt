@@ -22,13 +22,11 @@ public class VoronoiBoard {
         v = Voronoi.findAll(randomPoints, clip); //Use of the library tektosyne to find the voronoi regions
         pieces = new Piece[points];
         createPiecesArray();
-        /*
-        while(!ComparePieces.compareAllPieces(pieces)){
+        while(ComparePieces.checkForDuplicates(pieces)){
             randomPoints = createRandomPoints();
             v = Voronoi.findAll(randomPoints, clip);
             createPiecesArray();
         }
-        */
         findNeighbours();
     }
 

@@ -51,15 +51,19 @@ public class PuzzleRunner extends Application {
 			pane.setHgap(5);
 
 			HBox rbContainer1 = new HBox();
+			rbContainer1.setSpacing(50);
 			ToggleGroup toggleGroup1 = new ToggleGroup();
 			RadioButton tg1Rb1 = new RadioButton();
 			RadioButton tg1Rb2 = new RadioButton();
-			tg1Rb1.setText("Generate board");
+			RadioButton tg1Rb3 = new RadioButton();
+			tg1Rb1.setText("Generate Voronoi board");
 			tg1Rb1.setSelected(true);
 			tg1Rb1.setToggleGroup(toggleGroup1);
 			tg1Rb2.setText("JSon import");
 			tg1Rb2.setToggleGroup(toggleGroup1);
-			rbContainer1.getChildren().addAll(tg1Rb1, tg1Rb2);
+			tg1Rb3.setText("Generate NxM board");
+			tg1Rb3.setToggleGroup(toggleGroup1);
+			rbContainer1.getChildren().addAll(tg1Rb1, tg1Rb2, tg1Rb3);
 
 			Label lblLogin = new Label("Choose a puzzle and fill out how many pieces you want to solve and the preferred board size");
 			lblLogin.setFont(new Font(15.0));
@@ -83,6 +87,19 @@ public class PuzzleRunner extends Application {
 			txtHeight.setPrefColumnCount(5);
 			txtHeight.setText("600");
 
+			TextField rowField = new TextField();
+			TextField colField = new TextField();
+			rowField.setPromptText("Rows");
+			colField.setPromptText("Columns");
+			TextField widthField2 = new TextField();
+			TextField heightField2 = new TextField();
+			widthField2.setPromptText("Width");
+			heightField2.setPromptText("Height");
+			rowField.setVisible(false);
+			colField.setVisible(false);
+			widthField2.setVisible(false);
+			heightField2.setVisible(false);
+
 			Button btnLogin = new Button("Initialize puzzle");
 			HBox rbContainer = new HBox();
 			ToggleGroup toggleGroup2 = new ToggleGroup();
@@ -102,10 +119,15 @@ public class PuzzleRunner extends Application {
 			GridPane.setConstraints(txtNumberOfPieces, 0, 2);
 			GridPane.setConstraints(txtWidth, 0, 3);
 			GridPane.setConstraints(txtHeight, 0, 4);
-			GridPane.setConstraints(rbContainer, 0, 5);
-			GridPane.setConstraints(btnLogin, 0, 6);
+			GridPane.setConstraints(rbContainer, 0, 6);
+			GridPane.setConstraints(btnLogin, 0, 7);
+			GridPane.setConstraints(rowField,0,2);
+			GridPane.setConstraints(colField,0,3);
+			GridPane.setConstraints(widthField2,0,4);
+			GridPane.setConstraints(heightField2,0,5);
 
-			pane.getChildren().addAll(lblLogin, rbContainer1, selectFile, lblSelectedFile, txtNumberOfPieces, txtWidth, txtHeight, rbContainer, btnLogin);
+
+			pane.getChildren().addAll(lblLogin, rbContainer1, selectFile, lblSelectedFile, txtNumberOfPieces, txtWidth, txtHeight, rbContainer, btnLogin, rowField, colField, widthField2, heightField2);
 
 			Scene scene = new Scene(pane);
 			stage.setScene(scene);
@@ -117,21 +139,52 @@ public class PuzzleRunner extends Application {
 
 			tg1Rb1.selectedProperty().addListener(new ChangeListener<Boolean>() {
 				@Override
-				public void changed(ObservableValue<? extends Boolean> observableValue, Boolean aBoolean, Boolean t1) {
-					if(t1) {
+				public void changed(ObservableValue<? extends Boolean> observableValue, Boolean wasSelected, Boolean isSelected) {
+					if(isSelected) {
 						txtHeight.setVisible(true);
 						txtWidth.setVisible(true);
 						txtNumberOfPieces.setVisible(true);
-						rbContainer.setVisible(true);
-						selectFile.setVisible(false);
-						lblSelectedFile.setVisible(false);
-					} else {
+						//rbContainer.setVisible(true);
+					}
+					if(wasSelected) {
 						txtHeight.setVisible(false);
 						txtWidth.setVisible(false);
 						txtNumberOfPieces.setVisible(false);
-						rbContainer.setVisible(false);
+						//rbContainer.setVisible(false);
+					}
+				}
+			});
+
+			tg1Rb2.selectedProperty().addListener(new ChangeListener<Boolean>() {
+				@Override
+				public void changed(ObservableValue<? extends Boolean> observableValue, Boolean wasSelected, Boolean isSelected) {
+					if(isSelected){
 						selectFile.setVisible(true);
 						lblSelectedFile.setVisible(true);
+					}
+					if(wasSelected){
+						selectFile.setVisible(false);
+						lblSelectedFile.setVisible(false);
+					}
+				}
+			});
+
+			tg1Rb3.selectedProperty().addListener(new ChangeListener<Boolean>() {
+				@Override
+				public void changed(ObservableValue<? extends Boolean> observableValue, Boolean wasSelected, Boolean isSelected) {
+					if(isSelected){
+						rowField.setVisible(true);
+						colField.setVisible(true);
+						heightField2.setVisible(true);
+						widthField2.setVisible(true);
+						//rbContainer.setVisible(true);
+					}
+					if(wasSelected){
+						rowField.setVisible(false);
+						colField.setVisible(false);
+						heightField2.setVisible(false);
+						widthField2.setVisible(false);
+						//rbContainer.setVisible(false);
 					}
 				}
 			});
@@ -161,10 +214,16 @@ public class PuzzleRunner extends Application {
 						controller.setBoardSize(width, height);
 						if(tg1Rb1.isSelected()) {
 							testTriangulation(stage, points, width, height);
-						} else {
+						} else if(tg1Rb2.isSelected()){
 							if(selectedFile != null) {
 								generateBoardFromJson(stage, width, height, selectedFile[0].getAbsolutePath());
 							}
+						} else {
+							int rows = Integer.parseInt(rowField.getText());
+							int cols = Integer.parseInt(colField.getText());
+							width = Integer.parseInt(widthField2.getText());
+							height = Integer.parseInt(heightField2.getText());
+							generateRowColBoard(stage, rows, cols, width, height);
 						}
 
 						if(((RadioButton) toggleGroup2.getSelectedToggle()).getText().equals("Shuffled")) {
@@ -321,14 +380,29 @@ public class PuzzleRunner extends Application {
 		Label solveLbl = new Label("Solve the puzzle");
 		solveLbl.getStyleClass().add("headerlbl");
 		Button solveBtn = new Button("Solve Puzzle");
+		Slider speedSlider = new Slider(0,100,1);
+		speedSlider.setValue(30);
+		Controller.getInstance().setSolveSpeed((int)speedSlider.getValue());
+		Label speedLabel = new Label("Solve speed");
+		Label currentSpeedLabel = new Label("Current: " + Controller.getInstance().getSolveSpeed());
 		root.setPadding(new Insets(10,10,10,10));
 		pane.getChildren().add(outerBoard);
 		VBox rightSide = new VBox(8);
-		rightSide.getChildren().addAll(solveLbl, solveBtn);
+		rightSide.getChildren().addAll(solveLbl, solveBtn,speedLabel, speedSlider, currentSpeedLabel);
 		root.getChildren().addAll(pane, rightSide);
 		Scene boardScene = new Scene(root, width+300, height + 20);
 		boardScene.getStylesheets().add(PuzzleRunner.class.getResource("styles.css").toExternalForm());
 		stage.setScene(boardScene);
+
+		speedSlider.valueProperty().addListener(
+				new ChangeListener<Number>() {
+					@Override
+					public void changed(ObservableValue<? extends Number> observableValue, Number OldValue, Number newValue) {
+						Controller.getInstance().setSolveSpeed(newValue.intValue());
+						currentSpeedLabel.setText("Current: " + Controller.getInstance().getSolveSpeed());
+					}
+				}
+		);
 
 		solveBtn.setOnAction(new EventHandler<ActionEvent>() {
 			@Override
@@ -339,6 +413,76 @@ public class PuzzleRunner extends Application {
 //					e.printStackTrace();
 //				}
 				Thread t = new SolvePuzzleJSON();
+				t.setDaemon(true);
+				t.start();
+			}
+		});
+	}
+
+	public void generateRowColBoard(Stage stage, int rows, int cols, int width, int height){
+		Controller controller = Controller.getInstance();
+		HBox root = new HBox(8);
+
+		StackPane pane = new StackPane();
+		pane.setPadding(new Insets(0,10,10,20));
+		Pane outerBoard = new Pane();
+		outerBoard.setMaxWidth(width);
+		outerBoard.setMaxHeight(height);
+		outerBoard.setMinWidth(width);
+		outerBoard.setMinHeight(height);
+		Group board = new Group();
+		outerBoard.getChildren().add(board);
+
+		controller.setBoardSize(width, height);
+		controller.setRows(rows);
+		controller.setColumns(cols);
+		CreatePuzzleBoard puzzleBoard = new CreatePuzzleBoard();
+		puzzleBoard.createPuzzle();
+		ArrayList<Piece> boardPieces = puzzleBoard.getBoardPieces();
+		for(Piece p : boardPieces){
+			board.getChildren().add(p);
+		}
+		controller.setBoard(board);
+		controller.setBoardPieces(boardPieces);
+
+		outerBoard.setStyle("-fx-border-color: black");
+		Label solveLbl = new Label("Solve the puzzle");
+		solveLbl.getStyleClass().add("headerlbl");
+		Button solveBtn = new Button("Solve Puzzle");
+		Slider speedSlider = new Slider(0,100,1);
+		speedSlider.setValue(30);
+		Controller.getInstance().setSolveSpeed((int)speedSlider.getValue());
+		Label speedLabel = new Label("Solve speed");
+		Label currentSpeedLabel = new Label("Current: " + Controller.getInstance().getSolveSpeed());
+		root.setPadding(new Insets(10,10,10,10));
+		pane.getChildren().add(outerBoard);
+		VBox rightSide = new VBox(8);
+		rightSide.getChildren().addAll(solveLbl, solveBtn,speedLabel, speedSlider, currentSpeedLabel);
+		root.getChildren().addAll(pane, rightSide);
+		Scene boardScene = new Scene(root, width+300, height + 20);
+		boardScene.getStylesheets().add(PuzzleRunner.class.getResource("styles.css").toExternalForm());
+		stage.setScene(boardScene);
+
+		speedSlider.valueProperty().addListener(
+				new ChangeListener<Number>() {
+					@Override
+					public void changed(ObservableValue<? extends Number> observableValue, Number OldValue, Number newValue) {
+						Controller.getInstance().setSolveSpeed(newValue.intValue());
+						currentSpeedLabel.setText("Current: " + Controller.getInstance().getSolveSpeed());
+					}
+				}
+		);
+
+		solveBtn.setOnAction(new EventHandler<ActionEvent>() {
+			@Override
+			public void handle(ActionEvent actionEvent) {
+//				try {
+//					SolvePuzzleJSON.runner(boardPieces);
+//				} catch (InterruptedException e) {
+//					e.printStackTrace();
+//				}
+				Thread t = new SolvePuzzleJSON();
+				t.setDaemon(true);
 				t.start();
 			}
 		});
