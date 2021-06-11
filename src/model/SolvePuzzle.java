@@ -123,7 +123,7 @@ public class SolvePuzzle extends Thread{
 //                    System.out.println("Vector 2 " + vector2[0] + ", " + vector2[1]);
 //                    System.out.println("angle1 between vertical " + angleVertical1);
 //                    System.out.println("angle2 between vertical " + angleVertical2);
-                    
+
                     if(angleVertical1 + epsilon >= 0.0 && angleVertical1 - epsilon <= 0.0) {
                         if(vector2[0] > 0.0) {
                             root.rotatePiece(Math.PI/2.0);
@@ -141,7 +141,7 @@ public class SolvePuzzle extends Thread{
                 }
             }
 
-            sleep(20);
+            sleep(Controller.getInstance().getSolveSpeed());
 
             ArrayList<Piece> queue = new ArrayList<>();
             queue.add(root);
@@ -300,7 +300,7 @@ public class SolvePuzzle extends Thread{
             s2Center = Controller.getInstance().getBoardPieces().get(s2.getPieceId()).getCenter();
             Controller.getInstance().getBoardPieces().get(s2.getPieceId()).movePiece(dx+s2Center[0],dy+s2Center[1]);
         }
-        sleep(20);
+        sleep(Controller.getInstance().getSolveSpeed());
         return angle;
     }
 

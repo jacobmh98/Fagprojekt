@@ -65,7 +65,7 @@ public class PuzzleRunner extends Application {
 			tg1Rb3.setToggleGroup(toggleGroup1);
 			rbContainer1.getChildren().addAll(tg1Rb1, tg1Rb2, tg1Rb3);
 
-			Label lblLogin = new Label("Choose a puzzle and fill out how many pieces you want to solve and the preferred board size");
+			Label lblLogin = new Label("Choose a puzzle and fill the necessary fields");
 			lblLogin.setFont(new Font(15.0));
 
 			Button selectFile = new Button("Select JSon File");
@@ -77,15 +77,12 @@ public class PuzzleRunner extends Application {
 			TextField txtNumberOfPieces = new TextField();
 			txtNumberOfPieces.setPromptText("Number of pieces");
 			txtNumberOfPieces.setPrefColumnCount(5);
-			txtNumberOfPieces.setText("50");
 			TextField txtWidth = new TextField();
 			txtWidth.setPromptText("Puzzle width");
 			txtWidth.setPrefColumnCount(5);
-			txtWidth.setText("600");
 			TextField txtHeight = new TextField();
 			txtHeight.setPromptText("Puzzle height");
 			txtHeight.setPrefColumnCount(5);
-			txtHeight.setText("600");
 
 			TextField rowField = new TextField();
 			TextField colField = new TextField();
@@ -159,10 +156,14 @@ public class PuzzleRunner extends Application {
 				@Override
 				public void changed(ObservableValue<? extends Boolean> observableValue, Boolean wasSelected, Boolean isSelected) {
 					if(isSelected){
+						widthField2.setVisible(true);
+						heightField2.setVisible(true);
 						selectFile.setVisible(true);
 						lblSelectedFile.setVisible(true);
 					}
 					if(wasSelected){
+						widthField2.setVisible(false);
+						heightField2.setVisible(false);
 						selectFile.setVisible(false);
 						lblSelectedFile.setVisible(false);
 					}
@@ -206,16 +207,20 @@ public class PuzzleRunner extends Application {
 				@Override
 				public void handle(ActionEvent actionEvent) {
 					try {
+						int width;
+						int height;
 
-						int points = Integer.parseInt(txtNumberOfPieces.getText());
-						int width = Integer.parseInt(txtWidth.getText());
-						int height = Integer.parseInt(txtHeight.getText());
-
-						controller.setBoardSize(width, height);
 						if(tg1Rb1.isSelected()) {
+							width = Integer.parseInt(txtWidth.getText());
+							height = Integer.parseInt(txtHeight.getText());
+							int points = Integer.parseInt(txtNumberOfPieces.getText());
+							controller.setBoardSize(width, height);
 							testTriangulation(stage, points, width, height);
 						} else if(tg1Rb2.isSelected()){
 							if(selectedFile != null) {
+								width = Integer.parseInt(widthField2.getText());
+								height = Integer.parseInt(heightField2.getText());
+
 								generateBoardFromJson(stage, width, height, selectedFile[0].getAbsolutePath());
 							}
 						} else {
@@ -333,19 +338,32 @@ public class PuzzleRunner extends Application {
 		root.setPadding(new Insets(10,10,10,10));
 		pane.getChildren().add(outerBoard);
 		VBox rightSide = new VBox(8);
-		rightSide.getChildren().addAll(solveLbl, solveBtn);
+
+		Slider speedSlider = new Slider(0,100,1);
+		speedSlider.setValue(30);
+		Controller.getInstance().setSolveSpeed((int)speedSlider.getValue());
+		Label speedLabel = new Label("Solve speed");
+		Label currentSpeedLabel = new Label("Current: " + Controller.getInstance().getSolveSpeed());
+
+		rightSide.getChildren().addAll(solveLbl, solveBtn,speedLabel, speedSlider, currentSpeedLabel);
 		root.getChildren().addAll(pane, rightSide);
 		Scene boardScene = new Scene(root, width+300, height + 20);
 		boardScene.getStylesheets().add(PuzzleRunner.class.getResource("styles.css").toExternalForm());
 		stage.setScene(boardScene);
 
-//		Controller.getInstance().setSolvePuzzle();
+		speedSlider.valueProperty().addListener(
+				new ChangeListener<Number>() {
+					@Override
+					public void changed(ObservableValue<? extends Number> observableValue, Number OldValue, Number newValue) {
+						Controller.getInstance().setSolveSpeed(newValue.intValue());
+						currentSpeedLabel.setText("Current: " + Controller.getInstance().getSolveSpeed());
+					}
+				}
+		);
 
 		solveBtn.setOnAction(new EventHandler<ActionEvent>() {
 			@Override
 			public void handle(ActionEvent actionEvent) {
-//				SolvePuzzle solvePuzzle = Controller.getInstance().getSolvePuzzle();
-				//solvePuzzle.runner();
 				Thread t = new SolvePuzzle(Controller.getInstance().getBoardPieces());
 				t.start();
 			}
@@ -354,6 +372,8 @@ public class PuzzleRunner extends Application {
 
 	public void generateBoardFromJson(Stage stage, int width, int height, String filename) throws Exception {
 		HBox root = new HBox(8);
+
+		Controller.getInstance().setBoardSize(width, height);
 
 		StackPane pane = new StackPane();
 		pane.setPadding(new Insets(0,10,10,20));
@@ -372,7 +392,6 @@ public class PuzzleRunner extends Application {
 			System.out.println(p.getPieceID());
 			board.getChildren().add(p);
 		}
-
 
 		Controller.getInstance().setBoardPieces(boardPieces);
 		Controller.getInstance().setBoard(board);
