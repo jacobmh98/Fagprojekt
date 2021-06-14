@@ -8,31 +8,21 @@ import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.scene.Group;
-import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
-import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.*;
-import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
 import javafx.scene.shape.Line;
 import javafx.scene.text.Font;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import model.*;
-//import org.delaunay.model.Triangle;
-//import org.kynosarges.tektosyne.geometry.PointD;
-//import org.kynosarges.tektosyne.geometry.VoronoiResults;
 
-
-import java.awt.geom.Point2D;
 import java.io.File;
 import java.util.ArrayList;
-import java.util.Collection;
-import java.util.LinkedHashSet;
-import java.util.Set;
 
 public class PuzzleRunner extends Application {
+	private Controller controller = Controller.getInstance();
 
 	public static void main(String[] args) {
 		launch(args);
@@ -40,10 +30,6 @@ public class PuzzleRunner extends Application {
 
 	@Override
 	public void start(Stage stage) throws Exception {
-
-		// get instance of controller
-		Controller controller = Controller.getInstance();
-
 		try {
 			GridPane pane = new GridPane();
 			pane.setPadding(new Insets(10, 10, 30, 10));
@@ -141,13 +127,11 @@ public class PuzzleRunner extends Application {
 						txtHeight.setVisible(true);
 						txtWidth.setVisible(true);
 						txtNumberOfPieces.setVisible(true);
-						//rbContainer.setVisible(true);
 					}
 					if(wasSelected) {
 						txtHeight.setVisible(false);
 						txtWidth.setVisible(false);
 						txtNumberOfPieces.setVisible(false);
-						//rbContainer.setVisible(false);
 					}
 				}
 			});
@@ -178,14 +162,12 @@ public class PuzzleRunner extends Application {
 						colField.setVisible(true);
 						heightField2.setVisible(true);
 						widthField2.setVisible(true);
-						//rbContainer.setVisible(true);
 					}
 					if(wasSelected){
 						rowField.setVisible(false);
 						colField.setVisible(false);
 						heightField2.setVisible(false);
 						widthField2.setVisible(false);
-						//rbContainer.setVisible(false);
 					}
 				}
 			});
@@ -215,7 +197,7 @@ public class PuzzleRunner extends Application {
 							height = Integer.parseInt(txtHeight.getText());
 							int points = Integer.parseInt(txtNumberOfPieces.getText());
 							controller.setBoardSize(width, height);
-							testTriangulation(stage, points, width, height);
+							generateVoronoiBoard(stage, points, width, height);
 						} else if(tg1Rb2.isSelected()){
 							if(selectedFile != null) {
 								width = Integer.parseInt(widthField2.getText());
@@ -308,7 +290,7 @@ public class PuzzleRunner extends Application {
 		stage.setScene((boardScene));
 	}
 
-	public void testTriangulation(Stage stage, int points, int width, int height) throws Exception {
+	public void generateVoronoiBoard(Stage stage, int points, int width, int height) throws Exception {
 		HBox root = new HBox(8);
 
 		StackPane pane = new StackPane();
@@ -329,8 +311,7 @@ public class PuzzleRunner extends Application {
 		for(int i = 0; i < pieces.length; i++){
 			pieceArray.add(pieces[i]);
 		}
-		Controller.getInstance().setBoardPieces(pieceArray);
-		Controller.getInstance().setBoard(board);
+		controller.setBoardPieces(pieceArray);
 		outerBoard.setStyle("-fx-border-color: black");
 		Label solveLbl = new Label("Solve the puzzle");
 		solveLbl.getStyleClass().add("headerlbl");
@@ -341,9 +322,9 @@ public class PuzzleRunner extends Application {
 
 		Slider speedSlider = new Slider(0,100,1);
 		speedSlider.setValue(30);
-		Controller.getInstance().setSolveSpeed((int)speedSlider.getValue());
+		controller.setSolveSpeed((int)speedSlider.getValue());
 		Label speedLabel = new Label("Solve speed");
-		Label currentSpeedLabel = new Label("Current: " + Controller.getInstance().getSolveSpeed());
+		Label currentSpeedLabel = new Label("Current: " + controller.getSolveSpeed());
 
 		rightSide.getChildren().addAll(solveLbl, solveBtn,speedLabel, speedSlider, currentSpeedLabel);
 		root.getChildren().addAll(pane, rightSide);
@@ -355,8 +336,8 @@ public class PuzzleRunner extends Application {
 				new ChangeListener<Number>() {
 					@Override
 					public void changed(ObservableValue<? extends Number> observableValue, Number OldValue, Number newValue) {
-						Controller.getInstance().setSolveSpeed(newValue.intValue());
-						currentSpeedLabel.setText("Current: " + Controller.getInstance().getSolveSpeed());
+						controller.setSolveSpeed(newValue.intValue());
+						currentSpeedLabel.setText("Current: " + controller.getSolveSpeed());
 					}
 				}
 		);
@@ -364,7 +345,7 @@ public class PuzzleRunner extends Application {
 		solveBtn.setOnAction(new EventHandler<ActionEvent>() {
 			@Override
 			public void handle(ActionEvent actionEvent) {
-				Thread t = new SolvePuzzle(Controller.getInstance().getBoardPieces());
+				Thread t = new SolvePuzzle(controller.getBoardPieces());
 				t.start();
 			}
 		});
@@ -373,7 +354,7 @@ public class PuzzleRunner extends Application {
 	public void generateBoardFromJson(Stage stage, int width, int height, String filename) throws Exception {
 		HBox root = new HBox(8);
 
-		Controller.getInstance().setBoardSize(width, height);
+		controller.setBoardSize(width, height);
 
 		StackPane pane = new StackPane();
 		pane.setPadding(new Insets(0,10,10,20));
@@ -393,17 +374,16 @@ public class PuzzleRunner extends Application {
 			board.getChildren().add(p);
 		}
 
-		Controller.getInstance().setBoardPieces(boardPieces);
-		Controller.getInstance().setBoard(board);
+		controller.setBoardPieces(boardPieces);
 		outerBoard.setStyle("-fx-border-color: black");
 		Label solveLbl = new Label("Solve the puzzle");
 		solveLbl.getStyleClass().add("headerlbl");
 		Button solveBtn = new Button("Solve Puzzle");
 		Slider speedSlider = new Slider(0,100,1);
 		speedSlider.setValue(30);
-		Controller.getInstance().setSolveSpeed((int)speedSlider.getValue());
+		controller.setSolveSpeed((int)speedSlider.getValue());
 		Label speedLabel = new Label("Solve speed");
-		Label currentSpeedLabel = new Label("Current: " + Controller.getInstance().getSolveSpeed());
+		Label currentSpeedLabel = new Label("Current: " + controller.getSolveSpeed());
 		root.setPadding(new Insets(10,10,10,10));
 		pane.getChildren().add(outerBoard);
 		VBox rightSide = new VBox(8);
@@ -417,8 +397,8 @@ public class PuzzleRunner extends Application {
 				new ChangeListener<Number>() {
 					@Override
 					public void changed(ObservableValue<? extends Number> observableValue, Number OldValue, Number newValue) {
-						Controller.getInstance().setSolveSpeed(newValue.intValue());
-						currentSpeedLabel.setText("Current: " + Controller.getInstance().getSolveSpeed());
+						controller.setSolveSpeed(newValue.intValue());
+						currentSpeedLabel.setText("Current: " + controller.getSolveSpeed());
 					}
 				}
 		);
@@ -426,11 +406,6 @@ public class PuzzleRunner extends Application {
 		solveBtn.setOnAction(new EventHandler<ActionEvent>() {
 			@Override
 			public void handle(ActionEvent actionEvent) {
-//				try {
-//					SolvePuzzleJSON.runner(boardPieces);
-//				} catch (InterruptedException e) {
-//					e.printStackTrace();
-//				}
 				Thread t = new SolvePuzzleJSON();
 				t.setDaemon(true);
 				t.start();
@@ -439,7 +414,6 @@ public class PuzzleRunner extends Application {
 	}
 
 	public void generateRowColBoard(Stage stage, int rows, int cols, int width, int height){
-		Controller controller = Controller.getInstance();
 		HBox root = new HBox(8);
 
 		StackPane pane = new StackPane();
@@ -461,7 +435,6 @@ public class PuzzleRunner extends Application {
 		for(Piece p : boardPieces){
 			board.getChildren().add(p);
 		}
-		controller.setBoard(board);
 		controller.setBoardPieces(boardPieces);
 
 		outerBoard.setStyle("-fx-border-color: black");
@@ -470,9 +443,9 @@ public class PuzzleRunner extends Application {
 		Button solveBtn = new Button("Solve Puzzle");
 		Slider speedSlider = new Slider(0,100,1);
 		speedSlider.setValue(30);
-		Controller.getInstance().setSolveSpeed((int)speedSlider.getValue());
+		controller.setSolveSpeed((int)speedSlider.getValue());
 		Label speedLabel = new Label("Solve speed");
-		Label currentSpeedLabel = new Label("Current: " + Controller.getInstance().getSolveSpeed());
+		Label currentSpeedLabel = new Label("Current: " + controller.getSolveSpeed());
 		root.setPadding(new Insets(10,10,10,10));
 		pane.getChildren().add(outerBoard);
 		VBox rightSide = new VBox(8);
@@ -486,8 +459,8 @@ public class PuzzleRunner extends Application {
 				new ChangeListener<Number>() {
 					@Override
 					public void changed(ObservableValue<? extends Number> observableValue, Number OldValue, Number newValue) {
-						Controller.getInstance().setSolveSpeed(newValue.intValue());
-						currentSpeedLabel.setText("Current: " + Controller.getInstance().getSolveSpeed());
+						controller.setSolveSpeed(newValue.intValue());
+						currentSpeedLabel.setText("Current: " + controller.getSolveSpeed());
 					}
 				}
 		);
@@ -495,11 +468,6 @@ public class PuzzleRunner extends Application {
 		solveBtn.setOnAction(new EventHandler<ActionEvent>() {
 			@Override
 			public void handle(ActionEvent actionEvent) {
-//				try {
-//					SolvePuzzleJSON.runner(boardPieces);
-//				} catch (InterruptedException e) {
-//					e.printStackTrace();
-//				}
 				Thread t = new SolvePuzzleJSON();
 				t.setDaemon(true);
 				t.start();

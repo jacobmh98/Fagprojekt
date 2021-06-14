@@ -8,12 +8,7 @@ import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Polygon;
-
-import java.awt.*;
-import java.math.RoundingMode;
-import java.text.DecimalFormat;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Set;
 
@@ -26,23 +21,22 @@ public class Piece extends Polygon {
 	private double prevY = 0.0;
 	Controller controller = Controller.getInstance();
 	private ArrayList<Piece> nearbyPieces = new ArrayList<Piece>();
-	private Graph graph = controller.getGraph();
 	private HashMap<Piece, Double[]> adjacentPieces = new HashMap<Piece, Double[]>();
+	private ArrayList<Corner> vectorCorners = new ArrayList<>();
 
 	public Double getRotation() { return this.rotation; }
 	public Double[] getCenter() { return this.center; }
 	public Integer getPieceID() { return this.pieceID; }
 	public HashMap<Piece, Double[]> getAdjacentPieces() { return this.adjacentPieces; }
-	public ArrayList<Corner> vectorCorners = new ArrayList<>();
-	public Double[] getCorners() {
-		return this.corners;
-	}
+	public Double[] getCorners() { return this.corners; }
+	public ArrayList<SideLength> getSideLengths() { return this.sideLengths; }
+	public ArrayList<Corner> getVectorCorners() { return vectorCorners; }
 
 	// Constructor for piece
 	public Piece(Integer pieceID, Double[] corners) {
 		this.pieceID = pieceID;
 		this.corners = corners;
-		graph.addVertex(this);
+		controller.getGraph().addVertex(this);
 
 		// Methods inherited from JavafX Polygon class
 		this.getPoints().addAll(this.corners);
@@ -102,6 +96,26 @@ public class Piece extends Polygon {
 		updatePiece();
 	}
 
+	public void setPoints(){
+		this.getPoints().removeAll();
+		this.getPoints().setAll(this.corners);
+	}
+
+	// set corner coordinates
+	public void setCorners(Double[] updateCorners) {
+		for(int i = 0; i < this.corners.length; i++) {
+			this.corners[i] = updateCorners[i];
+		}
+	}
+
+	public void setRotation(Double angle) {
+		this.rotation += angle;
+		this.rotation %= 2*Math.PI;
+		if(this.rotation < 0) {
+			this.rotation += 2*Math.PI;
+		}
+	}
+
 	public void updateVectorCorners() {
 		if(vectorCorners.isEmpty()) {
 			for (int i = 0; i <= corners.length - 2; i += 2) {
@@ -140,7 +154,6 @@ public class Piece extends Polygon {
 		}
 	}
 
-
 	public void updatePiece() {
 		Platform.runLater(new Runnable() {
 			@Override
@@ -153,11 +166,6 @@ public class Piece extends Polygon {
 		updateVectorCorners();
 	}
 
-	public void setPoints(){
-		this.getPoints().removeAll();
-		this.getPoints().setAll(this.corners);
-	}
-
 	public void updateSideLengths() {
 		if(sideLengths.isEmpty()) {
 			for (int i = 0; i < corners.length; i += 2) {
@@ -167,7 +175,7 @@ public class Piece extends Polygon {
 					Double[] corner1 = {corners[i], corners[i + 1]};
 					Double[] corner2 = {corners[i + 2], corners[i + 3]};
 					Double sideLength = Math.sqrt(Math.pow(dx, 2) + Math.pow(dy, 2));
-					sideLengths.add(new SideLength(pieceID, i / 2, sideLength, corner1, corner2));
+					sideLengths.add(new SideLength(pieceID, sideLength, corner1, corner2));
 					continue;
 				} else {
 					Double dx = (corners[i] - corners[0]);
@@ -175,7 +183,7 @@ public class Piece extends Polygon {
 					Double[] corner1 = {corners[i], corners[i + 1]};
 					Double[] corner2 = {corners[0], corners[1]};
 					Double sideLength = Math.sqrt(Math.pow(dx, 2) + Math.pow(dy, 2));
-					sideLengths.add(new SideLength(pieceID, i / 2, sideLength, corner1, corner2));
+					sideLengths.add(new SideLength(pieceID, sideLength, corner1, corner2));
 					break;
 				}
 			}
@@ -210,8 +218,8 @@ public class Piece extends Polygon {
 //		}
 	}
 
-	public Double[] checkIfConnect(Piece p) {
-		return adjacentPieces.get(p);
+	public boolean checkIfConnect(Piece p) {
+		return true;//adjacentPieces.get(p);
 	}
 
 	public boolean checkForConnect() {
@@ -229,14 +237,14 @@ public class Piece extends Polygon {
 				Double dyMax = temp[1] + 25.0;
 
 				if(dx > dxMin && dx < dxMax && dy > dyMin && dy < dyMax) {
-					if(!graph.depthFirstTraversal(p).contains(this)) {
+					if(!controller.getGraph().depthFirstTraversal(p).contains(this)) {
 						double angle = p.getRotation() - this.rotation;
 						rotatePiece(angle);
 						rotateNeighbours(angle);
 						temp = adjacentPieces.get(p);
 						Double moveDx = dx - temp[0];
 						Double moveDy = dy - temp[1];
-						Set<Piece> connectedPieces = graph.depthFirstTraversal(this);
+						Set<Piece> connectedPieces = controller.getGraph().depthFirstTraversal(this);
 						snapPiece(p, moveDx, moveDy);
 						for(Piece pi : connectedPieces) {
 							if(pi != this && pi != p) {
@@ -252,7 +260,7 @@ public class Piece extends Polygon {
 	}
 
 	private void snapPiece(Piece p, Double dx, Double dy) {
-		graph.addEdge(this, p);
+		controller.getGraph().addEdge(this, p);
 		Double[] updateCorners = new Double[this.getCorners().length];
 
 		for(int i = 0; i < this.getCorners().length; i++) {
@@ -284,10 +292,64 @@ public class Piece extends Polygon {
 		updatePiece();
 	}
 
+	// Method for moving piece relatively
+	public void movePiece(double dx, double dy) {
+		boolean update = true;
+		double c1 = dx - this.getCenter()[0];
+		double c2 = dy - this.getCenter()[1];
+
+		for(Piece p : controller.getGraph().depthFirstTraversal(this)) {
+			Double[] updateCorners = new Double[p.getCorners().length];
+			for(int i = 0; i < p.getCorners().length; i++) {
+				double updateCornerX = p.getCorners()[i] + c1;
+				double updateCornerY =  p.getCorners()[i] + c2;
+
+				if(i % 2 == 0)
+					updateCorners[i] = updateCornerX;
+				else
+					updateCorners[i] = updateCornerY;
+			}
+			if(update) {
+				p.setCorners(updateCorners);
+				p.updatePiece();
+			}
+		}
+	}
+
+	public void movePieceAbsolute(double x, double y) {
+		double diffX = x - this.center[0];
+		double diffY = y - this.center[1];
+		int[] direction = {0,0};
+
+		for (int i = 0; i < corners.length; i++) {
+			if (i % 2 == 0) {
+				corners[i] += diffX;
+				if(corners[i] < 0) {
+					direction[0] = 1;
+				} else if(corners[i] > controller.getBoardSize()[0]) {
+					direction[0] = -1;
+				} else {
+					direction[0] = 0;
+				}
+			} else {
+				corners[i] += diffY;
+				if(corners[i] < 0) {
+					direction[1] = 1;
+				} else if(corners[i] > controller.getBoardSize()[0]) {
+					direction[1] = -1;
+				} else {
+					direction[1] = 0;
+				}
+			}
+		}
+
+		updatePiece();
+	}
+
 	// Method returning nearby pieces within some radius
 	public void computeNearbyPieces() {
 		ArrayList<Piece> nearbyPieces = new ArrayList<Piece>();
-		double radius = (2*(controller.getBoardSize()[0] + controller.getBoardSize()[1])) / (controller.ROWS + controller.COLUMNS);
+		double radius = (2*(controller.getBoardSize()[0] + controller.getBoardSize()[1])) / 6;
 
 		for(Piece p : controller.getBoardPieces()) {
 			Double[] p2Center = p.getCenter();
@@ -338,13 +400,6 @@ public class Piece extends Polygon {
 	}
 
 	// set corner coordinates
-	public void setCorners(Double[] updateCorners) {
-		for(int i = 0; i < this.corners.length; i++) {
-			this.corners[i] = updateCorners[i];
-		}
-	}
-
-	// set corner coordinates
 	public void shufflePiece() {
 		double seed1 = (Math.random() * controller.getBoardSize()[0]);
 		double seed2 = (Math.random() * controller.getBoardSize()[1]);
@@ -356,60 +411,6 @@ public class Piece extends Polygon {
 //		double seed3 = Math.random() * 2*Math.PI;
 //		wait with random rotation too difficult ;)
 //		this.rotatePiece(seed3);
-	}
-
-	// Method for moving piece relatively
-	public void movePiece(double deltaX, double deltaY) {
-		boolean update = true;
-		double c1 = deltaX - this.getCenter()[0];
-		double c2 = deltaY - this.getCenter()[1];
-
-		for(Piece p : graph.depthFirstTraversal(this)) {
-			Double[] updateCorners = new Double[p.getCorners().length];
-			for(int i = 0; i < p.getCorners().length; i++) {
-				double updateCornerX = p.getCorners()[i] + c1;
-				double updateCornerY =  p.getCorners()[i] + c2;
-
-				if(i % 2 == 0)
-					updateCorners[i] = updateCornerX;
-				else
-					updateCorners[i] = updateCornerY;
-			}
-			if(update) {
-				p.setCorners(updateCorners);
-				p.updatePiece();
-			}
-		}
-	}
-
-	public void movePieceAbsolute(double xCoordinate, double yCoordinate) {
-		double diffX = xCoordinate - this.center[0];
-		double diffY = yCoordinate - this.center[1];
-		int[] direction = {0,0};
-
-		for (int i = 0; i < corners.length; i++) {
-			if (i % 2 == 0) {
-				corners[i] += diffX;
-				if(corners[i] < 0) {
-					direction[0] = 1;
-				} else if(corners[i] > controller.getBoardSize()[0]) {
-					direction[0] = -1;
-				} else {
-					direction[0] = 0;
-				}
-			} else {
-				corners[i] += diffY;
-				if(corners[i] < 0) {
-					direction[1] = 1;
-				} else if(corners[i] > controller.getBoardSize()[0]) {
-					direction[1] = -1;
-				} else {
-					direction[1] = 0;
-				}
-			}
-		}
-
-		updatePiece();
 	}
 
 	public void rotateAdjacentPieces(Double angle) {
@@ -432,7 +433,7 @@ public class Piece extends Polygon {
 	}
 
 	public void rotateNeighbours(Double angle) {
-		for(Piece p : graph.depthFirstTraversal(this)) {
+		for(Piece p : controller.getGraph().depthFirstTraversal(this)) {
 			if(p != this) {
 				p.rotatePiece(angle);
 
@@ -511,14 +512,6 @@ public class Piece extends Polygon {
 		if(update) {
 			corners = newCorners;
 			updatePiece();
-		}
-	}
-
-	public void setRotation(Double angle) {
-		this.rotation += angle;
-		this.rotation %= 2*Math.PI;
-		if(this.rotation < 0) {
-			this.rotation += 2*Math.PI;
 		}
 	}
 
@@ -617,29 +610,19 @@ public class Piece extends Polygon {
 		}
 	}
 
-	public ArrayList<SideLength> getSideLengths() {
-		return this.sideLengths;
-	}
-
 	public void addVectorCorner(Double[] vector1, Double[] vector2, Double[] coordinates, double angle) {
 		this.vectorCorners.add(new Corner(vector1, vector2, coordinates, angle));
-	}
-
-	public ArrayList<Corner> getVectorCorners() {
-		return vectorCorners;
 	}
 }
 
 class SideLength implements Comparable {
 	private Integer pieceId;
-	private Integer lineId;
 	private Double length;
 	private Double[] corner1;
 	private Double[] corner2;
 
-	public SideLength(Integer pieceId, Integer lineId, Double length, Double[] corner1, Double[] corner2) {
+	public SideLength(Integer pieceId, Double length, Double[] corner1, Double[] corner2) {
 		this.pieceId = pieceId;
-		this.lineId = lineId;
 		this.length = length;
 		this.corner1 = corner1;
 		this.corner2 = corner2;
@@ -648,9 +631,7 @@ class SideLength implements Comparable {
 	public Integer getPieceId() {
 		return this.pieceId;
 	}
-	public Integer getLineId() {
-		return this.lineId;
-	}
+
 	public Double getValue() {
 		return this.length;
 	}
@@ -666,8 +647,8 @@ class SideLength implements Comparable {
 		return (int)(this.length - ((SideLength) l).getValue());
 	}
 
-	public void update(Double sideLength, Double[] corner1, Double[] corner2) {
-		this.length = sideLength;
+	public void update(Double sl, Double[] corner1, Double[] corner2) {
+		this.length = sl;
 		this.corner1 = corner1;
 		this.corner2 = corner2;
 	}
@@ -678,7 +659,6 @@ class Corner {
 	private Double[] vector2;
 	private Double[] coordinates;
 	private double angle;
-	private boolean hasAdjacent = false;
 
 	public Corner(Double[] vector1, Double[] vector2, Double[] coordinates, double angle) {
 		this.vector1 = vector1;
@@ -694,6 +674,9 @@ class Corner {
 	public Double[] getCoordinates() {
 		return this.coordinates;
 	}
+	public Double[][] getVectors() {
+		return new Double[][]{this.vector1, this.vector2};
+	}
 
 	public void updateCorner(Double[] vector1, Double[] vector2, Double[] coordinates) {
 		this.vector1 = vector1;
@@ -701,13 +684,4 @@ class Corner {
 		this.coordinates = coordinates;
 	}
 
-	public void setHasAdjacent(boolean hasAdjacent ) {
-		this.hasAdjacent = hasAdjacent;
-	}
-
-	public boolean getHasAdjacent() { return this.hasAdjacent; }
-
-	public Double[][] getVectors() {
-		return new Double[][]{this.vector1, this.vector2};
-	}
 }

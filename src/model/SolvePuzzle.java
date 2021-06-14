@@ -1,23 +1,20 @@
 package model;
 
 import controller.Controller;
-import javafx.geometry.Side;
-
-import java.math.RoundingMode;
-import java.text.DecimalFormat;
 import java.util.*;
 
 public class SolvePuzzle extends Thread{
-    ArrayList<Piece> boardPieces;
-    ArrayList<SideLength> sideLengthsSorted = new ArrayList<>();
-    int[] idConnected;
-    Controller controller = Controller.getInstance();
-    boolean firstConnected = false;
+    private ArrayList<Piece> boardPieces;
+    private ArrayList<SideLength> sideLengthsSorted = new ArrayList<>();
+
+    private Controller controller = Controller.getInstance();
+//    boolean firstConnected = false;
+//    private int[] idConnected;
 
     public SolvePuzzle(ArrayList<Piece> boardPieces) {
         System.out.println("setting solve puzzle");
         this.boardPieces = boardPieces;
-        idConnected = new int[boardPieces.size()];
+//        idConnected = new int[boardPieces.size()];
         for (Piece p : boardPieces) {
             for (SideLength l : p.getSideLengths()) {
                 sideLengthsSorted.add(l);
@@ -161,7 +158,7 @@ public class SolvePuzzle extends Thread{
                             Piece p1 = queue.get(i);
                             Piece p2 = controller.getBoardPieces().get(s2.getPieceId());
 
-                            if(!queue.contains(p2)  &&  p1.checkIfConnect(p2) != null) {
+                            if(!queue.contains(p2)  &&  p1.checkIfConnect(p2)) {
                                 findRotationAngle(s, s2);
                                 sideLengthsSorted.remove(s);
                                 sideLengthsSorted.remove(s2);
@@ -258,13 +255,13 @@ public class SolvePuzzle extends Thread{
     }
 
     public double findRotationAngle(SideLength s1, SideLength s2) throws InterruptedException {
-        double angle, m1, m2;
+        double angle;
         System.out.println("\n equals sidelengths " + s1.getValue() + " = " + s2.getValue());
         Double[][] s1Corners = s1.getCorners();
         Double[][] s2Corners = s2.getCorners();
 
-        double dx = s1Corners[0][0] - s2Corners[0][0];
-        double dy = s1Corners[0][1] - s2Corners[0][1];
+        double dx;
+        double dy;
 
         double[] tempVector1 = {s1Corners[0][0]-s1Corners[1][0], s1Corners[0][1]-s1Corners[1][1]};
         double[] tempVector2 = {s2Corners[0][0]-s2Corners[1][0], s2Corners[0][1]-s2Corners[1][1]};
