@@ -345,7 +345,7 @@ public class PuzzleRunner extends Application {
 		solveBtn.setOnAction(new EventHandler<ActionEvent>() {
 			@Override
 			public void handle(ActionEvent actionEvent) {
-				Thread t = new SolvePuzzle(controller.getBoardPieces());
+				Thread t = new SolvePuzzle(true);
 				t.start();
 			}
 		});
@@ -406,7 +406,7 @@ public class PuzzleRunner extends Application {
 		solveBtn.setOnAction(new EventHandler<ActionEvent>() {
 			@Override
 			public void handle(ActionEvent actionEvent) {
-				Thread t = new SolvePuzzleJSON();
+				Thread t = new SolvePuzzle(false);
 				t.setDaemon(true);
 				t.start();
 			}
@@ -468,7 +468,7 @@ public class PuzzleRunner extends Application {
 		solveBtn.setOnAction(new EventHandler<ActionEvent>() {
 			@Override
 			public void handle(ActionEvent actionEvent) {
-				Thread t = new SolvePuzzleJSON();
+				Thread t = new SolvePuzzle(false);
 				t.setDaemon(true);
 				t.start();
 			}

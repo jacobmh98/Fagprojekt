@@ -132,7 +132,7 @@ public class Piece extends Polygon {
 					vector2 = new Double[]{corners[i] - corners[i + 2], corners[i + 1] - corners[i + 3]};
 				}
 				Double[] coordinates = {corners[i], corners[i + 1]};
-				addVectorCorner(vector1, vector2, coordinates, SolvePuzzleJSON.findAngleBetweenVectors(vector1, vector2));
+				addVectorCorner(vector1, vector2, coordinates, SolvePuzzle.findAngleBetweenVectors(vector1, vector2));
 			}
 		} else {
 			for (int i = 0; i <= corners.length - 2; i += 2) {
