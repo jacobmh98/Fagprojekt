@@ -106,7 +106,7 @@ public class ComparePieces {
     }
 
     private static ArrayList<Double> calculateRotationTheta(ArrayList<Double> piece1, ArrayList<Double> piece2){
-        double epsilon = 0.00000000000001;
+        double epsilon = 0.0000000001;
         ArrayList<Double> rotationAngles = new ArrayList<>();
         ArrayList<Double> length1 = findLengthO(piece1);
         ArrayList<Double> length2 = findLengthO(piece2);
@@ -134,7 +134,7 @@ public class ComparePieces {
     }
 
     private static boolean checkRotations(ArrayList<Double> piece1, ArrayList<Double> piece2, ArrayList<Double> angles){
-        double epsilon = 0.00000000000001;
+        double epsilon = 0.0000000001;
         ArrayList<Double> length1 = findLengthO(piece1);
         ArrayList<Double> startingPiece1;
         ArrayList<Double> rotatedPiece1;

@@ -296,7 +296,9 @@ public class PuzzleRunner extends Application {
 		Label speedLabel = new Label("Solve speed");
 		Label currentSpeedLabel = new Label("Current: " + controller.getSolveSpeed());
 
-		rightSide.getChildren().addAll(solveLbl, solveBtn,speedLabel, speedSlider, currentSpeedLabel);
+		Button checkForDuplicates = new Button("Check Duplicates");
+
+		rightSide.getChildren().addAll(solveLbl, solveBtn,speedLabel, speedSlider, currentSpeedLabel, checkForDuplicates);
 		root.getChildren().addAll(pane, rightSide);
 
 		Scene boardScene = new Scene(root, width+300, height + 20);
@@ -331,6 +333,25 @@ public class PuzzleRunner extends Application {
 				}
 			});
 		}
+
+		checkForDuplicates.setOnAction(new EventHandler<ActionEvent>() {
+			@Override
+			public void handle(ActionEvent actionEvent) {
+				ArrayList<Piece> pieces = controller.getBoardPieces();
+				boolean duplicate = false;
+				for(int i = 0; i < pieces.size(); i++){
+					for(int j = 0; j < i; j++){
+						if(ComparePieces.comparePieces(pieces.get(i).getCorners(), pieces.get(j).getCorners())){
+							System.out.println("Piece: " + pieces.get(i).getPieceID() + " and " + pieces.get(j).getPieceID() + " are duplicates");
+							duplicate = true;
+						}
+					}
+				}
+				if(!duplicate){
+					System.out.println("No duplicates were found");
+				}
+			}
+		});
 	}
 
 	// method shuffling the pieces on the board
