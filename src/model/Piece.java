@@ -155,12 +155,15 @@ public class Piece extends Polygon {
 	}
 
 	public void updatePiece() {
-		Platform.runLater(new Runnable() {
-			@Override
-			public void run() {
-				setPoints();
-			}
-		});
+		try {
+			Platform.runLater(new Runnable() {
+				@Override
+				public void run() {
+					setPoints();
+				}
+			});
+		} catch (Exception e){}
+
 		this.computeCenter();
 		updateSideLengths();
 		updateVectorCorners();

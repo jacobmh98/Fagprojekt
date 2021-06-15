@@ -80,4 +80,15 @@ public class TestData {
         return pieceList;
     }
 
+    public static ArrayList<Piece> getTwoPieces(){
+        ArrayList<Piece> pieces = new ArrayList<>();
+        Double[] piece1Corners = {3.0, 3.0, 3.0, 5.0, 5.0, 6.0, 5.0, 3.0};
+        Double[] piece2Corners = {3.0, 3.0, 2.0, 5.0, 2.0, 7.0, 3.0, 5.0};
+        Piece piece1 = new Piece(0, piece1Corners);
+        Piece piece2 = new Piece(1, piece2Corners);
+        pieces.add(piece1);
+        pieces.add(piece2);
+        return pieces;
+    }
+
 }
