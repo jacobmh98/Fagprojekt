@@ -300,8 +300,11 @@ public class PuzzleRunner extends Application {
 
 		rightSide.getChildren().addAll(solveLbl, solveBtn,speedLabel, speedSlider, currentSpeedLabel, checkForDuplicates);
 		root.getChildren().addAll(pane, rightSide);
-
-		Scene boardScene = new Scene(root, width+300, height + 20);
+		double sceneWidth = width+300;
+		double sceneHeight = height + 20;
+		if(sceneWidth < 900){ sceneWidth = 900;}
+		if(sceneHeight < 620){ sceneHeight = 620;}
+		Scene boardScene = new Scene(root, sceneWidth, sceneHeight);
 		boardScene.getStylesheets().add(PuzzleRunner.class.getResource("styles.css").toExternalForm());
 		stage.setScene(boardScene);
 

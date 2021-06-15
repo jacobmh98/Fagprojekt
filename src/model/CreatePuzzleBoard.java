@@ -274,7 +274,9 @@ public class CreatePuzzleBoard {
                 p.addAdjacentPiece(boardPieces.get(pieceID-1));
                 p.addAdjacentPiece(boardPieces.get(pieceID+rows));
             } else if(pieceID == rows*(columns-1)) {
-                p.addAdjacentPiece(boardPieces.get(pieceID+1));
+                if(boardPieces.size() > pieceID+1) {  //Incase of 1 row puzzle
+                    p.addAdjacentPiece(boardPieces.get(pieceID + 1));
+                }
                 p.addAdjacentPiece(boardPieces.get(pieceID-rows));
             } else if(pieceID == rows*columns-1) {
                 p.addAdjacentPiece(boardPieces.get(pieceID-1));

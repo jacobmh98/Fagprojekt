@@ -1,7 +1,5 @@
-import model.ComparePieces;
-import model.CreatePuzzleBoard;
-import model.Piece;
-import model.VoronoiBoard;
+import controller.Controller;
+import model.*;
 import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
@@ -13,6 +11,8 @@ public class CreateBoardTests {
     @Test
     void testRowColTotalPieces(){
         TestData.setControllerValues();
+        Controller.getInstance().setColumns(3);
+        Controller.getInstance().setRows(3);
         CreatePuzzleBoard board = new CreatePuzzleBoard();
         board.createPuzzle();
         int totalPieces = board.getBoardPieces().size();
@@ -25,6 +25,8 @@ public class CreateBoardTests {
         TestData.setControllerValues();
         int rows = 3;
         int cols = 3;
+        Controller.getInstance().setRows(rows);
+        Controller.getInstance().setColumns(cols);
         CreatePuzzleBoard board = new CreatePuzzleBoard();
         board.createPuzzle();
         int corner = 4;
@@ -50,25 +52,27 @@ public class CreateBoardTests {
 
     @Test
     void testOneRowNeighbours(){
+        int row = 1;
+        int cols = 5;
         TestData.setControllerValues();
+        Controller.getInstance().setColumns(cols);
+        Controller.getInstance().setRows(row);
         CreatePuzzleBoard board = new CreatePuzzleBoard();
         board.createPuzzle();
-        int row = 3;
-        int cols = 3;
         int side = 2;
         int middle = cols-2;
         ArrayList<Piece> pieces = board.getBoardPieces();
         for(Piece piece : pieces){
             int neighbours = piece.getAdjacentPieces().size();
-            //assertTrue(neighbours == 1 || neighbours == 2);
+            assertTrue(neighbours == 1 || neighbours == 2);
             if(neighbours == 1){
                 side--;
             } else {
                 middle--;
             }
         }
-        //assertEquals(0, side);
-        //assertEquals(0, middle);
+        assertEquals(0, side);
+        assertEquals(0, middle);
     }
 
     @Test
@@ -143,19 +147,89 @@ public class CreateBoardTests {
         }
     }
 
-    //TODO Når et puslespil er generet er der kun en kopi af hver brik, ellers bliver der genereret et nyt.
 
-    //TODO Hvis en brik roteres n grader, rotere alle punkter n grader rundt om centrum.
+    @Test
+    void testPieceUniqueness(){
+        TestData.setControllerValues();
+        int points = 50;
+        VoronoiBoard board = new VoronoiBoard(50);
+        Piece[] boardPieces = board.getPieces();
+        assertFalse(ComparePieces.checkForDuplicates(boardPieces));
+    }
 
-    //TODO Når algoritmen får et puslespil, der ikke har en løsning, returnere den at den ikke kan løse puslespillet.
 
-    //TODO Når algoritmen får et puslespil, returnere den et løst puslespil.
+    @Test
+    void testNoSolution() throws Exception {
+        TestData.setControllerValues();
+        ArrayList<Piece> boardPieces = JsonImport.readJson("NoSolutionTest.json");
+        Controller.getInstance().setBoardPieces(boardPieces);
+        SolvePuzzle solver = new SolvePuzzle(false);
+        solver.solveByCorners();
+        assertFalse(solver.checkIfSolved(Controller.getInstance().getBoardPieces()));
+    }
 
-    //TODO Når to brikker ikke er naboer, og brik 1 rykkes tæt på brik 2, bliver de ikke forbundet.
 
-    //TODO Når to brikker er naboer, og brik 1 rykkes tæt på brik 2, snapper de sammen og er nu forbundet.
+    @Test
+    void testWithSolution() throws Exception {
+        TestData.setControllerValues();
+        ArrayList<Piece> boardPieces = JsonImport.readJson("WithSolutionTest.json");
+        Controller.getInstance().setBoardPieces(boardPieces);
+        SolvePuzzle solver = new SolvePuzzle(false);
+        solver.solveByCorners();
+        assertTrue(solver.checkIfSolved(Controller.getInstance().getBoardPieces()));
+    }
 
-    //TODO Hvis nogle brikker ikke er forbundet, hvis en brik roteres, roteres de andre ikke.
 
-    //TODO Hvis nogle brikker er forbundet, hvis en brik roteres, roteres de andre tilsvarende.
+    @Test
+    void testMovingOfNonNeighbours(){
+        ArrayList<Piece> pieces = TestData.getTwoPieces();
+        Double[] piece2Old = pieces.get(1).getCenter().clone();
+        pieces.get(0).checkForConnect();
+        pieces.get(0).movePiece(10,10);
+        Double[] piece2New = pieces.get(1).getCenter();
+        for(int i = 0; i < piece2Old.length; i++){
+            assertEquals(piece2Old[i],piece2New[i]);
+        }
+    }
+
+
+    @Test
+    void testMovingOfNeighbours(){
+        ArrayList<Piece> pieces = TestData.getTwoPieces();
+        Double[] piece2Old = pieces.get(1).getCenter().clone();
+        pieces.get(0).addAdjacentPiece(pieces.get(1));
+        pieces.get(0).checkForConnect();
+        pieces.get(0).movePiece(10,10);
+        Double[] piece2New = pieces.get(1).getCenter();
+        for(int i = 0; i < piece2Old.length; i++){
+            assertFalse(piece2Old == piece2New);
+        }
+    }
+
+
+    @Test
+    void testRotationOfNonNeighbours(){
+        ArrayList<Piece> pieces = TestData.getTwoPieces();
+        Double[] piece2Old = pieces.get(1).getCorners().clone();
+        pieces.get(0).checkForConnect();
+        pieces.get(0).rotatePiece(Math.PI/2);
+        Double[] piece2New = pieces.get(1).getCorners();
+        for(int i = 0; i < piece2Old.length; i++){
+            assertEquals(piece2Old[i],piece2New[i]);
+        }
+    }
+
+
+    @Test
+    void testRotationOfNeighbours(){
+        ArrayList<Piece> pieces = TestData.getTwoPieces();
+        Double[] piece2Old = pieces.get(1).getCorners().clone();
+        pieces.get(0).addAdjacentPiece(pieces.get(1));
+        pieces.get(0).checkForConnect();
+        pieces.get(0).rotatePiece(Math.PI/2);
+        Double[] piece2New = pieces.get(1).getCorners();
+        for(int i = 0; i < piece2Old.length; i++){
+            assertFalse(piece2Old == piece2New);
+        }
+    }
 }
