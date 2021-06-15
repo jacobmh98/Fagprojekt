@@ -8,7 +8,7 @@ import java.util.ArrayList;
 public class Controller {
 	private static Controller controller = new Controller();;
 	private ArrayList<Piece> boardPieces = new ArrayList<Piece>();
-	private int[] BOARD_SIZE = new int[2];
+	private final int[] BOARD_SIZE = new int[2];
 
 	private int rows;
 	private int columns;
@@ -25,6 +25,7 @@ public class Controller {
 	public int[] getBoardSize(){ return this.BOARD_SIZE; }
 	public int getRows(){return rows;}
 	public int getColumns(){return columns;}
+	public int getSolveSpeed(){return solveSpeed;}
 
 	public void setBoardPieces(ArrayList<Piece> boardPieces) {
 		this.boardPieces = boardPieces;
@@ -38,6 +39,5 @@ public class Controller {
 
 	public void setSolveSpeed(int speed){solveSpeed = speed;}
 
-	public int getSolveSpeed(){return solveSpeed;}
 
 }

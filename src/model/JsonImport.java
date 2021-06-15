@@ -7,10 +7,10 @@ import org.json.simple.parser.JSONParser;
 
 import java.io.FileReader;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.Map;
 
 public class JsonImport {
+    private static Controller controller = Controller.getInstance();
 
     public static ArrayList<Piece> readJson(String filename) throws Exception {
         Object obj = new JSONParser().parse(new FileReader(filename));
@@ -39,8 +39,8 @@ public class JsonImport {
                 highestY = y;
             }
         }
-        double xFactor = Controller.getInstance().getBoardSize()[0]/highestX;
-        double yFactor = Controller.getInstance().getBoardSize()[1]/highestY;
+        double xFactor = controller.getBoardSize()[0]/highestX;
+        double yFactor = controller.getBoardSize()[1]/highestY;
         if(xFactor > yFactor){
             return yFactor;
         }

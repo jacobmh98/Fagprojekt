@@ -7,7 +7,7 @@ public class SolvePuzzle extends Thread{
     private ArrayList<Piece> boardPieces;
     private ArrayList<SideLength> sideLengthsSorted = new ArrayList<>();
     private Controller controller = Controller.getInstance();
-    private final boolean solveBySideLength;
+    private boolean solveBySideLength;
 
     public SolvePuzzle(boolean b) {
         this.solveBySideLength = b;
