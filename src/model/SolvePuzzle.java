@@ -14,6 +14,10 @@ public class SolvePuzzle extends Thread{
         this.boardPieces = controller.getBoardPieces();
     }
 
+    // Method that is in charge of initializing a sorting algorithm of the side lengths.
+    // It copies all of the values of the unsorted side lengths into a temporary array
+    // and overwrites the unsorted side lengths into the sorted after having called merge sort.
+    // Written by Oscar
     public void sortSideLength(){
         SideLength[] tempArray = new SideLength[sideLengthsSorted.size()];
         for(int i = 0; i < sideLengthsSorted.size(); i++){
@@ -25,6 +29,10 @@ public class SolvePuzzle extends Thread{
         }
     }
 
+    // Method that uses mergesort algorithm to sort an array of sidelength
+    // Input - A temporary array and the number of entries
+    // Output - Non, but it alters the tempArray which alters the actual address of the argument
+    // Written by Oscar
     private void mergeSort(SideLength[] tempArray, int entries){
         if(entries <= 1){
             return;
@@ -43,6 +51,10 @@ public class SolvePuzzle extends Thread{
         merge(tempArray, left, right, middle, entries-middle);
     }
 
+    // Method that sort two arrays using the mergesort algorithm
+    // Input - temparray to merge into, both arrays to merge into that tempArray and the entries in both arrays
+    // Output - Non, but but it alters the tempArray which alters the actual address of the argument
+    // Written by Oscar
     private void merge(SideLength[] tempArray, SideLength[] left, SideLength[] right, int entriesL, int entriesR){
         int i = 0, j = 0, k = 0;
         while(i < entriesL && j < entriesR){
@@ -330,6 +342,10 @@ public class SolvePuzzle extends Thread{
         return angle;
     }
 
+    // Method that removes single instances of a side length in the sorted side lengths array.
+    // It determines which side lengths exists as singulars (which are the edges of the board),
+    // and removes them from the sorted side lengths array.
+    // Written by Oscar
     private void removeSingleSideLengths(){
         double epsilon = 0.0000001;
         for(int i = 0; i < sideLengthsSorted.size(); i++){
@@ -355,6 +371,10 @@ public class SolvePuzzle extends Thread{
         }
     }
 
+    // Method that finds the orientation of 3 points from https://www.geeksforgeeks.org/check-if-two-given-line-segments-intersect/
+    // Input - 3 2d points
+    // Output - 1 if the orientation is clockwise 2 if counterclockwise
+    // Written by Oscar
     private int orientation(Double[] p1, Double[] p2, Double[] p3){
         double val = (p2[1]-p1[1])*(p3[0]-p2[0])-(p2[0]-p1[0])*(p3[1]-p2[1]);
         if(val > 0){
@@ -363,6 +383,11 @@ public class SolvePuzzle extends Thread{
         return 2;
     }
 
+    // Method that checks if two lines intersect https://www.geeksforgeeks.org/check-if-two-given-line-segments-intersect/
+    // checks if the line between two piece centers intersect with their connecting sidelength
+    // Input - two sidelengths
+    // Output - True if the lines intersect false if not
+    // Written by Oscar
     private boolean checkIntersection(SideLength s1, SideLength s2){
         Double[] p1 = {s1.getCorners()[0][0] + (s1.getCorners()[1][0] - s1.getCorners()[0][0]) * (-1000), s1.getCorners()[0][1] + (s1.getCorners()[1][1] - s1.getCorners()[0][1]) * (-1000)};
         Double[] p2 = {s1.getCorners()[1][0] + (s1.getCorners()[1][0] - s1.getCorners()[0][0]) * (1000), s1.getCorners()[1][1] + (s1.getCorners()[1][1] - s1.getCorners()[0][1]) * 1000};
@@ -397,6 +422,10 @@ public class SolvePuzzle extends Thread{
         }
     }
 
+    // Method that finds the angle given the coordinates of two vectors
+    // Input - Two vectors given as Double[] values
+    // Output - Returns the acute angle between the two vectors
+    // Written by Jacob
     public static double findAngleBetweenVectors(Double[] vector1, Double[] vector2){
         double angle;
 
@@ -410,7 +439,12 @@ public class SolvePuzzle extends Thread{
         angle = Math.acos(preCos);
         return angle;
     }
-
+    
+    // Method that checks if a board has been solved by using a boundary box and checking piece sides inside this box 
+    // if they have a partner
+    // Input - List of the board pieces
+    // Output - True if the board is solved otherwise false
+    // Written by Oscar
     public boolean checkIfSolved(ArrayList<Piece> boardPieces){
         if(Controller.getInstance().getGraph().getAdjVertices().size() < boardPieces.size()){
             System.out.println("Not all pieces are snapped together");
@@ -448,6 +482,10 @@ public class SolvePuzzle extends Thread{
         return true;
     }
 
+    // Method that find the boundary box using the lowest and highest x and y value
+    // Input - List of the board pieces
+    // Output - the top, bottom and side values of the boundary box in the format {xlow, xhigh, ylow, yhigh}
+    // Written by Oscar
     private double[] findBoundaryBox(ArrayList<Piece> boardPieces){
         Double lowX = null, lowY = null, highX = null, highY = null;
         for(Piece p : boardPieces){
@@ -479,6 +517,10 @@ public class SolvePuzzle extends Thread{
         return boundaryBox;
     }
 
+    // Method that checks if the side is within or on the boundary box
+    // Input - The coordinates of the boundary box and the coordinates of the side to be checked
+    // Output - 0 if outside box, 1 if on the edge and 2 if inside the boundary box
+    // Written by Oscar
     private int checkBoundaryBox(double[] boundary, SideLength s1) {
         Double[][] corners = s1.getCorners();
         double epsilon = 0.00001;
@@ -502,7 +544,10 @@ public class SolvePuzzle extends Thread{
         }
         return 2;
     }
-
+    
+    // Method for comparing two SideLengths to determine if they have the same point quantity,
+    // meaning they lie on top of each other.
+    // Written by Oscar
     private boolean checkMatchingSides(SideLength s1, SideLength s2){
         Double[][] corners1 = s1.getCorners();
         Double[][] corners2 = s2.getCorners();
@@ -515,6 +560,9 @@ public class SolvePuzzle extends Thread{
         return false;
     }
 
+    // Auxiliary method for comparing two double values to test for equality given a margin for error of 10^(-1).
+    // It takes two double values as input and returns a boolean value of true if they are equal and false if not.
+    // Written by Oscar
     private boolean compareEpsilon(double value1, double value2){
         double epsilon = 0.1;
         if(value1 + epsilon >= value2 && value1 - epsilon <= value2){
