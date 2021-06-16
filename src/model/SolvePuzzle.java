@@ -60,6 +60,10 @@ public class SolvePuzzle extends Thread{
         }
     }
 
+    // Method for solving a puzzle by sorting the side lengths and comparing those that are equal.
+    // It takes all of the board pieces, sorts them, identifies a start piece with a 90 deg angle,
+    // and then starts adding pieces to this piece by using a queue where the side lengths matches.
+    // Written by Jacob
     public void solveBySideLengths() throws InterruptedException {
         for (Piece p : boardPieces) {
             for (SideLength l : p.getSideLengths()) {
@@ -68,7 +72,7 @@ public class SolvePuzzle extends Thread{
         }
 
         sortSideLength();
-//      removeSingleSideLengths();
+        removeSingleSideLengths();
 
         ArrayList<Piece> startCorners = new ArrayList<>();
         Piece root = null;
@@ -113,11 +117,6 @@ public class SolvePuzzle extends Thread{
 
                     vector1 = c.getVectors()[0];
                     vector2 = c.getVectors()[1];
-
-//                    System.out.println("Vector 1 " + vector1[0] + ", " + vector1[1]);
-//                    System.out.println("Vector 2 " + vector2[0] + ", " + vector2[1]);
-//                    System.out.println("angle1 between vertical " + angleVertical1);
-//                    System.out.println("angle2 between vertical " + angleVertical2);
 
                     if(angleVertical1 + epsilon >= 0.0 && angleVertical1 - epsilon <= 0.0) {
                         if(vector2[0] > 0.0) {
@@ -167,91 +166,12 @@ public class SolvePuzzle extends Thread{
                 }
             }
         }
-
-        // OLD METHOD DUNNO IF WE STILL NEED IT
-//        for(int k = 0; k < boardPieces.size()*2; k++){
-//            sortSideLength();
-//            for (SideLength l : sideLengthsSorted) {
-//                System.out.println(l.getPieceId() + ", " +
-//                        l.getLineId() + ", " +
-//                        l.getValue() + ", ");
-//            }
-//            System.out.println();
-//
-//            for (int i = 0; i < sideLengthsSorted.size() - 1; i++) {
-//                double epsilon = 0.001;
-//                SideLength currentSideLength = sideLengthsSorted.get(i);
-//                SideLength nextSideLength = sideLengthsSorted.get(i + 1);
-//
-//                Piece currentPiece = Controller.getInstance().getBoardPieces().get(currentSideLength.getPieceId());
-//                Piece nextPiece = Controller.getInstance().getBoardPieces().get(nextSideLength.getPieceId());
-//
-//                if (currentSideLength.getValue() + epsilon >= nextSideLength.getValue() &&
-//                        currentSideLength.getValue() - epsilon <= nextSideLength.getValue() &&
-//                        currentSideLength.getPieceId() != nextSideLength.getPieceId() &&
-//                        (idConnected[currentSideLength.getPieceId()] == 1 || idConnected[nextSideLength.getPieceId()] == 1 || !firstConnected)) {
-//                    double angle;
-//                    if (idConnected[currentSideLength.getPieceId()] == 1) {
-//                        angle = findRotationAngle(currentSideLength, nextSideLength);
-//                        idConnected[nextSideLength.getPieceId()] = 1;
-//                    } else {
-//                        angle = findRotationAngle(nextSideLength, currentSideLength);
-//                        idConnected[nextSideLength.getPieceId()] = 1;
-//                        idConnected[currentSideLength.getPieceId()] = 1;
-//                    }
-//
-//                    firstConnected = true;
-//                    if (currentPiece.checkForConnect()) {
-//                        Graph graph = Controller.getInstance().getGraph();
-//
-//                        Set<Piece> connectedPiecesGraph = graph.depthFirstTraversal(currentPiece);
-//                        ArrayList<Integer> connectedPieces = new ArrayList<Integer>();
-//                        for (Piece p : connectedPiecesGraph) {
-//                            connectedPieces.add(p.getPieceID());
-//                            System.out.print(p.getPieceID() + ", ");
-//                        }
-//
-//                        for (int j = 0; j < sideLengthsSorted.size() - 1; j++) {
-//                            if (sideLengthsSorted.get(j).getValue() + epsilon >= sideLengthsSorted.get(j + 1).getValue() &&
-//                                    sideLengthsSorted.get(j).getValue() - epsilon <= sideLengthsSorted.get(j + 1).getValue()) {
-//
-//                                if (connectedPieces.contains(sideLengthsSorted.get(j).getPieceId()) &&
-//                                        connectedPieces.contains(sideLengthsSorted.get(j + 1).getPieceId())) {
-//
-//                                    System.out.println("remove sidelength " + sideLengthsSorted.get(j).getValue());
-//                                    sideLengthsSorted.remove(j);
-//                                    sideLengthsSorted.remove(j);
-//                                }
-//                            }
-//                        }
-//
-//                        break;
-//                    }
-//
-//                    System.out.println("angle: " + angle);
-//                }
-//            }
-//        }
-//
-//        int rand = (int) Math.random()*boardPieces.size();
-//        Piece p = boardPieces.get(rand);
-//        double cmSumX = p.getCenter()[0];
-//        double cmSumY = p.getCenter()[1];
-//        double width = Controller.getInstance().getBoardSize()[0];
-//        double height = Controller.getInstance().getBoardSize()[1];
-//        Set<Piece> solution = Controller.getInstance().getGraph().depthFirstTraversal(p);
-//        for(Piece pi : solution) {
-//            cmSumX += pi.getCenter()[0];
-//            cmSumY += pi.getCenter()[1];
-//        }
-//        double cmX = cmSumX/solution.size();
-//        double cmY = cmSumY/solution.size();
-//
-//        double dx = width/2.0 - cmX;
-//        double dy = height/2.0 - cmY;
-//        p.movePiece(dx + p.getCenter()[0], dy + p.getCenter()[1]);
     }
 
+    // Method that solves a puzzle by comparing the corners of each piece. It starts by identifying a piece
+    // with a 90 deg angle and places this as a basis. Then it starts placing the pieces from this piece
+    // adding the next pieces dynamically to a queue.
+    // Written by Jacob
     public void solveByCorners() throws InterruptedException {
         Piece root = null;
         outerloop:
@@ -284,11 +204,6 @@ public class SolvePuzzle extends Thread{
                     vector1 = c.getVectors()[0];
                     vector2 = c.getVectors()[1];
 
-//                    System.out.println("Vector 1 " + vector1[0] + ", " + vector1[1]);
-//                    System.out.println("Vector 2 " + vector2[0] + ", " + vector2[1]);
-//                    System.out.println("angle1 between vertical " + angleVertical1);
-//                    System.out.println("angle2 between vertical " + angleVertical2);
-
 
                     if(angleVertical1 + epsilon >= 0.0 && angleVertical1 - epsilon <= 0.0) {
                         if(vector2[0] > 0.0) {
@@ -309,7 +224,9 @@ public class SolvePuzzle extends Thread{
                 }
             }
         }
-
+        if(root == null) {
+            root = boardPieces.get(0);
+        }
         System.out.println("Start piece " + root.getPieceID());
 
         ArrayList<Piece> queue = new ArrayList<>();
@@ -364,9 +281,11 @@ public class SolvePuzzle extends Thread{
         System.out.println(checkIfSolved(boardPieces));
     }
 
+    // Method for finding the angle between two angles. It takes two SideLength objects as argument
+    // and returns the angle between these side lengths.
+    // Written by Jacob and Oscar
     public double findRotationAngle(SideLength s1, SideLength s2) throws InterruptedException {
         double angle;
-        System.out.println("\n equals sidelengths " + s1.getValue() + " = " + s2.getValue());
         Double[][] s1Corners = s1.getCorners();
         Double[][] s2Corners = s2.getCorners();
 
@@ -464,6 +383,8 @@ public class SolvePuzzle extends Thread{
         return false;
     }
 
+    // Method for starting the SolvePuzzle object running in a new thread when the class is initialized.
+    // Written by Jacob & Oscar
     public void run(){
         try {
             if(solveBySideLength) {

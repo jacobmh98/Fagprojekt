@@ -1,3 +1,4 @@
+// This class uses the library tektosyne from https://github.com/kynosarges/tektosyne
 package model;
 
 import controller.Controller;
@@ -13,6 +14,11 @@ public class VoronoiBoard {
     private final RectD CLIP;
     private Controller controller = Controller.getInstance();
 
+    // Object initializer that also creates all the pieces based of the tektosyne library
+    // Input - amount of points that it needs to generate pieces based of and it uses the Controller variables to set
+    // other global variables
+    // Output - This object and sets the global list containing all pieces
+    // Written by Oscar
     public VoronoiBoard(int points) {
         this.POINTS = points;
         this.WIDTH = controller.getBoardSize()[0];
@@ -30,10 +36,15 @@ public class VoronoiBoard {
         findNeighbours();
     }
 
+    // Getters
     public Piece[] getPieces(){return pieces;}
 
     public PointD[] getRandomPoints(){return randomPoints;}
 
+    // Method that creates the Piece objects based of the voronoi regions that the tektosyne library created
+    // input - Non, it uses the Voronoi object from the tektosyne library
+    // Output - Non, it sets the entries of the global array pieces that contains all the Piece object
+    // Written by Oscar
     private void createPiecesArray(){
         int pieceID = 0;
         for(PointD[] region : v.voronoiRegions()){
@@ -48,34 +59,11 @@ public class VoronoiBoard {
         }
     }
 
-    private PointD findIntersect(double x1, double y1, double x2, double y2){
-        PointD newPoint = null;
-        double m = (y1-y2)/(x1-x2);
-        double b = (y1-m*x1);
-        if(x1 < 0){
-            if(b > 0 && b < HEIGHT){
-                newPoint = new PointD(0, b);
-            }
-        } else if (x1 > WIDTH){
-            double yAtX = m*WIDTH+b;
-            if(yAtX > 0 && yAtX < HEIGHT){
-                newPoint = new PointD(WIDTH, yAtX);
-            }
-        }
-        if (y1 < 0){
-            double xAtY = -b/m;
-            if(xAtY > 0 && xAtY < WIDTH){
-                newPoint = new PointD(xAtY,0);
-            }
-        } else if (y1 > HEIGHT){
-            double xAtY = (HEIGHT-b)/m;
-            if(xAtY > 0 && xAtY < WIDTH){
-                newPoint = new PointD(xAtY,HEIGHT);
-            }
-        }
-        return newPoint;
-    }
 
+    // Method that creates the random points used to create the voronoi regions, all points are 5% of the boardsize away from the edge
+    // Input - It uses the global variable points
+    // Output - it returns an PointD object array (from the tektosyne library) that contains all the coordinates generated
+    // Written by Oscar
     private PointD[] createRandomPoints(){
         PointD[] pointsArray = new PointD[POINTS];
         for(int i = 0; i < POINTS; i++){
@@ -87,6 +75,10 @@ public class VoronoiBoard {
         return pointsArray;
     }
 
+    // Method that sets the neighbours of all the pieces
+    // Input - Non, it uses the global Voronoi object and global piece array
+    // Output - Non, but it has set all the neighbours for all the Piece objects
+    // Written by Oscar
     private void findNeighbours(){
         for(int i = 0; i < v.delaunayEdges().length; i++){
             int piece1 = findPieceID(v.delaunayEdges()[i].start.x, v.delaunayEdges()[i].start.y);
@@ -96,6 +88,11 @@ public class VoronoiBoard {
         }
     }
 
+    // Method finds the pieceID based on the generator site of the piece (the point which the piece is made from
+    // not the same as piece center)
+    // Input - The x and y coordinate of the generator site
+    // Output - The pieceID of the piece with that given generator site
+    //Written by Oscar
     private int findPieceID(double x, double y){
         for(int i = 0; i < v.generatorSites.length; i++){
             if(v.generatorSites[i].x == x && v.generatorSites[i].y == y){

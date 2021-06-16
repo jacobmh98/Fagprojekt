@@ -96,18 +96,25 @@ public class Piece extends Polygon {
 		updatePiece();
 	}
 
+	// Method for setting the JavaFX coordinates for polygons
+	// written by Jacob
 	public void setPoints(){
 		this.getPoints().removeAll();
 		this.getPoints().setAll(this.corners);
 	}
 
-	// set corner coordinates
+	// Method for updating the corners for a piece. It takes the updates corners and loops through
+	// each of its current corners to update these.
+	// written by Jacob
 	public void setCorners(Double[] updateCorners) {
 		for(int i = 0; i < this.corners.length; i++) {
 			this.corners[i] = updateCorners[i];
 		}
 	}
 
+	// Method for setting the rotation of a piece. It takes an angle and updates the piece
+	// rotation with this angle using modulus so that it stays in the interval of ]0..2Pi]
+	// written by Jacob
 	public void setRotation(Double angle) {
 		this.rotation += angle;
 		this.rotation %= 2*Math.PI;
@@ -116,6 +123,9 @@ public class Piece extends Polygon {
 		}
 	}
 
+	// Method for updating/setting the vector corners meaning the two vectors that can be generated from each corner.
+	// It utilizes the Corner class.
+	// Written by Jacob
 	public void updateVectorCorners() {
 		if(vectorCorners.isEmpty()) {
 			for (int i = 0; i <= corners.length - 2; i += 2) {
@@ -154,6 +164,9 @@ public class Piece extends Polygon {
 		}
 	}
 
+	// Method for updating the piece in terms of the information behind such as center, sidelengths, vectors and
+	// the graphical representation in JavaFX
+	// Written by Jacob & Oscar
 	public void updatePiece() {
 		try {
 			Platform.runLater(new Runnable() {
@@ -169,6 +182,8 @@ public class Piece extends Polygon {
 		updateVectorCorners();
 	}
 
+	// Method for updating/setting the side lengths of a piece utilizing the SideLength class.
+	// Written by Jacob
 	public void updateSideLengths() {
 		if(sideLengths.isEmpty()) {
 			for (int i = 0; i < corners.length; i += 2) {
@@ -211,20 +226,16 @@ public class Piece extends Polygon {
 				}
 			}
 		}
-//		System.out.println("After Update");
-//		for (SideLength l : sideLengths) {
-//			System.out.println(l.getPieceId() + ", " +
-//					l.getLineId() + ", " +
-//					l.getValue() + ", " +
-//					l.getDx() + ", " +
-//					l.getDy());
-//		}
 	}
 
 	public boolean checkIfConnect(Piece p) {
 		return true;//adjacentPieces.get(p);
 	}
 
+	// Method in charge of checking whether a piece can connect to another piece in its proximity.
+	// It utilizes the nearby pieces and adjacent pieces to determine whether it can snap and
+	// if so performs the necessary operations to snap.
+	// written by Jacob
 	public boolean checkForConnect() {
 		computeNearbyPieces();
 		for(Piece p : nearbyPieces) {
@@ -262,6 +273,8 @@ public class Piece extends Polygon {
 		return false;
 	}
 
+	// Method for performing the actual snap of a piece when the computations and checks has been done.
+	// written by Jacob
 	private void snapPiece(Piece p, Double dx, Double dy) {
 		controller.getGraph().addEdge(this, p);
 		Double[] updateCorners = new Double[this.getCorners().length];
@@ -279,6 +292,8 @@ public class Piece extends Polygon {
 		updatePiece();
 	}
 
+	// Method for moving the piece relatively to its current position by user interaction (left mouse click)
+	// written by Jacob
 	public void movePiece(Double dx, Double dy) {
 		Double[] updateCorners = new Double[this.getCorners().length];
 
@@ -295,7 +310,9 @@ public class Piece extends Polygon {
 		updatePiece();
 	}
 
-	// Method for moving piece relatively
+	// Method for moving piece relatively to its current position in all other context of a user interaction
+	// for example in snaps.
+	// written by Jacob
 	public void movePiece(double dx, double dy) {
 		boolean update = true;
 		double c1 = dx - this.getCenter()[0];
@@ -319,37 +336,27 @@ public class Piece extends Polygon {
 		}
 	}
 
+	// Method for moving a piece to an aboslute (x, y) coordinate. Used in shuffling of the pieces and the
+	// rotation from an neighbour.
+	// written by Jacob
 	public void movePieceAbsolute(double x, double y) {
 		double diffX = x - this.center[0];
 		double diffY = y - this.center[1];
-		int[] direction = {0,0};
 
 		for (int i = 0; i < corners.length; i++) {
 			if (i % 2 == 0) {
 				corners[i] += diffX;
-				if(corners[i] < 0) {
-					direction[0] = 1;
-				} else if(corners[i] > controller.getBoardSize()[0]) {
-					direction[0] = -1;
-				} else {
-					direction[0] = 0;
-				}
+
 			} else {
 				corners[i] += diffY;
-				if(corners[i] < 0) {
-					direction[1] = 1;
-				} else if(corners[i] > controller.getBoardSize()[0]) {
-					direction[1] = -1;
-				} else {
-					direction[1] = 0;
-				}
 			}
 		}
 
 		updatePiece();
 	}
 
-	// Method returning nearby pieces within some radius
+	// Method returning nearby pieces within some a specified radius
+	// written by Jacob
 	public void computeNearbyPieces() {
 		ArrayList<Piece> nearbyPieces = new ArrayList<Piece>();
 		double radius = (2*(controller.getBoardSize()[0] + controller.getBoardSize()[1])) / 6;
@@ -360,14 +367,6 @@ public class Piece extends Polygon {
 					Math.pow(center[1] - p2Center[1], 2));
 
 			if(d < radius) {
-//				Circle c = new Circle();
-//				c.setCenterX(center[0]);
-//				c.setCenterY(center[1]);
-//				c.setRadius(radius);
-//				c.setStroke(Color.RED);
-//				c.setFill(Color.TRANSPARENT);
-//				controller.getBoard().getChildren().addAll(c);
-//				p.setFill(Color.LIGHTBLUE);
 
 				if(this.getPieceID() != p.getPieceID()) {
 					nearbyPieces.add(p);
@@ -377,7 +376,9 @@ public class Piece extends Polygon {
 		this.nearbyPieces = nearbyPieces;
 	}
 
-	// compute the center of the polygon
+	// Method to compute the center of piece as a polygon. Using the corners it computes the new center
+	// and updates the field in the class
+	// written by Jacob
 	public void computeCenter() {
 		Double sumX = 0.0;
 		Double sumY = 0.0;
@@ -392,30 +393,27 @@ public class Piece extends Polygon {
 
 		center[0] = (1/ (corners.length/2.0)) * sumX;
 		center[1] = (1/ (corners.length/2.0)) * sumY;
-
-//		Circle c = new Circle();
-//		c.setFill(Color.BLACK);
-//		c.setCenterX(center[0]);
-//		c.setCenterY(center[1]);
-//		if(controller.getBoard() != null) {
-//			controller.getBoard().getChildren().add(c);
-//		}
 	}
 
-	// set corner coordinates
+
+	// Method for shuffling this particular piece. It generates a random coordinate and rotation within the board
+	// and moves the piece to these coordinates and rotates it.
+	// written by Jacob
 	public void shufflePiece() {
 		double seed1 = (Math.random() * controller.getBoardSize()[0]);
 		double seed2 = (Math.random() * controller.getBoardSize()[1]);
 
 		movePieceAbsolute(seed1, seed2);
 
-		System.out.println("seeds: " + seed1 +", " + seed2);
-
-//		double seed3 = Math.random() * 2*Math.PI;
-//		wait with random rotation too difficult ;)
-//		this.rotatePiece(seed3);
+		double seed3 = Math.random() * 2*Math.PI;
+		this.rotatePiece(seed3);
 	}
 
+	// Method for rotation the adjacent pieces to this piece which contain the pieces that
+	// this particular piece can connect to as well the correct difference in both x and y direction
+	// where the adjacent pieces are supposed to be to connect. It doesn't update anything
+	// graphically as it only computes and updates the fields of the piece.
+	// written by Jacob
 	public void rotateAdjacentPieces(Double angle) {
 		for(Piece p : adjacentPieces.keySet()) {
 			Double[][] R = {
@@ -435,6 +433,10 @@ public class Piece extends Polygon {
 		}
 	}
 
+	// Method for rotating the neighbours of this piece using the DFS graph search to get the connected pieces.
+	// It computes all the connected pieces as well as moves the neighbours to a center simulating
+	// a rotation around the axis of this piece.
+	// Written by Jacob
 	public void rotateNeighbours(Double angle) {
 		for(Piece p : controller.getGraph().depthFirstTraversal(this)) {
 			if(p != this) {
@@ -458,7 +460,9 @@ public class Piece extends Polygon {
 		}
 	}
 
-	// Method for rotating piece
+	// Method for rotating this particular piece. It takes an angle and computes the new corners for the piece
+	// after rotating it with this angle.
+	// Written by Jacob
 	public void rotatePiece(Double angle) {
 		setRotation(angle);
 		rotateAdjacentPieces(angle);
@@ -505,20 +509,14 @@ public class Piece extends Polygon {
 		Double[] newCorners = convertFrom2D(pNew);
 		boolean update = true;
 
-		// Taking borders into consideration
-		/*for(Double coord : convertFrom2D(pNew)) {
-			if(coord < 0 || coord > 800) {
-				update = false;
-			}
-		}*/
-
 		if(update) {
 			corners = newCorners;
 			updatePiece();
 		}
 	}
 
-	// Method for converting from 2d to 1d
+	// Method for converting the corners from a 2 dimensional array needed to perform the matrix operations to a
+	// 1 dimensional array needed for the JavaFX polygon class to draw the piece.
 	public Double[] convertFrom2D(Double[][] m2d) {
 		Double[] temp = new Double[m2d[0].length * 2];
 
@@ -533,7 +531,9 @@ public class Piece extends Polygon {
 		return temp;
 	}
 
-	// Method for matrix subtraction
+	// Method for matrix subtraction taking two 2 dimensional arrays as arguments as well as the size
+	// and returning the result of the subtraction.
+	// Written by Jacob
 	private Double[][] subtract(Double[][] matrix1, Double[][] matrix2, int n) {
 		Double[][] sum = new Double[2][n];
 
@@ -546,7 +546,9 @@ public class Piece extends Polygon {
 		return sum;
 	}
 
-	// Method for matrix multiplication
+	// Method for matrix multiplication taking two 2 dimensional arrays as arguments
+	// and returning the scalar.
+	// Written by Jacob
 	private Double[][] dot(Double[][] matrix1, Double[][] matrix2) {
 		int row = matrix1.length;
 		int column = matrix2[0].length;
@@ -565,7 +567,9 @@ public class Piece extends Polygon {
 		return result;
 	}
 
-	// Method for matrix addition
+	// Method for matrix addition taking two 2 dimensional arrays as arguments as well as the size
+	// and returning the sum of the addition.
+	// Written by Jacob
 	private Double[][] addition(Double[][] matrix1, Double[][] matrix2, int n) {
 		Double[][] sum = new Double[2][n];
 
@@ -578,16 +582,8 @@ public class Piece extends Polygon {
 		return sum;
 	}
 
-	// Method for printing matrices
-	private void print2dArray(Double[][] matrix) {
-		for(int r = 0; r < 2; r++) {
-			for (int c = 0; c < matrix[0].length; c++) {
-				System.out.print(Math.round(matrix[r][c]*100.0)/100.0+"\t");
-			}
-			System.out.println();
-		}
-	}
-
+	// Method to add an adjacent piece meaning one that this piece is supposed to connec to.
+	// Written by Jacob
 	public void addAdjacentPiece(Piece p) {
 		double deltaX = p.getCenter()[0] - this.center[0];
 		double deltaY = p.getCenter()[1] - this.center[1];
@@ -595,6 +591,16 @@ public class Piece extends Polygon {
 		adjacentPieces.put(p, distances);
 	}
 
+	// Method to add a vector corner to the current piece utilizing the Corner class.
+	// Written by Jacob
+	public void addVectorCorner(Double[] vector1, Double[] vector2, Double[] coordinates, double angle) {
+		this.vectorCorners.add(new Corner(vector1, vector2, coordinates, angle));
+	}
+
+	// Method that helps adding adjacent pieces to the pieces loaded from a JSON file
+	// Input - the piece to add neighbour to and the two sidelengths that are matching
+	// Output - Non, but piece has had a neighbour added to it
+	// Written by Oscar
 	public void addPossibleAdjacentPiece(Piece p, SideLength s1, SideLength s2){
 		if(adjacentPieces.get(p) == null) {
 			double toMoveX, toMoveY;
@@ -611,80 +617,6 @@ public class Piece extends Polygon {
 			addAdjacentPiece(p);
 			p.movePiece(-toMoveX + p.getCenter()[0], -toMoveY + p.getCenter()[1]);
 		}
-	}
-
-	public void addVectorCorner(Double[] vector1, Double[] vector2, Double[] coordinates, double angle) {
-		this.vectorCorners.add(new Corner(vector1, vector2, coordinates, angle));
-	}
-}
-
-class SideLength implements Comparable {
-	private Integer pieceId;
-	private Double length;
-	private Double[] corner1;
-	private Double[] corner2;
-
-	public SideLength(Integer pieceId, Double length, Double[] corner1, Double[] corner2) {
-		this.pieceId = pieceId;
-		this.length = length;
-		this.corner1 = corner1;
-		this.corner2 = corner2;
-	}
-
-	public Integer getPieceId() {
-		return this.pieceId;
-	}
-
-	public Double getValue() {
-		return this.length;
-	}
-
-	public Double[][] getCorners() {
-//		System.out.println("Corner 1: ( + " + corner1[0] + ", " + corner1[1] + " )");
-//		System.out.println("Corner 2: ( + " + corner2[0] + ", " + corner2[1] + " )");
-		return new Double[][] {new Double[]{this.corner1[0], this.corner1[1]}, new Double[]{this.corner2[0], this.corner2[1]}};
-	}
-
-	@Override
-	public int compareTo(Object l) {
-		return (int)(this.length - ((SideLength) l).getValue());
-	}
-
-	public void update(Double sl, Double[] corner1, Double[] corner2) {
-		this.length = sl;
-		this.corner1 = corner1;
-		this.corner2 = corner2;
-	}
-}
-
-class Corner {
-	private Double[] vector1;
-	private Double[] vector2;
-	private Double[] coordinates;
-	private double angle;
-
-	public Corner(Double[] vector1, Double[] vector2, Double[] coordinates, double angle) {
-		this.vector1 = vector1;
-		this.vector2 = vector2;
-		this.coordinates = coordinates;
-		this.angle = angle;
-	}
-
-	public double getAngle() {
-		return this.angle;
-	}
-
-	public Double[] getCoordinates() {
-		return this.coordinates;
-	}
-	public Double[][] getVectors() {
-		return new Double[][]{this.vector1, this.vector2};
-	}
-
-	public void updateCorner(Double[] vector1, Double[] vector2, Double[] coordinates) {
-		this.vector1 = vector1;
-		this.vector2 = vector2;
-		this.coordinates = coordinates;
 	}
 
 }

@@ -26,6 +26,8 @@ public class PuzzleRunner extends Application {
 		launch(args);
 	}
 
+	// Overriden JavaFX method that renders the stage on the screen
+	// Written by Jacob & Oscar
 	@Override
 	public void start(Stage stage) throws Exception {
 		try {
@@ -235,6 +237,10 @@ public class PuzzleRunner extends Application {
 		}
 	}
 
+	// Method that is called when Voronoi is selected. Sets the controller variables from its inputs
+	// Calls the Voronoi board generator and gets a list of pieces that it parses to the generateBoardScene
+	// Inputs are the stage, amount of points and width & height.
+	// written by Oscar
 	public void generateVoronoiBoard(Stage stage, int points, int width, int height) throws Exception {
 		controller.setBoardSize(width, height);
 		VoronoiBoard voronoi = new VoronoiBoard(points);
@@ -248,6 +254,10 @@ public class PuzzleRunner extends Application {
 
 	}
 
+	// Method that is called when JSON is selected. Sets the controller variables from its inputs
+	// Calls the JsonImport with the file name and gets a list of Pieces it parses to the generateBoardScene
+	// Inputs are the stage, board width, board height, and a path to the file to be loaded
+	// Written by Oscar
 	public void generateBoardFromJson(Stage stage, int width, int height, String filename) throws Exception {
 		controller.setBoardSize(width, height);
 		JsonImport jsonImport = new JsonImport();
@@ -255,6 +265,9 @@ public class PuzzleRunner extends Application {
 		generateBoardScene(stage, boardPieces, width, height, false);
 	}
 
+	// Method that is called when Row Col is selected. Sets the controller variables from its inputs
+	// Calls the Row Col board generator to get a list of Pieces it parses to the generateBoardScene
+	// Written by Oscar
 	public void generateRowColBoard(Stage stage, int rows, int cols, int width, int height){
 		controller.setBoardSize(width, height);
 		controller.setRows(rows);
@@ -265,6 +278,9 @@ public class PuzzleRunner extends Application {
 		generateBoardScene(stage, boardPieces, width, height, false);
 	}
 
+	// Method that generates the board from one of the two types (n x m or voronoi). It updates the current stage
+	// to showcase the board with the specified width and height
+	// written by Jacob & Oscar
 	public void generateBoardScene(Stage stage, ArrayList<Piece> boardPieces, int width, int height, boolean voronoi) {
 		HBox root = new HBox(8);
 
@@ -402,7 +418,9 @@ public class PuzzleRunner extends Application {
 		});
 	}
 
-	// method shuffling the pieces on the board
+	// Method shuffling the pieces on the board. It takes the board pieces and updates their position to
+	// a random coordinate within the board.
+	// written by Jacob
 	public void shufflePieces(ArrayList<Piece> pieces) {
 		for(Piece p : pieces) {
 			p.shufflePiece();

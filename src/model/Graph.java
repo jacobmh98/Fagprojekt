@@ -2,11 +2,17 @@ package model;
 
 import java.util.*;
 
+// This class creates a undirected graph using an adjacency list and it is downloaded from the internet and
+// modified to work with our code.
+// https://www.geeksforgeeks.org/implementing-generic-graph-in-java/
+
 public class Graph {
     private Map<Vertex, List<Vertex>> adjVertices;
     public Graph() {
         this.adjVertices = new HashMap<Vertex, List<Vertex>>();
     }
+
+    // Getter method for the adjacent vertixes
     public Map<Vertex, List<Vertex>> getAdjVertices(){return adjVertices;}
 
     class Vertex {
@@ -54,16 +60,17 @@ public class Graph {
 
     }
 
+    // Getter method for the adjacent vertices from a specific piece
+    List<Vertex> getAdjVertices(Piece p) {
+        return adjVertices.get(new Vertex(p));
+    }
+
+    // Method to add a new vertex representing a piece to the graph.
     void addVertex(Piece p) {
         adjVertices.putIfAbsent(new Vertex(p), new ArrayList<>());
     }
 
-    void removeVertex(Piece p) {
-        Vertex v = new Vertex(p);
-        adjVertices.values().stream().forEach(e -> e.remove(v));
-        adjVertices.remove(new Vertex(p));
-    }
-
+    // Method to add an edge between two pieces
     void addEdge(Piece p1, Piece p2) {
         Vertex v1 = new Vertex(p1);
         Vertex v2 = new Vertex(p2);
@@ -75,6 +82,7 @@ public class Graph {
         }
     }
 
+    // Method to remove an edge between to pieces
     void removeEdge(Piece p1, Piece p2) {
         Vertex v1 = new Vertex(p1);
         Vertex v2 = new Vertex(p2);
@@ -88,10 +96,8 @@ public class Graph {
         }
     }
 
-    List<Vertex> getAdjVertices(Piece p) {
-        return adjVertices.get(new Vertex(p));
-    }
-
+    // Depth first traversal from a piece. It takes a Piece as root and returns a set of all the Pieces connected
+    // to the root piece.
     Set<Piece> depthFirstTraversal(Piece root) {
         Set<Piece> visited = new LinkedHashSet<Piece>();
         Stack<Piece> stack = new Stack<Piece>();

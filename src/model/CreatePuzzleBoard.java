@@ -42,6 +42,11 @@ public class CreatePuzzleBoard {
 
     public ArrayList<Piece> getBoardPieces() {return boardPieces;}
 
+
+    // Object initialize
+    // Inputs - Non, but it uses controller variables to set its own initial values
+    // Output - This object
+    // Written by Oscar
     public CreatePuzzleBoard(){
         this.rows = controller.getRows();
         this.columns = controller.getColumns();
@@ -53,6 +58,10 @@ public class CreatePuzzleBoard {
         this.maxHeight = pieceHeight*0.3;
     }
 
+    // The main method that create the board pieces and also checks if the boardpieces are unique or not
+    // Input - Non, it uses it's own variable set in the constructor
+    // Output - Non, but it creates a list that can be extracted from the getters
+    // Written by Oscar
     public void createPuzzle(){
         createColumn(columns);
         createRows(rows);
@@ -68,6 +77,10 @@ public class CreatePuzzleBoard {
         setAdjacentPieces();
     }
 
+    // Method that generates all the points that are going to make up the column lines
+    // Input - The amount of columns
+    // Output - It sets the two global list of coordinates columnListX and columnListY
+    // Written by Oscar
     private void createColumn(int totalColumns) {
         for(int i = 0; i < totalColumns+1; i++){
             ArrayList<Double> columnListX = new ArrayList<>();
@@ -98,6 +111,10 @@ public class CreatePuzzleBoard {
 
     }
 
+    // Method that generates all the points that are going to make up the row lines
+    // Input - The amount of rows
+    // Output - It sets the two global list of coordinates rowListX and rowListY
+    // Written by Oscar
     private void createRows(int rows){
         for(int i = 0; i < rows+1; i++){
             ArrayList<Double> rowListX = new ArrayList<>();
@@ -125,7 +142,12 @@ public class CreatePuzzleBoard {
             rowY.add(rowListY);
         }
     }
-    
+
+    // Method that goes through all line segments to find where they intersect and which intersect
+    // input - Non, Uses the global variables of amount of columns and rows, and the four lists that tells all the points that make up the board
+    // Output - Non, It creates a global list that contains the index of the starting points of all intersecting line points
+    // One for both the rows and columns. It also creates the intersection coordinates that it puts in two global lists
+    // Written by Oscar
     public void findIntersectPoints(){
         //Goes through each column and finds where the row intersects it
         for(int col = 0; col <= columns; col++){
@@ -155,7 +177,13 @@ public class CreatePuzzleBoard {
         }
     }
 
-    //Column points, row points
+    // Method that given the coordinates of two line segments finds the coordinates where they intersect or
+    // whether they don't intersect at all
+    // input - Coordinates for four points, first two points makes up the column line segment second two point makes up
+    // the row segment
+    // Output - an array of the x coordinate and y coordinate where they intersect, if they do not intersect the first
+    // value of the array is set to -1
+    // Written by Oscar
     public double[] intersect(double x1, double y1, double x2, double y2, double x3, double y3, double x4, double y4){
         double[] intersectingPoints = new double[2];
         double m1, m2, b1, b2;
@@ -192,6 +220,12 @@ public class CreatePuzzleBoard {
         return intersectingPoints;
     }
 
+    // Method that creates the pieces themself by using the intersect corners it goes from
+    // topleft->topright->bottomright->bottomleft->topleft and adds all corners inbetween them aswell to the piece
+    // Input - Non, it uses the global variables for columns,rows and the lists that contain all the coordinates for
+    // column and row points and the intersectpoints
+    // Output - Non, but it sets the boardpieces in the controller class, and creates a global list that contains all the board pieces
+    // Written by Oscar
     private void defineBoardPieceCorners(){
         int pieceID = 0;
         for(int i = 0; i < columns; i++){
@@ -241,18 +275,15 @@ public class CreatePuzzleBoard {
                 }
                 boardPieces.add(new Piece(pieceID, pieceCoordinateArray));
                 pieceID++;
-                if(i*5+j == 5){
-//                    System.out.println();
-//                    System.out.println(pieceCorners);
-                }
             }
         }
-
         controller.setBoardPieces(boardPieces);
-
     }
 
-    // Method assigning neighbours to pieces
+    // Method assigning neighbours to pieces by using the way we have defined the pieceIDs
+    // Input - Non, but it uses controller variables and the global list of boarpieces
+    // Output - Non, but it has set all the neighbours of each piece object
+    // Written by Jacob
     public void setAdjacentPieces() {
         int rows = controller.getRows();
         int columns = controller.getColumns();
@@ -330,6 +361,10 @@ public class CreatePuzzleBoard {
 
     }
 
+    // Method that clears all the global lists used in this class, used when generating a new board because the previous was not unique
+    // Input - Non, but it uses all the global lists
+    // Output - Non, but all the global lists will be empty
+    // Written by Oscar
     private void clearData(){
         columnX = new ArrayList<>();
         columnY = new ArrayList<>();
