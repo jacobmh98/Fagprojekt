@@ -194,7 +194,6 @@ public class SolvePuzzle extends Thread{
 
         outerloop:
         for (Piece p : boardPieces) {
-
             for (Corner c : p.getVectorCorners()) {
                 double epsilon = 0.00000000001;
                 if (c.getAngle() + epsilon >= Math.PI / 2.0 && c.getAngle() - epsilon <= Math.PI / 2.0) {
@@ -418,15 +417,16 @@ public class SolvePuzzle extends Thread{
     // Method for starting the SolvePuzzle object running in a new thread when the class is initialized.
     // Written by Jacob & Oscar
     public void run(){
-        try {
-            if(solveBySideLength) {
-                solveBySideLengths();
-            } else {
-                solveByCorners();
-            }
-        } catch (InterruptedException e) {
-            System.out.println("Thread ended");
-        }
+//        try {
+        solveLockPuzzle();
+//            if(solveBySideLength) {
+//                solveBySideLengths();
+//            } else {
+//                solveByCorners();
+//            }
+//        } catch (InterruptedException e) {
+//            System.out.println("Thread ended");
+//        }
     }
 
     // Method that finds the angle given the coordinates of two vectors
@@ -576,5 +576,58 @@ public class SolvePuzzle extends Thread{
             return true;
         }
         return false;
+    }
+
+    public void solveLockPuzzle() {
+        ArrayList<PieceLock> sortedLocks = new ArrayList<>();
+
+        double octagonCorner = 2.356;
+        double epsilon = 0.001;
+
+        ArrayList<Piece> boardPieces = controller.getBoardPieces();
+        for(Piece p : boardPieces) {
+            int count = 0;
+            Corner startCorner = null;
+            Corner endCorner = null;
+            Corner prevCorner = null;
+            boolean directionIn = false;
+            int startIndex = 0;
+            ArrayList<Corner> corners = p.getVectorCorners();
+            while(corners.get(startIndex).getAngle() + epsilon >= octagonCorner && corners.get(startIndex).getAngle() - epsilon <= octagonCorner){
+                startIndex++;
+            }
+            System.out.println();
+            int index = startIndex;
+            while(index != startIndex || startCorner == null) {
+
+                if (corners.get(index).getAngle() + epsilon >= 2.356 && corners.get(index).getAngle() - epsilon <= 2.356) {
+                    if (count == 0) {
+                        startCorner = corners.get(index);
+                        if(index != 0) { prevCorner = corners.get(index-1);}
+                        else { prevCorner = corners.get(corners.size()-1);}
+                        double prevLength = Math.sqrt(Math.pow(prevCorner.getCoordinates()[0]-p.getCenter()[0],2) + Math.pow(prevCorner.getCoordinates()[1]-p.getCenter()[1],2));
+                        double thisLength = Math.sqrt(Math.pow(startCorner.getCoordinates()[0]-p.getCenter()[0],2) + Math.pow(startCorner.getCoordinates()[1]-p.getCenter()[1],2));
+                        directionIn = prevLength > thisLength;
+                    }
+                    if (count == 7) {
+                        endCorner = corners.get(index);
+                        double sideLength = Math.sqrt(Math.pow(startCorner.getVectors()[1][0], 2) + Math.pow(startCorner.getVectors()[1][1], 2));
+                        PieceLock pieceLock = new PieceLock(directionIn, sideLength, startCorner, endCorner;
+                        p.addPieceLock(pieceLock);
+                        sortedLocks.add(pieceLock);
+                    }
+                    count++;
+                } else {
+                    count = 0;
+                }
+                index++;
+                if(index == corners.size()){index = 0;}
+            }
+        }
+
+        for(PieceLock l : boardPieces.get(0).getPieceLocks()) {
+            System.out.println("(x,y) = (" + l.getStartCorner().getCoordinates()[0] + ", " + l.getStartCorner().getCoordinates()[1] + ")");
+            System.out.println("type " + l.isDirectionIn());
+        }
     }
 }

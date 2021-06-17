@@ -23,6 +23,7 @@ public class Piece extends Polygon {
 	private ArrayList<Piece> nearbyPieces = new ArrayList<Piece>();
 	private HashMap<Piece, Double[]> adjacentPieces = new HashMap<Piece, Double[]>();
 	private ArrayList<Corner> vectorCorners = new ArrayList<>();
+	private ArrayList<PieceLock> pieceLocks = new ArrayList<>();
 
 	public Double getRotation() { return this.rotation; }
 	public Double[] getCenter() { return this.center; }
@@ -619,4 +620,11 @@ public class Piece extends Polygon {
 		}
 	}
 
+	public void addPieceLock(PieceLock pieceLock) {
+		this.pieceLocks.add(pieceLock);
+	}
+
+	public ArrayList<PieceLock> getPieceLocks() {
+		return this.pieceLocks;
+	}
 }
