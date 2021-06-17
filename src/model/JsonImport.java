@@ -16,16 +16,16 @@ public class JsonImport {
     // Input - A string containing the path to a json file
     // Output - An array containing all the board pieces
     // Written by Oscar
-    public static ArrayList<Piece> readJson(String filename, boolean rotated) throws Exception {
+    public static ArrayList<Piece> readJson(String filename, boolean addSnap) throws Exception {
         Object obj = new JSONParser().parse(new FileReader(filename));
         JSONObject jsonObject = (JSONObject) obj;
         JSONArray formArray = (JSONArray) ((JSONObject) jsonObject.get("puzzle")).get("form");
         JSONArray jsonPieces = (JSONArray) jsonObject.get("pieces");
-        long totalPieces = (long) jsonObject.get("no. of pieces");
         double factor = extractCoordFactor(formArray);
         ArrayList<Piece> pieceArray = extractReformattetPieces(jsonPieces, factor);
-        if(!rotated) {
-            addSnapToPossibleNeighbours(pieceArray);
+        controller.setBoardPieces(pieceArray);
+        if(addSnap) {
+            addNeighboursWithSolving();
         }
         return pieceArray;
     }
@@ -94,23 +94,6 @@ public class JsonImport {
         return pieceArray;
     }
 
-    public static ArrayList<Piece> extractPieces(long totalPieces, JSONArray jsonPieces){
-        int pieceNumber = 0;
-        ArrayList<Piece> pieceArray = new ArrayList<>();
-        for(int i = 0; i < jsonPieces.size(); i++){ //Loops around all pieces
-            JSONArray pieceCornerArray = (JSONArray) ((JSONObject) jsonPieces.get(i)).get("corners");
-            ArrayList<Double> cornerList = new ArrayList<>();
-            for(int j = 0; j < pieceCornerArray.size(); j++){ //Loops around all corners
-                Map coords = (Map) ((JSONObject) pieceCornerArray.get(j)).get("coord");
-                cornerList.add((double) coords.get("x"));
-                cornerList.add((double) coords.get("y"));
-            }
-            pieceArray.add(createPiece(cornerList, pieceNumber, 0, 0, 1));
-            pieceNumber++;
-        }
-        return pieceArray;
-    }
-
     // Method that multiply the corners by the factor and moves them onto the board, and it creates the Piece objects
     // from the corner array
     // Input - The array containing the corners of the piece, the PieceID, the values to move the piece to  make sure
@@ -132,25 +115,49 @@ public class JsonImport {
         return piece;
     }
 
-    // Method that adds snap to possible neighbours of the board pieces
-    // pieces cannot be rotated beforehand for this to work properly
-    // Input - A list of all the board pieces
-    // Output - Non, but all the neighbours of all pieces have been added to the piece objects
+    // Method that tries to solve puzzle and then adds snap to neighbours and then shuffles the pieces again
+    // if no solution was found it doesn't do anything
+    // Input - Non, it uses the board pieces from the controller
+    // Output - Non, but it adds neighbours to all the pieces if solution was found and shuffles the pieces
     // Written by Oscar
-    public static void addSnapToPossibleNeighbours(ArrayList<Piece> pieces){
-        double epsilon = 0.00001;
-        for(Piece p1: pieces){
-            for(Piece p2: pieces){
-                if(p2.getPieceID() != p1.getPieceID()){
-                    for(SideLength s1 : p1.getSideLengths()){
-                        for(SideLength s2 : p2.getSideLengths()){
-                            if(s1.getValue()+epsilon >= s2.getValue() && s1.getValue()-epsilon <= s2.getValue()){
-                                p1.addPossibleAdjacentPiece(p2, s1, s2);
+    public static void addNeighboursWithSolving() throws InterruptedException {
+        ArrayList<Piece> pieces = controller.getBoardPieces();
+        ArrayList<Double[]> oldCoords = new ArrayList<>();
+        for(Piece p : pieces){
+            oldCoords.add(p.getCorners());
+        }
+        SolvePuzzle solver = new SolvePuzzle(false);
+        solver.solveByCorners();
+        if(solver.checkIfSolved(controller.getBoardPieces())) {
+            for(Piece p : controller.getBoardPieces()){
+                p.setRotation(-p.getRotation());
+            }
+            for (Piece p1 : controller.getBoardPieces()) {
+                for (Piece p2 : controller.getBoardPieces()) {
+                    if (p1 != p2) {
+                        for (SideLength s1 : p1.getSideLengths()) {
+                            for (SideLength s2 : p2.getSideLengths()) {
+                                if (compareEpsilon(s1.getCorners()[0][0], s2.getCorners()[0][0]) && compareEpsilon(s1.getCorners()[1][0], s2.getCorners()[1][0]) &&
+                                        compareEpsilon(s1.getCorners()[0][1], s2.getCorners()[0][1]) && compareEpsilon(s1.getCorners()[1][1], s2.getCorners()[1][1])) {
+                                        p1.addAdjacentPiece(p2);
+                                } else if (compareEpsilon(s1.getCorners()[0][0], s2.getCorners()[1][0]) && compareEpsilon(s1.getCorners()[1][0], s2.getCorners()[0][0]) &&
+                                        compareEpsilon(s1.getCorners()[0][1], s2.getCorners()[1][1]) && compareEpsilon(s1.getCorners()[1][1], s2.getCorners()[0][1])) {
+                                        p1.addAdjacentPiece(p2);
+                                }
                             }
                         }
                     }
                 }
+
+            }
+            for(Piece p : controller.getBoardPieces()){
+                p.shufflePiece();
             }
         }
+    }
+
+    private static boolean compareEpsilon(Double value1, Double value2){
+        double epsilon = 0.0000001;
+        return value1 + epsilon > value2 && value1 - epsilon < value2;
     }
 }
