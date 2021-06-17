@@ -98,8 +98,8 @@ public class PuzzleRunner extends Application {
 			shuffledRB.setToggleGroup(startStateToggleGroup);
 			startStatePane.getChildren().addAll(solvedRB, shuffledRB);
 
-			CheckBox isRotatedCheckBox = new CheckBox("Rotated");
-			isRotatedCheckBox.setVisible(false);
+			CheckBox addSnapJSON = new CheckBox("Add snap");
+			addSnapJSON.setVisible(false);
 
 			GridPane.setConstraints(startTextLabel, 0, 0);
 			GridPane.setConstraints(boardTypeSelectPane, 0, 1);
@@ -114,10 +114,10 @@ public class PuzzleRunner extends Application {
 			GridPane.setConstraints(colField,0,3);
 			GridPane.setConstraints(widthField,0,4);
 			GridPane.setConstraints(heightField,0,5);
-			GridPane.setConstraints(isRotatedCheckBox, 0, 7);
+			GridPane.setConstraints(addSnapJSON, 0, 7);
 
 
-			pane.getChildren().addAll(startTextLabel, boardTypeSelectPane, selectFileButton, lblSelectedFile, txtNumberOfPieces, txtWidth, txtHeight, startStatePane, initializeButton, rowField, colField, widthField, heightField, isRotatedCheckBox);
+			pane.getChildren().addAll(startTextLabel, boardTypeSelectPane, selectFileButton, lblSelectedFile, txtNumberOfPieces, txtWidth, txtHeight, startStatePane, initializeButton, rowField, colField, widthField, heightField, addSnapJSON);
 
 			Scene scene = new Scene(pane);
 			stage.setScene(scene);
@@ -151,14 +151,14 @@ public class PuzzleRunner extends Application {
 						heightField.setVisible(true);
 						selectFileButton.setVisible(true);
 						lblSelectedFile.setVisible(true);
-						isRotatedCheckBox.setVisible(true);
+						addSnapJSON.setVisible(true);
 					}
 					if(wasSelected){
 						widthField.setVisible(false);
 						heightField.setVisible(false);
 						selectFileButton.setVisible(false);
 						lblSelectedFile.setVisible(false);
-						isRotatedCheckBox.setVisible(false);
+						addSnapJSON.setVisible(false);
 					}
 				}
 			});
@@ -212,7 +212,7 @@ public class PuzzleRunner extends Application {
 								width = Integer.parseInt(widthField.getText());
 								height = Integer.parseInt(heightField.getText());
 
-								generateBoardFromJson(stage, width, height, selectedFile[0].getAbsolutePath(), isRotatedCheckBox.isSelected());
+								generateBoardFromJson(stage, width, height, selectedFile[0].getAbsolutePath(), addSnapJSON.isSelected());
 							}
 						} else {
 							int rows = Integer.parseInt(rowField.getText());
@@ -264,10 +264,10 @@ public class PuzzleRunner extends Application {
 	// Calls the JsonImport with the file name and gets a list of Pieces it parses to the generateBoardScene
 	// Inputs are the stage, board width, board height, and a path to the file to be loaded
 	// Written by Oscar
-	public void generateBoardFromJson(Stage stage, int width, int height, String filename, boolean rotated) throws Exception {
+	public void generateBoardFromJson(Stage stage, int width, int height, String filename, boolean addSnap) throws Exception {
 		controller.setBoardSize(width, height);
 		JsonImport jsonImport = new JsonImport();
-		ArrayList<Piece> boardPieces = jsonImport.readJson(filename, rotated);
+		ArrayList<Piece> boardPieces = jsonImport.readJson(filename, addSnap);
 		generateBoardScene(stage, boardPieces, width, height, false);
 	}
 
