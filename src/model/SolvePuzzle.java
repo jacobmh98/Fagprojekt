@@ -186,8 +186,15 @@ public class SolvePuzzle extends Thread{
     // Written by Jacob
     public void solveByCorners() throws InterruptedException {
         Piece root = null;
+        for (Piece p : boardPieces) {
+            for(Piece p2 : controller.getGraph().depthFirstTraversal(p)) {
+                controller.getGraph().removeEdge(p, p2);
+            }
+        }
+
         outerloop:
         for (Piece p : boardPieces) {
+
             for (Corner c : p.getVectorCorners()) {
                 double epsilon = 0.00000000001;
                 if (c.getAngle() + epsilon >= Math.PI / 2.0 && c.getAngle() - epsilon <= Math.PI / 2.0) {

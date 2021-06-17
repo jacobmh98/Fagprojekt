@@ -229,7 +229,7 @@ public class PuzzleRunner extends Application {
 					} catch(NumberFormatException e) {
 						System.out.println("Argument error");
 						Label lblError = new Label("Insert valid arguments");
-						GridPane.setConstraints(lblError, 0, 8);
+						GridPane.setConstraints(lblError, 0, 9);
 						pane.getChildren().add(lblError);
 					} catch(Exception e) {
 
