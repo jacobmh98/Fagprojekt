@@ -16,7 +16,7 @@ public class JsonImport {
     // Input - A string containing the path to a json file
     // Output - An array containing all the board pieces
     // Written by Oscar
-    public static ArrayList<Piece> readJson(String filename) throws Exception {
+    public static ArrayList<Piece> readJson(String filename, boolean rotated) throws Exception {
         Object obj = new JSONParser().parse(new FileReader(filename));
         JSONObject jsonObject = (JSONObject) obj;
         JSONArray formArray = (JSONArray) ((JSONObject) jsonObject.get("puzzle")).get("form");
@@ -24,7 +24,9 @@ public class JsonImport {
         long totalPieces = (long) jsonObject.get("no. of pieces");
         double factor = extractCoordFactor(formArray);
         ArrayList<Piece> pieceArray = extractReformattetPieces(jsonPieces, factor);
-        addSnapToPossibleNeighbours(pieceArray);
+        if(!rotated) {
+            addSnapToPossibleNeighbours(pieceArray);
+        }
         return pieceArray;
     }
 
