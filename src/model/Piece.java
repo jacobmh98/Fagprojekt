@@ -597,7 +597,6 @@ public class Piece extends Polygon {
 	public void addVectorCorner(Double[] vector1, Double[] vector2, Double[] coordinates, double angle) {
 		this.vectorCorners.add(new Corner(vector1, vector2, coordinates, angle));
 	}
-
 	// Method that helps adding adjacent pieces to the pieces loaded from a JSON file
 	// Input - the piece to add neighbour to and the two sidelengths that are matching
 	// Output - Non, but piece has had a neighbour added to it

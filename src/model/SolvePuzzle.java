@@ -612,7 +612,7 @@ public class SolvePuzzle extends Thread{
                     if (count == 7) {
                         endCorner = corners.get(index);
                         double sideLength = Math.sqrt(Math.pow(startCorner.getVectors()[1][0], 2) + Math.pow(startCorner.getVectors()[1][1], 2));
-                        PieceLock pieceLock = new PieceLock(directionIn, sideLength, startCorner, endCorner;
+                        PieceLock pieceLock = new PieceLock(directionIn, sideLength, startCorner, endCorner);
                         p.addPieceLock(pieceLock);
                         sortedLocks.add(pieceLock);
                     }
