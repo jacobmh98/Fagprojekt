@@ -1,5 +1,7 @@
 package model;
 
+// This class is a datastructure that we use when solving for pieces with locks
+// Written by Jacob and Oscar
 public class PieceLock {
     private final Corner prevCorner;
     private final Corner nextCorner;
@@ -19,6 +21,7 @@ public class PieceLock {
         this.nextCorner = nextCorner;
     }
 
+    // Getter methods for fields
     public Piece getPiece() { return p; }
     public boolean isDirectionIn() {
         return directionIn;
