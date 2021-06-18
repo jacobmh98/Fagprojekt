@@ -92,9 +92,6 @@ public class SolvePuzzle extends Thread{
         Piece root = null;
 
         for(Piece p : boardPieces) {
-            for(Piece p2 : controller.getGraph().depthFirstTraversal(p)) {
-                controller.getGraph().removeEdge(p, p2);
-            }
             for(Corner c : p.getVectorCorners()) {
                 double epsilon = 0.00000000001;
                 if (c.getAngle() + epsilon >= Math.PI / 2.0 && c.getAngle() - epsilon <= Math.PI / 2.0) {
@@ -193,11 +190,6 @@ public class SolvePuzzle extends Thread{
     // Written by Jacob
     public void solveByCorners() throws InterruptedException {
         Piece root = null;
-        for (Piece p : boardPieces) {
-            for(Piece p2 : controller.getGraph().depthFirstTraversal(p)) {
-                controller.getGraph().removeEdge(p, p2);
-            }
-        }
 
         outerloop:
         for (Piece p : boardPieces) {
@@ -307,6 +299,18 @@ public class SolvePuzzle extends Thread{
             System.out.println("This puzzle has no solution");
         }
 
+    }
+
+    // Method for splitting the puzzle by removing edges for all of the pieces
+    // Input - acquires the boardPieces from the controller as well as the graph
+    // Output - for all connected pieces it removes the edge between them
+    // Written by Jacob
+    private void splitPuzzle() {
+        for (Piece p : boardPieces) {
+            for(Piece p2 : controller.getGraph().depthFirstTraversal(p)) {
+                controller.getGraph().removeEdge(p, p2);
+            }
+        }
     }
 
     // Method for finding the angle between two angles. It takes two SideLength objects as argument
@@ -427,6 +431,7 @@ public class SolvePuzzle extends Thread{
     // Method for starting the SolvePuzzle object running in a new thread when the class is initialized.
     // Written by Jacob & Oscar
     public void run(){
+        splitPuzzle();
         try {
             if (solveBySideLength) {
                 solveBySideLengths();
@@ -658,8 +663,7 @@ public class SolvePuzzle extends Thread{
         ArrayList<Piece> queue = new ArrayList<>();
         queue.add(placeStartPiece());
         double epsilon = 0.001;
-        double epsilon2 = 0.0000000000001;
-
+        double epsilon2 = 0.000000001;
 
         for(int i = 1; i < sortedLocks.size(); i++) {
             int j = i - 1;

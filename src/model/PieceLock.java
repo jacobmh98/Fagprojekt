@@ -20,25 +20,19 @@ public class PieceLock {
     }
 
     public Piece getPiece() { return p; }
-
     public boolean isDirectionIn() {
         return directionIn;
     }
-
     public double getSideLength() {
         return sideLength;
     }
-
     public Corner getStartCorner() {
         return startCorner;
     }
-
     public Corner getEndCorner() {
         return endCorner;
     }
-
     public Corner getPrevCorner() { return this.prevCorner; }
-
     public Corner getNextCorner() { return this.nextCorner; }
 
 }

@@ -127,7 +127,7 @@ public class JsonImport {
             oldCoords.add(p.getCorners());
         }
         SolvePuzzle solver = new SolvePuzzle(false);
-        solver.solveByCorners();
+        solver.run();
         if(solver.checkIfSolved(controller.getBoardPieces())) {
             for(Piece p : controller.getBoardPieces()){
                 p.setRotation(-p.getRotation());
