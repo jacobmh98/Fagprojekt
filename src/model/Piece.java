@@ -626,4 +626,8 @@ public class Piece extends Polygon {
 	public ArrayList<PieceLock> getPieceLocks() {
 		return this.pieceLocks;
 	}
+
+	public void clearSideLocks() {
+		pieceLocks.clear();
+	}
 }

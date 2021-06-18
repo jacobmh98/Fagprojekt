@@ -1,6 +1,8 @@
 package model;
 
 import controller.Controller;
+import javafx.scene.input.PickResult;
+
 import java.util.*;
 
 public class SolvePuzzle extends Thread{
@@ -178,6 +180,11 @@ public class SolvePuzzle extends Thread{
                 }
             }
         }
+        if(checkIfSolved(boardPieces)){
+            System.out.println("This puzzle has a solution");
+        } else {
+            System.out.println("This puzzle has no solutions");
+        }
     }
 
     // Method that solves a puzzle by comparing the corners of each piece. It starts by identifying a piece
@@ -248,8 +255,6 @@ public class SolvePuzzle extends Thread{
         System.out.println("Start piece " + root.getPieceID());
 
         ArrayList<Piece> queue = new ArrayList<>();
-        ArrayList<Integer> PossibleWrongIndexes = new ArrayList<>();
-        ArrayList<ArrayList<Piece>> possibleMatchingPieces = new ArrayList<>();
         queue.add(root);
         for(int i = 0; i < queue.size(); i++) {
             ArrayList<Corner> vectorCornersP1 = queue.get(i).getVectorCorners();
@@ -296,7 +301,12 @@ public class SolvePuzzle extends Thread{
                 }
             }
         }
-        System.out.println(checkIfSolved(boardPieces));
+        if(checkIfSolved(boardPieces)){
+            System.out.println("This puzzle has a solution");
+        } else {
+            System.out.println("This puzzle has no solution");
+        }
+
     }
 
     // Method for finding the angle between two angles. It takes two SideLength objects as argument
@@ -407,26 +417,28 @@ public class SolvePuzzle extends Thread{
         int o3 = orientation(c1, c2, p1);
         int o4 = orientation(c1, c2, p2);
         if(o1 != o2 && o3 != o4){
-            System.out.println("----------------------INTERSECT--------------");
+            //System.out.println("----------------------INTERSECT--------------");
             return true;
         }
-        System.out.println("---------------------NO INTERSECT-----------------------");
+        //System.out.println("---------------------NO INTERSECT-----------------------");
         return false;
     }
 
     // Method for starting the SolvePuzzle object running in a new thread when the class is initialized.
     // Written by Jacob & Oscar
     public void run(){
-//        try {
-        solveLockPuzzle();
-//            if(solveBySideLength) {
-//                solveBySideLengths();
-//            } else {
-//                solveByCorners();
-//            }
-//        } catch (InterruptedException e) {
-//            System.out.println("Thread ended");
-//        }
+        try {
+            if (solveBySideLength) {
+                solveBySideLengths();
+            } else if (findLocks().size() > 0) {
+                solveLockPuzzle();
+            } else {
+                solveByCorners();
+            }
+
+        } catch (Exception e) {
+            System.out.println("Thread ended");
+        }
     }
 
     // Method that finds the angle given the coordinates of two vectors
@@ -578,28 +590,163 @@ public class SolvePuzzle extends Thread{
         return false;
     }
 
-    public void solveLockPuzzle() {
-        ArrayList<PieceLock> sortedLocks = new ArrayList<>();
+    // Method that places the first piece of the puzzle with locks on the pieces
+    // Input - The method pulls the board pieces from the controller
+    // Output - Finds a corner piece, places it correctly in (0,0) and returns the Piece
+    // Written by Jacob
+    public Piece placeStartPiece() {
+        for(Piece p : boardPieces) {
+            if(p.getPieceLocks().size() == 2) {
+                double epsilon = 0.001;
 
+                for(Corner c : p.getVectorCorners()) {
+                    if(c.getAngle() + epsilon >= Math.PI/2.0 && c.getAngle() - epsilon <= Math.PI/2.0) {
+
+                        Double[] tempVector = new Double[]{0.0, -1.0};
+                        Double[] vector1 = c.getVectors()[0];
+                        Double[] vector2 = c.getVectors()[1];
+
+                        Double angleVertical1 = findAngleBetweenVectors(vector1, tempVector);
+                        Double angleVertical2 = findAngleBetweenVectors(vector2, tempVector);
+
+                        if(angleVertical1 < angleVertical2) {
+                            while (!((angleVertical1 + epsilon >= 0.0 && angleVertical1 - epsilon <= 0.0)) && !Double.isNaN(angleVertical1)) {
+                                p.rotatePiece(angleVertical1);
+                                angleVertical1 = findAngleBetweenVectors(c.getVectors()[0], tempVector);
+                            }
+                        } else {
+                            p.rotatePiece(angleVertical2);
+                            while (!((angleVertical2 + epsilon >= 0.0 && angleVertical2 - epsilon <= 0.0)) && !Double.isNaN(angleVertical2)) {
+                                p.rotatePiece(angleVertical2);
+                                angleVertical2 = findAngleBetweenVectors(c.getVectors()[1], tempVector);
+                            }
+                        }
+
+                        vector1 = c.getVectors()[0];
+                        vector2 = c.getVectors()[1];
+
+
+                        if(angleVertical1 + epsilon >= 0.0 && angleVertical1 - epsilon <= 0.0) {
+                            if(vector2[0] > 0.0) {
+                                p.rotatePiece(Math.PI/2.0);
+                            }
+                        } else {
+                            if(vector1[0] > 0.0) {
+                                p.rotatePiece(Math.PI/2.0);
+                            }
+                        }
+
+                        Double dx = -c.getCoordinates()[0];
+                        Double dy = -c.getCoordinates()[1];
+
+                        p.movePiece(dx, dy);
+                        return p;
+                    }
+                }
+            }
+        }
+
+        return null;
+    }
+
+    // Method that solves puzzle that has locks that connects pieces like normal jigzaw puzzles
+    // Input - Acquires all of the locks in the puzzle
+    // Output - Connects all of the pieces in the puzzle
+    // Written by Jacob & Oscar
+    public void solveLockPuzzle() throws InterruptedException {
+        ArrayList<PieceLock> sortedLocks = findLocks();
+        ArrayList<Piece> queue = new ArrayList<>();
+        queue.add(placeStartPiece());
+        double epsilon = 0.001;
+        double epsilon2 = 0.0000000000001;
+
+
+        for(int i = 1; i < sortedLocks.size(); i++) {
+            int j = i - 1;
+            PieceLock temp = sortedLocks.get(i);
+
+            while(j >= 0 && temp.getSideLength() < sortedLocks.get(j).getSideLength() ) {
+                j--;
+            }
+            sortedLocks.remove(i);
+            sortedLocks.add(j + 1,temp);
+        }
+        for(int i = 0; i < queue.size(); i++) {
+            for(int j = 0; j < queue.get(i).getPieceLocks().size(); j++){
+                PieceLock currentLock = queue.get(i).getPieceLocks().get(j);
+                for(PieceLock lock : sortedLocks){
+                    Double pieceSideLength1 = findLengthOfPieceSide(currentLock.getPrevCorner(), currentLock.getNextCorner());
+                    Double pieceSideLength2 = findLengthOfPieceSide(lock.getPrevCorner(), lock.getNextCorner());
+
+                    if(lock.getSideLength() + epsilon >= currentLock.getSideLength() && lock.getSideLength() - epsilon <= currentLock.getSideLength()
+                            && lock.getPiece().getPieceID() != currentLock.getPiece().getPieceID() &&
+                        pieceSideLength1 + epsilon2 >= pieceSideLength2 &&
+                        pieceSideLength1 - epsilon2 <= pieceSideLength2){
+
+                        Double[] vector1 = currentLock.getStartCorner().getVectors()[0];
+                        Double[] vector2 = lock.getStartCorner().getVectors()[0];
+
+                        double dotProduct = (vector1[0] * vector2[0]) + (vector1[1] * vector2[1]);
+                        double det = vector1[0] * vector2[1] - vector1[1] * vector2[0];
+                        double angle = Math.atan2(det, dotProduct);
+                        lock.getPiece().rotatePiece(angle);
+
+                        Double dx = currentLock.getStartCorner().getCoordinates()[0] - lock.getStartCorner().getCoordinates()[0];
+                        Double dy = currentLock.getStartCorner().getCoordinates()[1] - lock.getStartCorner().getCoordinates()[1];
+
+                        lock.getPiece().movePiece(dx, dy);
+                        Double[] endCorner1 = currentLock.getEndCorner().getCoordinates();
+                        Double[] endCorner2 = lock.getEndCorner().getCoordinates();
+
+                        if (!(endCorner1[0] + epsilon >= endCorner2[0] && endCorner1[0] - epsilon <= endCorner2[0] &&
+                                endCorner1[1] + epsilon >= endCorner2[1] && endCorner1[1] - epsilon <= endCorner2[1])) {
+                            dx = currentLock.getStartCorner().getCoordinates()[0] - lock.getEndCorner().getCoordinates()[0];
+                            dy = currentLock.getStartCorner().getCoordinates()[1] - lock.getEndCorner().getCoordinates()[1];
+                            lock.getPiece().movePiece(dx, dy);
+                        }
+                        if(!queue.contains(lock.getPiece())) {
+                            queue.add(lock.getPiece());
+                        }
+                        sleep(Controller.getInstance().getSolveSpeed());
+                    }
+                }
+            }
+        }
+        if(checkIfSolved(boardPieces)){
+            System.out.println("This puzzle has a solution");
+        } else {
+            System.out.println("This puzzle has no solutions");
+        }
+    }
+
+    // Method that find all the locks on all pieces
+    // Input - Pulls of all the board pieces from the controller
+    // Output - For each piece sets the locks as instances of PieceLock class
+    // Written by Jacob & Oscar
+    public ArrayList<PieceLock> findLocks(){
+        ArrayList<PieceLock> sortedLocks = new ArrayList<>();
         double octagonCorner = 2.356;
         double epsilon = 0.001;
-
         ArrayList<Piece> boardPieces = controller.getBoardPieces();
         for(Piece p : boardPieces) {
+            p.clearSideLocks();
+
             int count = 0;
+            boolean firstEntry = true;
             Corner startCorner = null;
             Corner endCorner = null;
             Corner prevCorner = null;
+            Corner prevPieceCorner = null;
+            Corner nextPieceCorner = null;
             boolean directionIn = false;
             int startIndex = 0;
             ArrayList<Corner> corners = p.getVectorCorners();
             while(corners.get(startIndex).getAngle() + epsilon >= octagonCorner && corners.get(startIndex).getAngle() - epsilon <= octagonCorner){
                 startIndex++;
             }
-            System.out.println();
             int index = startIndex;
-            while(index != startIndex || startCorner == null) {
-
+            while(index != startIndex || firstEntry) {
+                firstEntry = false;
                 if (corners.get(index).getAngle() + epsilon >= 2.356 && corners.get(index).getAngle() - epsilon <= 2.356) {
                     if (count == 0) {
                         startCorner = corners.get(index);
@@ -608,11 +755,18 @@ public class SolvePuzzle extends Thread{
                         double prevLength = Math.sqrt(Math.pow(prevCorner.getCoordinates()[0]-p.getCenter()[0],2) + Math.pow(prevCorner.getCoordinates()[1]-p.getCenter()[1],2));
                         double thisLength = Math.sqrt(Math.pow(startCorner.getCoordinates()[0]-p.getCenter()[0],2) + Math.pow(startCorner.getCoordinates()[1]-p.getCenter()[1],2));
                         directionIn = prevLength > thisLength;
+                        if(index >= 2){prevPieceCorner = corners.get(index - 2);}
+                        else if (index == 1){prevPieceCorner = corners.get(corners.size()-1);}
+                        else {prevPieceCorner = corners.get(corners.size()-2);}
                     }
                     if (count == 7) {
                         endCorner = corners.get(index);
+                        if(index+2 == corners.size()) {nextPieceCorner = corners.get(0);}
+                        else if(index+2 > corners.size()){nextPieceCorner = corners.get(1);}
+                        else { nextPieceCorner = corners.get(index+2);}
+
                         double sideLength = Math.sqrt(Math.pow(startCorner.getVectors()[1][0], 2) + Math.pow(startCorner.getVectors()[1][1], 2));
-                        PieceLock pieceLock = new PieceLock(directionIn, sideLength, startCorner, endCorner);
+                        PieceLock pieceLock = new PieceLock(directionIn, sideLength, startCorner, endCorner, prevPieceCorner, nextPieceCorner, p);
                         p.addPieceLock(pieceLock);
                         sortedLocks.add(pieceLock);
                     }
@@ -624,10 +778,23 @@ public class SolvePuzzle extends Thread{
                 if(index == corners.size()){index = 0;}
             }
         }
+        return sortedLocks;
+    }
 
-        for(PieceLock l : boardPieces.get(0).getPieceLocks()) {
-            System.out.println("(x,y) = (" + l.getStartCorner().getCoordinates()[0] + ", " + l.getStartCorner().getCoordinates()[1] + ")");
-            System.out.println("type " + l.isDirectionIn());
-        }
+    public boolean nextDirectionIn(Double[] p1, Double[] p2, Double[] c1){
+        double[] vector1 = {p1[0]-c1[0], p1[1]-c1[1]};
+        double[] vector2 = {p2[0]-c1[0], p2[1]-c1[1]};
+        double length1 = Math.sqrt(Math.pow(vector1[0],2)+Math.pow(vector1[1],2));
+        double length2 = Math.sqrt(Math.pow(vector2[0],2)+Math.pow(vector2[1],2));
+        return length1 > length2;
+    }
+
+    // Method that find the length of an entire side of a piece (Side meaning one of the four big sides the pieces has)
+    // Input - Two corners that defines the coordinates of the sides endpoints
+    // Output - The length from the first corner to the second
+    // Written by Oscar
+    public double findLengthOfPieceSide(Corner prevPieceCorner, Corner nextPieceCorner){
+        Double[] sideVector = {prevPieceCorner.getCoordinates()[0]-nextPieceCorner.getCoordinates()[0], prevPieceCorner.getCoordinates()[1]-nextPieceCorner.getCoordinates()[1]};
+        return Math.sqrt(Math.pow(sideVector[0],2)+Math.pow(sideVector[1],2));
     }
 }
