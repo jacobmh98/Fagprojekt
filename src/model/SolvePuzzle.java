@@ -604,48 +604,65 @@ public class SolvePuzzle extends Thread{
             if(p.getPieceLocks().size() == 2) {
                 double epsilon = 0.001;
 
-                for(Corner c : p.getVectorCorners()) {
-                    if(c.getAngle() + epsilon >= Math.PI/2.0 && c.getAngle() - epsilon <= Math.PI/2.0) {
+                for(int i = 0; i < p.getVectorCorners().size(); i++) {
+                    if(p.getVectorCorners().get(i).getAngle() + epsilon >= Math.PI/2.0 && p.getVectorCorners().get(i).getAngle() - epsilon <= Math.PI/2.0) {
 
-                        Double[] tempVector = new Double[]{0.0, -1.0};
-                        Double[] vector1 = c.getVectors()[0];
-                        Double[] vector2 = c.getVectors()[1];
+                        int indexNext = i + 1;
+                        int indexPrev = i - 1;
 
-                        Double angleVertical1 = findAngleBetweenVectors(vector1, tempVector);
-                        Double angleVertical2 = findAngleBetweenVectors(vector2, tempVector);
+                        if(i == 0) {
+                            indexPrev = p.getVectorCorners().size() - 1;
+                        }
+                        if(i == p.getVectorCorners().size() - 1) {
+                            indexNext = 0;
+                        }
 
-                        if(angleVertical1 < angleVertical2) {
-                            while (!((angleVertical1 + epsilon >= 0.0 && angleVertical1 - epsilon <= 0.0)) && !Double.isNaN(angleVertical1)) {
-                                p.rotatePiece(angleVertical1);
-                                angleVertical1 = findAngleBetweenVectors(c.getVectors()[0], tempVector);
-                            }
-                        } else {
-                            p.rotatePiece(angleVertical2);
-                            while (!((angleVertical2 + epsilon >= 0.0 && angleVertical2 - epsilon <= 0.0)) && !Double.isNaN(angleVertical2)) {
+                        if(!((p.getVectorCorners().get(indexNext).getAngle() + epsilon >= 2.356194490 &&
+                            p.getVectorCorners().get(indexNext).getAngle() - epsilon <= 2.356194490) ||
+                            (p.getVectorCorners().get(indexPrev).getAngle() + epsilon >= 2.356194490 &&
+                            p.getVectorCorners().get(indexPrev).getAngle() - epsilon <= 2.356194490))) {
+
+                            Corner c = p.getVectorCorners().get(i);
+
+                            Double[] tempVector = new Double[]{0.0, -1.0};
+                            Double[] vector1 = c.getVectors()[0];
+                            Double[] vector2 = c.getVectors()[1];
+
+                            Double angleVertical1 = findAngleBetweenVectors(vector1, tempVector);
+                            Double angleVertical2 = findAngleBetweenVectors(vector2, tempVector);
+
+                            if(angleVertical1 < angleVertical2) {
+                                while (!((angleVertical1 + epsilon >= 0.0 && angleVertical1 - epsilon <= 0.0)) && !Double.isNaN(angleVertical1)) {
+                                    p.rotatePiece(angleVertical1);
+                                    angleVertical1 = findAngleBetweenVectors(c.getVectors()[0], tempVector);
+                                }
+                            } else {
                                 p.rotatePiece(angleVertical2);
-                                angleVertical2 = findAngleBetweenVectors(c.getVectors()[1], tempVector);
+                                while (!((angleVertical2 + epsilon >= 0.0 && angleVertical2 - epsilon <= 0.0)) && !Double.isNaN(angleVertical2)) {
+                                    p.rotatePiece(angleVertical2);
+                                    angleVertical2 = findAngleBetweenVectors(c.getVectors()[1], tempVector);
+                                }
                             }
+
+                            vector1 = c.getVectors()[0];
+                            vector2 = c.getVectors()[1];
+
+                            if(angleVertical1 + epsilon >= 0.0 && angleVertical1 - epsilon <= 0.0) {
+                                if(vector2[0] > 0.0) {
+                                    p.rotatePiece(Math.PI/2.0);
+                                }
+                            } else {
+                                if(vector1[0] > 0.0) {
+                                    p.rotatePiece(Math.PI/2.0);
+                                }
+                            }
+
+                            Double dx = -c.getCoordinates()[0];
+                            Double dy = -c.getCoordinates()[1];
+
+                            p.movePiece(dx, dy);
+                            return p;
                         }
-
-                        vector1 = c.getVectors()[0];
-                        vector2 = c.getVectors()[1];
-
-
-                        if(angleVertical1 + epsilon >= 0.0 && angleVertical1 - epsilon <= 0.0) {
-                            if(vector2[0] > 0.0) {
-                                p.rotatePiece(Math.PI/2.0);
-                            }
-                        } else {
-                            if(vector1[0] > 0.0) {
-                                p.rotatePiece(Math.PI/2.0);
-                            }
-                        }
-
-                        Double dx = -c.getCoordinates()[0];
-                        Double dy = -c.getCoordinates()[1];
-
-                        p.movePiece(dx, dy);
-                        return p;
                     }
                 }
             }
