@@ -36,7 +36,10 @@ public class Piece extends Polygon {
 		return this.pieceLocks;
 	}
 
-	// Constructor for piece
+	// Constructor for piece objects
+	// Input - the piece id as well as an array of the corner coordinates
+	// Output - constructs the piece object with the mouse events for control
+	// Written by Jacob
 	public Piece(Integer pieceID, Double[] corners) {
 		this.pieceID = pieceID;
 		this.corners = corners;
@@ -233,10 +236,6 @@ public class Piece extends Polygon {
 		}
 	}
 
-	public boolean checkIfConnect(Piece p) {
-		return true;//adjacentPieces.get(p);
-	}
-
 	// Method in charge of checking whether a piece can connect to another piece in its proximity.
 	// It utilizes the nearby pieces and adjacent pieces to determine whether it can snap and
 	// if so performs the necessary operations to snap.
@@ -279,7 +278,8 @@ public class Piece extends Polygon {
 	}
 
 	// Method for performing the actual snap of a piece when the computations and checks has been done.
-	// written by Jacob
+	// Input - a piece and how much the piece should move
+	// Written by Jacob
 	private void snapPiece(Piece p, Double dx, Double dy) {
 		controller.getGraph().addEdge(this, p);
 		Double[] updateCorners = new Double[this.getCorners().length];
@@ -342,7 +342,7 @@ public class Piece extends Polygon {
 	}
 
 	// Method for moving a piece to an aboslute (x, y) coordinate. Used in shuffling of the pieces and the
-	// rotation from an neighbour.
+	// rotation from a neighbour.
 	// written by Jacob
 	public void movePieceAbsolute(double x, double y) {
 		double diffX = x - this.center[0];
@@ -587,7 +587,7 @@ public class Piece extends Polygon {
 		return sum;
 	}
 
-	// Method to add an adjacent piece meaning one that this piece is supposed to connec to.
+	// Method to add an adjacent piece meaning one that this piece is supposed to connect to.
 	// Written by Jacob
 	public void addAdjacentPiece(Piece p) {
 		double deltaX = p.getCenter()[0] - this.center[0];
@@ -601,6 +601,7 @@ public class Piece extends Polygon {
 	public void addVectorCorner(Double[] vector1, Double[] vector2, Double[] coordinates, double angle) {
 		this.vectorCorners.add(new Corner(vector1, vector2, coordinates, angle));
 	}
+
 	// Method that helps adding adjacent pieces to the pieces loaded from a JSON file
 	// Input - the piece to add neighbour to and the two sidelengths that are matching
 	// Output - Non, but piece has had a neighbour added to it
@@ -624,6 +625,8 @@ public class Piece extends Polygon {
 	}
 
 	// Method for adding a new instance of PieceLock to the list for this piece
+	// Input - a PieceLock object
+	// Output - adds the PieceLock object to the list containing all of the PieceLock objects of this class
 	// Written by Jacob
 	public void addPieceLock(PieceLock pieceLock) {
 		this.pieceLocks.add(pieceLock);

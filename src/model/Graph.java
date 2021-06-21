@@ -97,7 +97,8 @@ public class Graph {
     }
 
     // Depth first traversal from a piece. It takes a Piece as root and returns a set of all the Pieces connected
-    // to the root piece.
+    // Input - a root piece
+    // Output - A set containing all of the pieces that is connected to the root
     Set<Piece> depthFirstTraversal(Piece root) {
         Set<Piece> visited = new LinkedHashSet<Piece>();
         Stack<Piece> stack = new Stack<Piece>();

@@ -161,7 +161,7 @@ public class CreateBoardTests {
     @Test
     void testNoSolution() throws Exception {
         TestData.setControllerValues();
-        ArrayList<Piece> boardPieces = JsonImport.readJson("NoSolutionTest.json", false);
+        ArrayList<Piece> boardPieces = JsonImport.readJson("NoSolutionTest.json", false, false);
         Controller.getInstance().setBoardPieces(boardPieces);
         SolvePuzzle solver = new SolvePuzzle(false);
         solver.solveByCorners();
@@ -172,7 +172,7 @@ public class CreateBoardTests {
     @Test
     void testWithSolution() throws Exception {
         TestData.setControllerValues();
-        ArrayList<Piece> boardPieces = JsonImport.readJson("WithSolutionTest.json", false);
+        ArrayList<Piece> boardPieces = JsonImport.readJson("WithSolutionTest.json", false, false);
         Controller.getInstance().setBoardPieces(boardPieces);
         SolvePuzzle solver = new SolvePuzzle(false);
         solver.solveByCorners();

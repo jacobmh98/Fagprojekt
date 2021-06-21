@@ -39,8 +39,6 @@ public class VoronoiBoard {
     // Getters
     public Piece[] getPieces(){return pieces;}
 
-    public PointD[] getRandomPoints(){return randomPoints;}
-
     // Method that creates the Piece objects based of the voronoi regions that the tektosyne library created
     // input - Non, it uses the Voronoi object from the tektosyne library
     // Output - Non, it sets the entries of the global array pieces that contains all the Piece object

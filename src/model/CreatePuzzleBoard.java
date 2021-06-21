@@ -27,19 +27,7 @@ public class CreatePuzzleBoard {
 
     private ArrayList<Piece> boardPieces = new ArrayList<>();
 
-    //Getters
-    public ArrayList<ArrayList<Double>> getColumnX() { return columnX; }
-
-    public ArrayList<ArrayList<Double>> getColumnY() { return columnY; }
-
-    public ArrayList<ArrayList<Double>> getRowX() { return rowX; }
-
-    public ArrayList<ArrayList<Double>> getRowY() { return rowY; }
-
-    public ArrayList<Double> getPieceX() {return pieceX;}
-
-    public ArrayList<Double> getPieceY() {return pieceY;}
-
+    //Getter for board pieces
     public ArrayList<Piece> getBoardPieces() {return boardPieces;}
 
 
@@ -91,9 +79,8 @@ public class CreatePuzzleBoard {
                 columnListY.add(y);
                 while (y < height) {
                     double x = (i * pieceWidth - maxWidth) + Math.random() * (i * pieceWidth + maxWidth - (i * pieceWidth - maxWidth));
-                    //y needs to be atleast the same length as x can vary (angle can vary atmost 45 degrees from vertical line)
-                    y += (maxWidth*2) + Math.random() * (pieceHeight-maxWidth*2)*0;
-                    if(y > height-10) {
+                    y += maxWidth*2;
+                    if(y > height-10) { //Subtract 10 avoid having really small lines at the end
                         y = height;
                     }
                     columnListY.add(y);
@@ -124,9 +111,9 @@ public class CreatePuzzleBoard {
                 rowListX.add(x);
                 rowListY.add(i*pieceHeight);
                 while(x < width){
-                    x += (maxHeight*2) + Math.random()*(pieceWidth -maxHeight*2)*0;
+                    x += maxHeight*2;
                     double y = (i * pieceHeight - maxHeight) + Math.random() * (i * pieceHeight + maxHeight - (i * pieceHeight - maxWidth));
-                    if(x > width-10){
+                    if(x > width-10){ //Subtract 10 avoid having really small lines at the end
                         x = width;
                     }
                     rowListX.add(x);
@@ -187,8 +174,7 @@ public class CreatePuzzleBoard {
     public double[] intersect(double x1, double y1, double x2, double y2, double x3, double y3, double x4, double y4){
         double[] intersectingPoints = new double[2];
         double m1, m2, b1, b2;
-        //If column line is vertical we can't use the two point formula
-        if(x1-x2 == 0) {
+        if(x1-x2 == 0) { //If column line is vertical we can't use the two point formula
             m2 = (y4-y3)/(x4-x3);
             b2 = y3-x3*m2;
             double yAtX = m2*x1+b2;
@@ -214,7 +200,7 @@ public class CreatePuzzleBoard {
                 intersectingPoints[0] = intersectX;
                 intersectingPoints[1] = m1*intersectX+b1;
             } else {
-                intersectingPoints[0] = -1; //Used as a boolean to check if there were an intersection
+                intersectingPoints[0] = -1; //Used as a "boolean" to check if there were an intersection
             }
         }
         return intersectingPoints;
@@ -268,10 +254,6 @@ public class CreatePuzzleBoard {
                 Double[] pieceCoordinateArray = new Double[pieceCorners.size()];
                 for(int k = 0; k < pieceCorners.size(); k++){
                     pieceCoordinateArray[k] = pieceCorners.get(k);
-                    if(i*5+j == 5){
-//                        System.out.print(pieceCoordinateArray[k] + ", ");
-                    }
-
                 }
                 boardPieces.add(new Piece(pieceID, pieceCoordinateArray));
                 pieceID++;

@@ -10,6 +10,9 @@ class Corner {
     private Double[] coordinates;
     private double angle;
 
+    // Constructor for the Corner class
+    // Input - two vectors that goes from the current corner its neighbours, the coordinates of the current corner and the angle between the vectors
+    // Output - creates a Corner object
     public Corner(Double[] vector1, Double[] vector2, Double[] coordinates, double angle) {
         this.vector1 = vector1;
         this.vector2 = vector2;

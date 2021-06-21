@@ -46,7 +46,6 @@ public class ComparePieces {
         ArrayList<Double> newPiece1 = calculatePieceCenterOrigo(deleteObsoletePoints(piece1));
         ArrayList<Double> newPiece2 = calculatePieceCenterOrigo(deleteObsoletePoints(piece2));
         if(newPiece1.size() != newPiece2.size()){ // Checks if the pieces if the same number of corners
-            //System.out.println("Corner check");
             return false;
         }
         ArrayList<Double> possibleRotations = calculateRotationTheta(newPiece1, newPiece2);
@@ -196,6 +195,7 @@ public class ComparePieces {
     // Then comparing the list either forward or backwards, here list 1 always iterates forward, but list 2 iterates the direction of forwardCheck
     // Input - A list of coordinates for two pieces and a boolean telling whether list 2 should be iterated forwards or backwards
     // Output - True if the two pieces are equal given the direction false otherwise
+    // Written by Oscar
     private static boolean comparePieceCoordinates(ArrayList<Double> piece1, ArrayList<Double> piece2, boolean forwardCheck){
         double epsilon = 0.0000000001;
         int startIndex = 0;
@@ -205,7 +205,7 @@ public class ComparePieces {
         }
         int piece2Index = startIndex;
 
-        for(int piece1Index = 0; piece1Index < piece1.size(); piece1Index+=2){ //Forward check
+        for(int piece1Index = 0; piece1Index < piece1.size(); piece1Index+=2){
 
             double upperX = piece2.get(piece2Index) + epsilon;
             double lowerX = piece2.get(piece2Index) - epsilon;

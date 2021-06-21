@@ -16,12 +16,17 @@ public class JsonImport {
     // Input - A string containing the path to a json file
     // Output - An array containing all the board pieces
     // Written by Oscar
-    public static ArrayList<Piece> readJson(String filename, boolean addSnap) throws Exception {
+    public static ArrayList<Piece> readJson(String filename, boolean addSnap, boolean reshape) throws Exception {
         Object obj = new JSONParser().parse(new FileReader(filename));
         JSONObject jsonObject = (JSONObject) obj;
-        JSONArray formArray = (JSONArray) ((JSONObject) jsonObject.get("puzzle")).get("form");
+        double factor;
+        if(reshape) {
+            JSONArray formArray = (JSONArray) ((JSONObject) jsonObject.get("puzzle")).get("form");
+            factor = extractCoordFactor(formArray);
+        } else {
+            factor = 1;
+        }
         JSONArray jsonPieces = (JSONArray) jsonObject.get("pieces");
-        double factor = extractCoordFactor(formArray);
         ArrayList<Piece> pieceArray = extractReformattetPieces(jsonPieces, factor);
         controller.setBoardPieces(pieceArray);
         if(addSnap) {
@@ -48,8 +53,12 @@ public class JsonImport {
                 highestY = y;
             }
         }
-        double xFactor = controller.getBoardSize()[0]/highestX;
-        double yFactor = controller.getBoardSize()[1]/highestY;
+        double yFactor, xFactor;
+        if(highestX < 0.1 && highestY < 0.1) { //To avoid division by 0
+            return 1;
+        }
+        xFactor = controller.getBoardSize()[0] / highestX;
+        yFactor = controller.getBoardSize()[1] / highestY;
         if(xFactor > yFactor){
             return yFactor;
         }
@@ -85,8 +94,6 @@ public class JsonImport {
             }
             allPieceCorners.add(cornerList);
         }
-        System.out.println(lowestX);
-        System.out.println(lowestY);
         for(int i = 0; i < allPieceCorners.size(); i++){
             pieceArray.add(createPiece(allPieceCorners.get(i), pieceNumber, lowestX, lowestY, factor));
             pieceNumber++;
