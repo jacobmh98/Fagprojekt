@@ -116,14 +116,11 @@ public class PuzzleRunner extends Application {
 			GridPane.setConstraints(heightField,0,5);
 			GridPane.setConstraints(addSnapJSON, 0, 7);
 
-
 			pane.getChildren().addAll(startTextLabel, boardTypeSelectPane, selectFileButton, lblSelectedFile, txtNumberOfPieces, txtWidth, txtHeight, startStatePane, initializeButton, rowField, colField, widthField, heightField, addSnapJSON);
 
 			Scene scene = new Scene(pane);
 			stage.setScene(scene);
-
 			scene.setRoot(pane);
-
 			stage.setTitle("Initialize Puzzle");
 			stage.show();
 
@@ -243,6 +240,10 @@ public class PuzzleRunner extends Application {
 		}
 	}
 
+	public void generateInitialScene() {
+
+	}
+
 	// Method that is called when Voronoi is selected. Sets the controller variables from its inputs
 	// Calls the Voronoi board generator and gets a list of pieces that it parses to the generateBoardScene
 	// Inputs are the stage, amount of points and width & height.
@@ -320,8 +321,11 @@ public class PuzzleRunner extends Application {
 
 		Button checkForDuplicates = new Button("Check Duplicates");
 
-		rightSide.getChildren().addAll(solveLbl, solveBtn,speedLabel, speedSlider, currentSpeedLabel, checkForDuplicates);
+		Button goBackBtn = new Button("Go Back");
+
+		rightSide.getChildren().addAll(solveLbl, solveBtn,speedLabel, speedSlider, currentSpeedLabel, checkForDuplicates, goBackBtn);
 		root.getChildren().addAll(pane, rightSide);
+
 		double sceneWidth = width+300;
 		double sceneHeight = height + 20;
 		if(sceneWidth < 900){ sceneWidth = 900;}
@@ -434,6 +438,13 @@ public class PuzzleRunner extends Application {
 				if(!duplicate){
 					System.out.println("No duplicates were found");
 				}
+			}
+		});
+
+		goBackBtn.setOnAction(new EventHandler<ActionEvent>() {
+			@Override
+			public void handle(ActionEvent actionEvent) {
+
 			}
 		});
 	}
