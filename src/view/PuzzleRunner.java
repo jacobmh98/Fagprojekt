@@ -2,6 +2,7 @@ package view;
 
 import controller.Controller;
 import javafx.application.Application;
+import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.event.ActionEvent;
@@ -21,6 +22,7 @@ import java.util.ArrayList;
 
 public class PuzzleRunner extends Application {
 	private Controller controller = Controller.getInstance();
+	public Label isSolvedLabel = new Label();
 
 	public static void main(String[] args) {
 		launch(args);
@@ -30,6 +32,10 @@ public class PuzzleRunner extends Application {
 	// Written by Jacob & Oscar
 	@Override
 	public void start(Stage stage) throws Exception {
+		generateInitialScene(stage);
+	}
+
+	public void generateInitialScene(Stage stage) {
 		try {
 			GridPane pane = new GridPane();
 			pane.setPadding(new Insets(10, 10, 30, 10));
@@ -101,6 +107,8 @@ public class PuzzleRunner extends Application {
 			CheckBox addSnapJSON = new CheckBox("Add snap");
 			addSnapJSON.setVisible(false);
 
+			Label lblError = new Label("");
+			GridPane.setConstraints(lblError, 0, 9);
 			GridPane.setConstraints(startTextLabel, 0, 0);
 			GridPane.setConstraints(boardTypeSelectPane, 0, 1);
 			GridPane.setConstraints(selectFileButton, 0, 2);
@@ -116,12 +124,13 @@ public class PuzzleRunner extends Application {
 			GridPane.setConstraints(heightField,0,5);
 			GridPane.setConstraints(addSnapJSON, 0, 7);
 
-			pane.getChildren().addAll(startTextLabel, boardTypeSelectPane, selectFileButton, lblSelectedFile, txtNumberOfPieces, txtWidth, txtHeight, startStatePane, initializeButton, rowField, colField, widthField, heightField, addSnapJSON);
+			pane.getChildren().addAll(startTextLabel, boardTypeSelectPane, selectFileButton, lblSelectedFile, txtNumberOfPieces, txtWidth, txtHeight, startStatePane, initializeButton, rowField, colField, widthField, heightField, addSnapJSON, lblError);
 
 			Scene scene = new Scene(pane);
 			stage.setScene(scene);
 			scene.setRoot(pane);
 			stage.setTitle("Initialize Puzzle");
+			controller.setPuzzleRunner(this);
 			stage.show();
 
 			VoronoiRB.selectedProperty().addListener(new ChangeListener<Boolean>() {
@@ -224,10 +233,7 @@ public class PuzzleRunner extends Application {
 
 						}
 					} catch(NumberFormatException e) {
-						System.out.println("Argument error");
-						Label lblError = new Label("Insert valid arguments");
-						GridPane.setConstraints(lblError, 0, 9);
-						pane.getChildren().add(lblError);
+						lblError.setText("Insert valid arguments");
 					} catch(Exception e) {
 
 					}
@@ -238,10 +244,6 @@ public class PuzzleRunner extends Application {
 		} catch(Exception e) {
 			e.printStackTrace();
 		}
-	}
-
-	public void generateInitialScene() {
-
 	}
 
 	// Method that is called when Voronoi is selected. Sets the controller variables from its inputs
@@ -276,6 +278,7 @@ public class PuzzleRunner extends Application {
 	// Calls the Row Col board generator to get a list of Pieces it parses to the generateBoardScene
 	// Written by Oscar
 	public void generateRowColBoard(Stage stage, int rows, int cols, int width, int height){
+		System.out.println("generate n x m");
 		controller.setBoardSize(width, height);
 		controller.setRows(rows);
 		controller.setColumns(cols);
@@ -323,7 +326,7 @@ public class PuzzleRunner extends Application {
 
 		Button goBackBtn = new Button("Go Back");
 
-		rightSide.getChildren().addAll(solveLbl, solveBtn,speedLabel, speedSlider, currentSpeedLabel, checkForDuplicates, goBackBtn);
+		rightSide.getChildren().addAll(solveLbl, solveBtn,speedLabel, speedSlider, currentSpeedLabel, checkForDuplicates, isSolvedLabel, goBackBtn);
 		root.getChildren().addAll(pane, rightSide);
 
 		double sceneWidth = width+300;
@@ -444,7 +447,7 @@ public class PuzzleRunner extends Application {
 		goBackBtn.setOnAction(new EventHandler<ActionEvent>() {
 			@Override
 			public void handle(ActionEvent actionEvent) {
-
+				generateInitialScene(stage);
 			}
 		});
 	}
@@ -456,5 +459,14 @@ public class PuzzleRunner extends Application {
 		for(Piece p : pieces) {
 			p.shufflePiece();
 		}
+	}
+
+	public void setIsSolvedLabelText(String text){
+		Platform.runLater(new Runnable() {
+			@Override
+			public void run() {
+				isSolvedLabel.setText(text);
+			}
+		});
 	}
 }

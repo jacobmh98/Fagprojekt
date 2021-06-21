@@ -2,6 +2,7 @@ package controller;
 
 import model.Graph;
 import model.Piece;
+import view.PuzzleRunner;
 
 import java.util.ArrayList;
 
@@ -13,6 +14,7 @@ public class Controller {
 	private int columns;
 	private Graph graph;
 	private int solveSpeed;
+	private PuzzleRunner puzzleRunner;
 
 	public Controller() {
 		graph = new Graph();
@@ -30,6 +32,7 @@ public class Controller {
 
 	// Setter methods for the fields in the Controller
 	// Written by Jacob & Oscar
+	public void setPuzzleRunner(PuzzleRunner puzzleRunner){this.puzzleRunner = puzzleRunner;}
 	public void setBoardPieces(ArrayList<Piece> boardPieces) {
 		this.boardPieces = boardPieces;
 	}
@@ -37,6 +40,5 @@ public class Controller {
 	public void setRows(int rows){this.rows = rows;}
 	public void setColumns(int columns){this.columns = columns;}
 	public void setSolveSpeed(int speed){solveSpeed = speed;}
-
-
+	public void setSolvedText(String text){ puzzleRunner.setIsSolvedLabelText(text);}
 }
