@@ -1,8 +1,9 @@
 package model;
 
 import controller.Controller;
-import javafx.scene.input.PickResult;
 
+import java.awt.*;
+import java.awt.geom.Area;
 import java.util.*;
 
 public class SolvePuzzle extends Thread{
@@ -178,8 +179,10 @@ public class SolvePuzzle extends Thread{
             }
         }
         if(checkIfSolved(boardPieces)){
+            controller.setSolvedText("This puzzle has a solution");
             System.out.println("This puzzle has a solution");
         } else {
+            controller.setSolvedText("This puzzle has no solutions");
             System.out.println("This puzzle has no solutions");
         }
     }
@@ -294,8 +297,10 @@ public class SolvePuzzle extends Thread{
             }
         }
         if(checkIfSolved(boardPieces)){
+            controller.setSolvedText("This puzzle has a solution");
             System.out.println("This puzzle has a solution");
         } else {
+            controller.setSolvedText("This puzzle has no solutions");
             System.out.println("This puzzle has no solution");
         }
 
@@ -465,7 +470,8 @@ public class SolvePuzzle extends Thread{
     }
     
     // Method that checks if a board has been solved by using a boundary box and checking piece sides inside this box 
-    // if they have a partner
+    // if they have a partner. This also checks if the center of any piece is within the area of another piece
+    // This requires the center of the piece to be within it's own area
     // Input - List of the board pieces
     // Output - True if the board is solved otherwise false
     // Written by Oscar
@@ -475,7 +481,7 @@ public class SolvePuzzle extends Thread{
             for(SideLength s1 : p1.getSideLengths()){
                 int position = checkBoundaryBox(boundaryBox, s1);
                 if(position == 0){
-                    System.out.println("One side was out of bounds"); //Shouldn't happen and means epsilon was too small
+                    System.out.println("One side was out of bounds"); //Shouldn't happen and means that the epsilon value was too small
                     return false;
                 } else if(position == 2) {
                     boolean foundMatch = false;
@@ -491,9 +497,31 @@ public class SolvePuzzle extends Thread{
                         }
                     }
                     if(!foundMatch){
-                        System.out.println("Corners: (" + s1.getCorners()[0][0] + ", " + s1.getCorners()[1][0] + "); (" + s1.getCorners()[0][1] + ", " + s1.getCorners()[1][1] + ")");
-                        System.out.println("Boundary: (" + boundaryBox[0] + ", " + boundaryBox[1] + "); (" + boundaryBox[2] + ", " + boundaryBox[3] + ")");
                         System.out.println("An inner side didn't have a matching side");
+                        return false;
+                    }
+                }
+            }
+        }
+        //Check if any pieces intersect another
+        ArrayList<Area> pieceAreas = new ArrayList<>();
+        for(Piece p : boardPieces){
+            Double[] corners = p.getCorners();
+            int[] xCoords = new int[corners.length/2];
+            int[] yCoords = new int[corners.length/2];
+            for(int i = 0; i < corners.length; i+=2){
+                xCoords[i/2] = corners[i].intValue();
+                yCoords[i/2] = corners[i+1].intValue();
+            }
+            Polygon polygon = new Polygon(xCoords, yCoords, xCoords.length);
+            pieceAreas.add(new Area(polygon));
+        }
+        for(int i = 0; i < pieceAreas.size(); i++){
+            for(int j = 0; j < boardPieces.size(); j++){
+                if(j != i && pieceAreas.get(i).contains(boardPieces.get(i).getCenter()[0],boardPieces.get(i).getCenter()[1])){ // Only checks if the center of a piece is within it's own area
+                    boolean contains = pieceAreas.get(i).contains(boardPieces.get(j).getCenter()[0],boardPieces.get(j).getCenter()[1]);
+                    if(contains){
+                        System.out.println("A piece is within the bounds of another piece");
                         return false;
                     }
                 }
@@ -729,8 +757,10 @@ public class SolvePuzzle extends Thread{
             }
         }
         if(checkIfSolved(boardPieces)){
+            controller.setSolvedText("This puzzle has a solution");
             System.out.println("This puzzle has a solution");
         } else {
+            controller.setSolvedText("This puzzle has no solutions");
             System.out.println("This puzzle has no solutions");
         }
     }

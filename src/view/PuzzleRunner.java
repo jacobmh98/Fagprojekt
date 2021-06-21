@@ -2,6 +2,7 @@ package view;
 
 import controller.Controller;
 import javafx.application.Application;
+import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.event.ActionEvent;
@@ -21,6 +22,7 @@ import java.util.ArrayList;
 
 public class PuzzleRunner extends Application {
 	private Controller controller = Controller.getInstance();
+	public Label isSolvedLabel = new Label();
 
 	public static void main(String[] args) {
 		launch(args);
@@ -125,6 +127,7 @@ public class PuzzleRunner extends Application {
 			scene.setRoot(pane);
 
 			stage.setTitle("Initialize Puzzle");
+			controller.setPuzzleRunner(this);
 			stage.show();
 
 			VoronoiRB.selectedProperty().addListener(new ChangeListener<Boolean>() {
@@ -320,7 +323,7 @@ public class PuzzleRunner extends Application {
 
 		Button checkForDuplicates = new Button("Check Duplicates");
 
-		rightSide.getChildren().addAll(solveLbl, solveBtn,speedLabel, speedSlider, currentSpeedLabel, checkForDuplicates);
+		rightSide.getChildren().addAll(solveLbl, solveBtn,speedLabel, speedSlider, currentSpeedLabel, checkForDuplicates, isSolvedLabel);
 		root.getChildren().addAll(pane, rightSide);
 		double sceneWidth = width+300;
 		double sceneHeight = height + 20;
@@ -445,5 +448,14 @@ public class PuzzleRunner extends Application {
 		for(Piece p : pieces) {
 			p.shufflePiece();
 		}
+	}
+
+	public void setIsSolvedLabelText(String text){
+		Platform.runLater(new Runnable() {
+			@Override
+			public void run() {
+				isSolvedLabel.setText(text);
+			}
+		});
 	}
 }
