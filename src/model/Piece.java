@@ -32,6 +32,9 @@ public class Piece extends Polygon {
 	public Double[] getCorners() { return this.corners; }
 	public ArrayList<SideLength> getSideLengths() { return this.sideLengths; }
 	public ArrayList<Corner> getVectorCorners() { return vectorCorners; }
+	public ArrayList<PieceLock> getPieceLocks() {
+		return this.pieceLocks;
+	}
 
 	// Constructor for piece
 	public Piece(Integer pieceID, Double[] corners) {
@@ -619,15 +622,15 @@ public class Piece extends Polygon {
 		}
 	}
 
+	// Method for adding a new instance of PieceLock to the list for this piece
+	// Written by Jacob
 	public void addPieceLock(PieceLock pieceLock) {
 		this.pieceLocks.add(pieceLock);
 	}
 
-	public ArrayList<PieceLock> getPieceLocks() {
-		return this.pieceLocks;
-	}
-
-	public void clearSideLocks() {
+	// Method for clearing the list containing the SideLock objects.
+	// Written by Jacob
+	public void clearPieceLocks() {
 		pieceLocks.clear();
 	}
 }

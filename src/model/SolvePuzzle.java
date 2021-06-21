@@ -745,7 +745,7 @@ public class SolvePuzzle extends Thread{
         double epsilon = 0.001;
         ArrayList<Piece> boardPieces = controller.getBoardPieces();
         for(Piece p : boardPieces) {
-            p.clearSideLocks();
+            p.clearPieceLocks();
 
             int count = 0;
             boolean firstEntry = true;

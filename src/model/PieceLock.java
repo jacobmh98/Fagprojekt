@@ -1,7 +1,7 @@
 package model;
 
 // This class is a datastructure that we use when solving for pieces with locks
-// Written by Jacob and Oscar
+// Written by Jacob
 public class PieceLock {
     private final Corner prevCorner;
     private final Corner nextCorner;
