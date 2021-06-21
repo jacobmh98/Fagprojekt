@@ -327,6 +327,8 @@ public class PuzzleRunner extends Application {
 		Button goBackBtn = new Button("Go Back");
 
 		rightSide.getChildren().addAll(solveLbl, solveBtn,speedLabel, speedSlider, currentSpeedLabel, checkForDuplicates, isSolvedLabel, goBackBtn);
+		rightSide.setPickOnBounds(false);
+		rightSide.toBack();
 		root.getChildren().addAll(pane, rightSide);
 
 		double sceneWidth = width+300;

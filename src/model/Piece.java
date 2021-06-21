@@ -47,6 +47,7 @@ public class Piece extends Polygon {
 		this.setStroke(Color.BLACK);
 		this.setFill(Color.WHITE);
 		this.setCursor(Cursor.HAND);
+		this.toFront();
 
 		this.setOnMousePressed(new EventHandler<MouseEvent>() {
 			@Override
