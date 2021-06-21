@@ -479,11 +479,8 @@ public class SolvePuzzle extends Thread{
         double[] boundaryBox = findBoundaryBox(boardPieces);
         for(Piece p1 : boardPieces){
             for(SideLength s1 : p1.getSideLengths()){
-                int position = checkBoundaryBox(boundaryBox, s1);
-                if(position == 0){
-                    System.out.println("One side was out of bounds"); //Shouldn't happen and means that the epsilon value was too small
-                    return false;
-                } else if(position == 2) {
+                boolean insideBox = checkInsideBoundaryBox(boundaryBox, s1);
+                if(insideBox) {
                     boolean foundMatch = false;
                     p2Loop:
                     for (Piece p2 : boardPieces) {
@@ -538,7 +535,7 @@ public class SolvePuzzle extends Thread{
         Double lowX = null, lowY = null, highX = null, highY = null;
         for(Piece p : boardPieces){
             Double[] corners = p.getCorners();
-            for(int i = 2; i < corners.length; i++){
+            for(int i = 0; i < corners.length; i++){
                 double value = corners[i];
                 if(i%2 == 0){
                     if(lowX == null && highX == null){
@@ -569,27 +566,18 @@ public class SolvePuzzle extends Thread{
     // Input - The coordinates of the boundary box and the coordinates of the side to be checked
     // Output - 0 if outside box, 1 if on the edge and 2 if inside the boundary box
     // Written by Oscar
-    private int checkBoundaryBox(double[] boundary, SideLength s1) {
+    private boolean checkInsideBoundaryBox(double[] boundary, SideLength s1) {
         Double[][] corners = s1.getCorners();
-        double epsilon = 0.00001;
-        //return values 0 -> outside box -- 1 -> on the side of the box -- 2 -> inside the box
-        if (corners[0][0] > boundary[1]+epsilon || corners[1][0] > boundary[1]+epsilon ||
-                corners[0][0] < boundary[0]-epsilon || corners[1][0] < boundary[0]-epsilon) { //Check inside x values
-            return 0;
-        }
-        if (corners[0][1] > boundary[3]+epsilon || corners[1][1] > boundary[3]+epsilon ||
-                corners[0][1] < boundary[2]-epsilon || corners[1][1] < boundary[2]-epsilon) { //Check inside y values
-            return 0;
-        }
+        //return values 1 -> on the side of the box -- 2 -> inside the box
         if (compareEpsilon(corners[0][0], boundary[0]) || compareEpsilon(corners[0][0], boundary[1]) ||
                 compareEpsilon(corners[1][0], boundary[0]) || compareEpsilon(corners[1][0], boundary[1])) { //Check x on the boundary
-            return 1;
+            return false;
         }
         if (compareEpsilon(corners[0][1], boundary[2]) || compareEpsilon(corners[0][1], boundary[3]) ||
                 compareEpsilon(corners[1][1], boundary[2]) || compareEpsilon(corners[1][1], boundary[3])) { //Check y on the boundary
-            return 1;
+            return false;
         }
-        return 2;
+        return true;
     }
     
     // Method for comparing two SideLengths to determine if they have the same point quantity,
