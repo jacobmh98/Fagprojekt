@@ -22,7 +22,8 @@ import java.util.ArrayList;
 
 public class PuzzleRunner extends Application {
 	private Controller controller = Controller.getInstance();
-	public Label isSolvedLabel = new Label();
+	private Label isSolvedLabel = new Label();
+	private Label duplicatesLabel = new Label();
 
 	public static void main(String[] args) {
 		launch(args);
@@ -105,7 +106,10 @@ public class PuzzleRunner extends Application {
 			startStatePane.getChildren().addAll(solvedRB, shuffledRB);
 
 			CheckBox addSnapJSON = new CheckBox("Add snap");
-			addSnapJSON.setVisible(false);
+			CheckBox reshapeJSONPieces = new CheckBox("reshape pieces");
+			HBox checkBoxContainer = new HBox();
+			checkBoxContainer.setVisible(false);
+			checkBoxContainer.getChildren().addAll(addSnapJSON, reshapeJSONPieces);
 
 			Label lblError = new Label("");
 			GridPane.setConstraints(lblError, 0, 9);
@@ -122,9 +126,9 @@ public class PuzzleRunner extends Application {
 			GridPane.setConstraints(colField,0,3);
 			GridPane.setConstraints(widthField,0,4);
 			GridPane.setConstraints(heightField,0,5);
-			GridPane.setConstraints(addSnapJSON, 0, 7);
+			GridPane.setConstraints(checkBoxContainer, 0, 7);
 
-			pane.getChildren().addAll(startTextLabel, boardTypeSelectPane, selectFileButton, lblSelectedFile, txtNumberOfPieces, txtWidth, txtHeight, startStatePane, initializeButton, rowField, colField, widthField, heightField, addSnapJSON, lblError);
+			pane.getChildren().addAll(startTextLabel, boardTypeSelectPane, selectFileButton, lblSelectedFile, txtNumberOfPieces, txtWidth, txtHeight, startStatePane, initializeButton, rowField, colField, widthField, heightField, lblError, checkBoxContainer);
 
 			Scene scene = new Scene(pane);
 			stage.setScene(scene);
@@ -157,14 +161,14 @@ public class PuzzleRunner extends Application {
 						heightField.setVisible(true);
 						selectFileButton.setVisible(true);
 						lblSelectedFile.setVisible(true);
-						addSnapJSON.setVisible(true);
+						checkBoxContainer.setVisible(true);
 					}
 					if(wasSelected){
 						widthField.setVisible(false);
 						heightField.setVisible(false);
 						selectFileButton.setVisible(false);
 						lblSelectedFile.setVisible(false);
-						addSnapJSON.setVisible(false);
+						checkBoxContainer.setVisible(false);
 					}
 				}
 			});
@@ -218,7 +222,7 @@ public class PuzzleRunner extends Application {
 								width = Integer.parseInt(widthField.getText());
 								height = Integer.parseInt(heightField.getText());
 
-								generateBoardFromJson(stage, width, height, selectedFile[0].getAbsolutePath(), addSnapJSON.isSelected());
+								generateBoardFromJson(stage, width, height, selectedFile[0].getAbsolutePath(), addSnapJSON.isSelected(), reshapeJSONPieces.isSelected());
 							}
 						} else {
 							int rows = Integer.parseInt(rowField.getText());
@@ -267,10 +271,10 @@ public class PuzzleRunner extends Application {
 	// Calls the JsonImport with the file name and gets a list of Pieces it parses to the generateBoardScene
 	// Inputs are the stage, board width, board height, and a path to the file to be loaded
 	// Written by Oscar
-	public void generateBoardFromJson(Stage stage, int width, int height, String filename, boolean addSnap) throws Exception {
+	public void generateBoardFromJson(Stage stage, int width, int height, String filename, boolean addSnap, boolean reshape) throws Exception {
 		controller.setBoardSize(width, height);
 		JsonImport jsonImport = new JsonImport();
-		ArrayList<Piece> boardPieces = jsonImport.readJson(filename, addSnap);
+		ArrayList<Piece> boardPieces = jsonImport.readJson(filename, addSnap, reshape);
 		generateBoardScene(stage, boardPieces, width, height, false);
 	}
 
@@ -326,7 +330,7 @@ public class PuzzleRunner extends Application {
 
 		Button goBackBtn = new Button("Go Back");
 
-		rightSide.getChildren().addAll(solveLbl, solveBtn,speedLabel, speedSlider, currentSpeedLabel, checkForDuplicates, isSolvedLabel, goBackBtn);
+		rightSide.getChildren().addAll(solveLbl, solveBtn,speedLabel, speedSlider, currentSpeedLabel, checkForDuplicates, isSolvedLabel, goBackBtn, duplicatesLabel);
 		root.getChildren().addAll(pane, rightSide);
 
 		double sceneWidth = width+300;
@@ -371,14 +375,16 @@ public class PuzzleRunner extends Application {
 			public void handle(ActionEvent actionEvent) {
 				ArrayList<Piece> pieces = controller.getBoardPieces();
 				ArrayList<Piece> newPieces = new ArrayList<>();
+				duplicatesLabel.setText("");
 				for(Piece p : pieces){
 					newPieces.add(p);
 				}
 				boolean duplicate = false;
 				for (int i = 0; i < pieces.size(); i++) {
-					for (int j = 0; j < i; j++) {
+					for (int j = i+1; j < pieces.size(); j++) {
 						if (ComparePieces.comparePieces(pieces.get(i).getCorners(), pieces.get(j).getCorners())) {
 							System.out.println("Piece: " + pieces.get(i).getPieceID() + " and " + pieces.get(j).getPieceID() + " are duplicates");
+							duplicatesLabel.setText(duplicatesLabel.getText() + "Piece: " + pieces.get(i).getPieceID() + " and " + pieces.get(j).getPieceID() + " are duplicates\n");
 							duplicate = true;
 
 							//Increase size to be able to easily see the matching pieces
@@ -425,8 +431,8 @@ public class PuzzleRunner extends Application {
 								for (int k = 0; k < piece2Old.length; k++) {
 									piece2Corners[k] = piece2Old[k] * factor;
 								}
-								Piece p1 = new Piece(newPieces.size(), piece1Corners);
-								Piece p2 = new Piece(newPieces.size() + 1, piece2Corners);
+								Piece p1 = new Piece(pieces.get(i).getPieceID(), piece1Corners);
+								Piece p2 = new Piece(pieces.get(j).getPieceID(), piece2Corners);
 								newPieces.add(p1);
 								newPieces.add(p2);
 								p1.movePiece(100.0, 100.0);

@@ -16,12 +16,17 @@ public class JsonImport {
     // Input - A string containing the path to a json file
     // Output - An array containing all the board pieces
     // Written by Oscar
-    public static ArrayList<Piece> readJson(String filename, boolean addSnap) throws Exception {
+    public static ArrayList<Piece> readJson(String filename, boolean addSnap, boolean reshape) throws Exception {
         Object obj = new JSONParser().parse(new FileReader(filename));
         JSONObject jsonObject = (JSONObject) obj;
         JSONArray formArray = (JSONArray) ((JSONObject) jsonObject.get("puzzle")).get("form");
         JSONArray jsonPieces = (JSONArray) jsonObject.get("pieces");
-        double factor = extractCoordFactor(formArray);
+        double factor;
+        if(reshape) {
+            factor = extractCoordFactor(formArray);
+        } else {
+            factor = 1;
+        }
         ArrayList<Piece> pieceArray = extractReformattetPieces(jsonPieces, factor);
         controller.setBoardPieces(pieceArray);
         if(addSnap) {
