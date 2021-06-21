@@ -470,16 +470,12 @@ public class SolvePuzzle extends Thread{
     // Output - True if the board is solved otherwise false
     // Written by Oscar
     public boolean checkIfSolved(ArrayList<Piece> boardPieces){
-        if(Controller.getInstance().getGraph().getAdjVertices().size() < boardPieces.size()){
-            System.out.println("Not all pieces are snapped together");
-            return false;
-        }
         double[] boundaryBox = findBoundaryBox(boardPieces);
         for(Piece p1 : boardPieces){
             for(SideLength s1 : p1.getSideLengths()){
                 int position = checkBoundaryBox(boundaryBox, s1);
                 if(position == 0){
-                    System.out.println("One side was out of bounds"); //Doesn't do anything right now
+                    System.out.println("One side was out of bounds"); //Shouldn't happen and means epsilon was too small
                     return false;
                 } else if(position == 2) {
                     boolean foundMatch = false;
@@ -551,7 +547,6 @@ public class SolvePuzzle extends Thread{
         //return values 0 -> outside box -- 1 -> on the side of the box -- 2 -> inside the box
         if (corners[0][0] > boundary[1]+epsilon || corners[1][0] > boundary[1]+epsilon ||
                 corners[0][0] < boundary[0]-epsilon || corners[1][0] < boundary[0]-epsilon) { //Check inside x values
-
             return 0;
         }
         if (corners[0][1] > boundary[3]+epsilon || corners[1][1] > boundary[3]+epsilon ||
