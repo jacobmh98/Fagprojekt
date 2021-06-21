@@ -368,32 +368,46 @@ public class PuzzleRunner extends Application {
 					newPieces.add(p);
 				}
 				boolean duplicate = false;
-				for(int i = 0; i < pieces.size(); i++){
-					for(int j = 0; j < i; j++){
-						if(ComparePieces.comparePieces(pieces.get(i).getCorners(), pieces.get(j).getCorners())){
+				for (int i = 0; i < pieces.size(); i++) {
+					for (int j = 0; j < i; j++) {
+						if (ComparePieces.comparePieces(pieces.get(i).getCorners(), pieces.get(j).getCorners())) {
 							System.out.println("Piece: " + pieces.get(i).getPieceID() + " and " + pieces.get(j).getPieceID() + " are duplicates");
 							duplicate = true;
 
 							//Increase size to be able to easily see the matching pieces
 							Double[] boundaryBox = {null, null, null, null}; //xlow, xhigh, ylow, yhigh
 							Double[] corners = pieces.get(i).getCorners();
-							for(int k = 0; k < corners.length; k++){
-								if(k%2 == 0){
-									if(boundaryBox[0] == null) {boundaryBox[0] = corners[k]; boundaryBox[1] = corners[k];}
-									if(boundaryBox[0] > corners[k]){ boundaryBox[0] = corners[k];}
-									if(boundaryBox[1] < corners[k]) {boundaryBox[1] = corners[k];}
+							for (int k = 0; k < corners.length; k++) {
+								if (k % 2 == 0) {
+									if (boundaryBox[0] == null) {
+										boundaryBox[0] = corners[k];
+										boundaryBox[1] = corners[k];
+									}
+									if (boundaryBox[0] > corners[k]) {
+										boundaryBox[0] = corners[k];
+									}
+									if (boundaryBox[1] < corners[k]) {
+										boundaryBox[1] = corners[k];
+									}
 								} else {
-									if(boundaryBox[2] == null) {boundaryBox[2] = corners[k]; boundaryBox[3] = corners[k];}
-									if(boundaryBox[2] > corners[k]){ boundaryBox[2] = corners[k];}
-									if(boundaryBox[3] < corners[k]) {boundaryBox[3] = corners[k];}
+									if (boundaryBox[2] == null) {
+										boundaryBox[2] = corners[k];
+										boundaryBox[3] = corners[k];
+									}
+									if (boundaryBox[2] > corners[k]) {
+										boundaryBox[2] = corners[k];
+									}
+									if (boundaryBox[3] < corners[k]) {
+										boundaryBox[3] = corners[k];
+									}
 								}
 							}
-							double factor = boundaryBox[1]-boundaryBox[0];
-							if(factor > boundaryBox[3]-boundaryBox[2]){
-								factor = boundaryBox[3]-boundaryBox[2];
+							double factor = boundaryBox[1] - boundaryBox[0];
+							if (factor > boundaryBox[3] - boundaryBox[2]) {
+								factor = boundaryBox[3] - boundaryBox[2];
 							}
-							factor = 100.0/factor;
-							if(factor > 5.0) {
+							factor = 100.0 / factor;
+							if (factor > 5.0) {
 								Double[] piece1Old = pieces.get(i).getCorners();
 								Double[] piece2Old = pieces.get(j).getCorners();
 								Double[] piece1Corners = new Double[piece1Old.length];
@@ -401,7 +415,7 @@ public class PuzzleRunner extends Application {
 								for (int k = 0; k < piece1Old.length; k++) {
 									piece1Corners[k] = piece1Old[k] * factor;
 								}
-								for(int k = 0; k  < piece2Old.length; k++) {
+								for (int k = 0; k < piece2Old.length; k++) {
 									piece2Corners[k] = piece2Old[k] * factor;
 								}
 								Piece p1 = new Piece(newPieces.size(), piece1Corners);

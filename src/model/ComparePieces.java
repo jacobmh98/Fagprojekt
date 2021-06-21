@@ -46,12 +46,10 @@ public class ComparePieces {
         ArrayList<Double> newPiece1 = calculatePieceCenterOrigo(deleteObsoletePoints(piece1));
         ArrayList<Double> newPiece2 = calculatePieceCenterOrigo(deleteObsoletePoints(piece2));
         if(newPiece1.size() != newPiece2.size()){ // Checks if the pieces if the same number of corners
+            //System.out.println("Corner check");
             return false;
         }
         ArrayList<Double> possibleRotations = calculateRotationTheta(newPiece1, newPiece2);
-        if(possibleRotations.size() == 0){ // Checks if the reference point didn't matched any of the other pieces corners
-            return false;
-        }
         return checkRotations(newPiece1, newPiece2, possibleRotations);
     }
 
@@ -140,18 +138,12 @@ public class ComparePieces {
     // Output - a list of the angle between the first point in piece 1 and all points in piece 2 with the same distance from Origo
     // Written by Oscar
     private static ArrayList<Double> calculateRotationTheta(ArrayList<Double> piece1, ArrayList<Double> piece2){
-        double epsilon = 0.0000000001;
         ArrayList<Double> rotationAngles = new ArrayList<>();
-        ArrayList<Double> length1 = findLengthO(piece1);
-        ArrayList<Double> length2 = findLengthO(piece2);
+        ArrayList<Double> length1 = findLengthO(piece1); // Only first point is used as the y-coordinate when first coordinate is vertical
         //We assume that the first point in piece1 has been rotated to be at x=0 (we do this in check rotations)
         for(int i = 0; i < piece2.size(); i+=2){
-            double upper = length2.get(i/2) + epsilon;
-            double lower = length2.get(i/2) - epsilon;
-            if(length1.get(0) < upper && length1.get(0) > lower){ //If point i is not the same length away as starting point a rotation wont be possible
-                double angle12 = findAngle(0.0,length1.get(0),0.0,0.0,piece2.get(i), piece2.get(i+1));
-                rotationAngles.add(angle12);
-            }
+            double angle12 = findAngle(0.0,length1.get(0),0.0,0.0,piece2.get(i), piece2.get(i+1));
+            rotationAngles.add(angle12);
         }
         return rotationAngles;
     }
@@ -177,11 +169,10 @@ public class ComparePieces {
     // Output - Return true if one of the rotations makes the two pieces equal, false if not
     // Written by Oscar
     private static boolean checkRotations(ArrayList<Double> piece1, ArrayList<Double> piece2, ArrayList<Double> angles){
-        double epsilon = 0.0000000001;
-        ArrayList<Double> length1 = findLengthO(piece1);
+        ArrayList<Double> length1 = findLengthO(piece1); //Only used to find the y-value when first coordinate is vertical
         ArrayList<Double> startingPiece1;
         ArrayList<Double> rotatedPiece1;
-        double angle = findAngle(0.0, length1.get(0), 0.0, 0.0, piece1.get(0), piece1.get(1));
+        double angle = findAngle(0.0, length1.get(0), 0.0, 0.0, piece1.get(0), piece1.get(1)); //Find the angle to rotate piece1 to for reference coordinate to be vertical
         if(piece1.get(0) > 0){
             startingPiece1 = rotateArray(piece1, -angle);
         } else {
@@ -193,19 +184,50 @@ public class ComparePieces {
             } else {
                 rotatedPiece1 = rotateArray(startingPiece1, -angles.get(i));
             }
-            boolean isEqual = true;
-            for(int j = 0; j < rotatedPiece1.size(); j++){
-                double upper = piece2.get(j) + epsilon;
-                double lower = piece2.get(j) - epsilon;
-                if (rotatedPiece1.get(j) > upper || rotatedPiece1.get(j) < lower) {
-                    isEqual = false;
-                    break;
-                }
-            }
-            if(isEqual){
+            if(comparePieceCoordinates(rotatedPiece1, piece2, true) || comparePieceCoordinates(rotatedPiece1, piece2, false)){
                 return true;
             }
         }
         return false;
     }
+
+
+    // Method that compares the two piece coordinate lists if they're equal, finding first a potential offset of list 1 to list 2
+    // Then comparing the list either forward or backwards, here list 1 always iterates forward, but list 2 iterates the direction of forwardCheck
+    // Input - A list of coordinates for two pieces and a boolean telling whether list 2 should be iterated forwards or backwards
+    // Output - True if the two pieces are equal given the direction false otherwise
+    private static boolean comparePieceCoordinates(ArrayList<Double> piece1, ArrayList<Double> piece2, boolean forwardCheck){
+        double epsilon = 0.0000000001;
+        int startIndex = 0;
+        while(!(piece1.get(0) <= piece2.get(startIndex)+epsilon && piece1.get(0) >= piece2.get(startIndex)-epsilon &&
+                piece1.get(1) <= piece2.get(startIndex+1)+epsilon && piece1.get(1) >= piece2.get(startIndex+1)-epsilon) && startIndex < piece2.size()-2){
+            startIndex += 2;
+        }
+        int piece2Index = startIndex;
+
+        for(int piece1Index = 0; piece1Index < piece1.size(); piece1Index+=2){ //Forward check
+
+            double upperX = piece2.get(piece2Index) + epsilon;
+            double lowerX = piece2.get(piece2Index) - epsilon;
+            double upperY = piece2.get(piece2Index+1) + epsilon;
+            double lowerY = piece2.get(piece2Index+1) - epsilon;
+            if (piece1.get(piece1Index) > upperX || piece1.get(piece1Index) < lowerX ||
+                    piece1.get(piece1Index+1) > upperY || piece1.get(piece1Index+1) < lowerY) {
+                return false;
+            }
+            if(forwardCheck){
+                piece2Index +=2;
+                if(piece2Index == piece2.size()){
+                    piece2Index = 0;
+                }
+            } else {
+                piece2Index -=2;
+                if(piece2Index < 0){
+                    piece2Index = piece2.size()-2;
+                }
+            }
+        }
+        return true;
+    }
+
 }
