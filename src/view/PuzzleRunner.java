@@ -332,6 +332,8 @@ public class PuzzleRunner extends Application {
 		Button checkForDuplicates = new Button("Check Duplicates");
 
 		Button goBackBtn = new Button("Go Back");
+		isSolvedLabel.setText("");
+		duplicatesLabel.setText("");
 
 		rightSide.getChildren().addAll(solveLbl, solveBtn,speedLabel, speedSlider, currentSpeedLabel, checkForDuplicates, isSolvedLabel, goBackBtn, duplicatesLabel);
 		rightSide.setPickOnBounds(false);
