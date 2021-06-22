@@ -141,7 +141,7 @@ public class Piece extends Polygon {
 
 				if (i == 0) {
 					vector1 = new Double[]{corners[i] - corners[i + 2], corners[i + 1] - corners[i + 3]};
-					vector2 = new Double[]{corners[i] - corners[corners.length - 2], corners[i] - corners[corners.length - 1]};
+					vector2 = new Double[]{corners[i] - corners[corners.length - 2], corners[i + 1] - corners[corners.length - 1]};
 				} else if (i == corners.length - 2) {
 					vector1 = new Double[]{corners[i] - corners[0], corners[i + 1] - corners[1]};
 					vector2 = new Double[]{corners[i] - corners[i - 2], corners[i + 1] - corners[i - 1]};
@@ -158,7 +158,7 @@ public class Piece extends Polygon {
 
 				if (i == 0) {
 					vector1 = new Double[]{corners[i] - corners[i + 2], corners[i + 1] - corners[i + 3]};
-					vector2 = new Double[]{corners[i] - corners[corners.length - 2], corners[i] - corners[corners.length - 1]};
+					vector2 = new Double[]{corners[i] - corners[corners.length - 2], corners[i + 1] - corners[corners.length - 1]};
 				} else if (i == corners.length - 2) {
 					vector1 = new Double[]{corners[i] - corners[0], corners[i + 1] - corners[1]};
 					vector2 = new Double[]{corners[i] - corners[i - 2], corners[i + 1] - corners[i - 1]};
