@@ -97,7 +97,9 @@ public class Piece extends Polygon {
 			@Override
 			public void handle(MouseEvent mouseEvent) {
 				Piece.this.setMouseTransparent(false);
-				checkForConnect();
+				for(Piece p : controller.getGraph().depthFirstTraversal(Piece.this)) {
+					p.checkForConnect();
+				}
 			}
 		});
 
@@ -269,12 +271,11 @@ public class Piece extends Polygon {
 								pi.movePiece(moveDx, moveDy);
 							}
 						}
-						return true;
 					}
 				}
 			}
 		}
-		return false;
+		return true;
 	}
 
 	// Method for performing the actual snap of a piece when the computations and checks has been done.
