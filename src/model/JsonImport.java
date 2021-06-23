@@ -60,8 +60,10 @@ public class JsonImport {
         xFactor = controller.getBoardSize()[0] / highestX;
         yFactor = controller.getBoardSize()[1] / highestY;
         if(xFactor > yFactor){
+            controller.setBoardSize((int) (highestX*yFactor), (int) (highestY*yFactor));;
             return yFactor;
         }
+        controller.setBoardSize((int) (highestX*xFactor), (int) (highestY*xFactor));
         return xFactor;
     }
 

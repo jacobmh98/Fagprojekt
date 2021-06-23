@@ -21,9 +21,9 @@ import java.io.File;
 import java.util.ArrayList;
 
 public class PuzzleRunner extends Application {
-	private Controller controller = Controller.getInstance();
-	private Label isSolvedLabel = new Label();
-	private Label duplicatesLabel = new Label();
+	private final Controller controller = Controller.getInstance();
+	private final Label isSolvedLabel = new Label();
+	private final Label duplicatesLabel = new Label();
 
 	public static void main(String[] args) {
 		launch(args);
@@ -32,7 +32,7 @@ public class PuzzleRunner extends Application {
 	// Overriden JavaFX method that renders the stage on the screen
 	// Written by Jacob & Oscar
 	@Override
-	public void start(Stage stage) throws Exception {
+	public void start(Stage stage) {
 		generateInitialScene(stage);
 	}
 
@@ -242,7 +242,7 @@ public class PuzzleRunner extends Application {
 						}
 					} catch(NumberFormatException e) {
 						lblError.setText("Insert valid arguments");
-					} catch(Exception e) {
+					} catch(Exception ignored) {
 
 					}
 				}
@@ -264,8 +264,8 @@ public class PuzzleRunner extends Application {
 		Piece[] pieces = voronoi.getPieces();
 
 		ArrayList<Piece> pieceArray = new ArrayList<>();
-		for(int i = 0; i < pieces.length; i++){
-			pieceArray.add(pieces[i]);
+		for(Piece p : pieces){
+			pieceArray.add(p);
 		}
 		generateBoardScene(stage, pieceArray, width, height, true);
 
@@ -304,10 +304,10 @@ public class PuzzleRunner extends Application {
 		StackPane pane = new StackPane();
 		pane.setPadding(new Insets(0,10,10,20));
 		Pane outerBoard = new Pane();
-		outerBoard.setMaxWidth(width);
-		outerBoard.setMaxHeight(height);
-		outerBoard.setMinWidth(width);
-		outerBoard.setMinHeight(height);
+		outerBoard.setMaxWidth(controller.getBoardSize()[0]);
+		outerBoard.setMaxHeight(controller.getBoardSize()[1]);
+		outerBoard.setMinWidth(controller.getBoardSize()[0]);
+		outerBoard.setMinHeight(controller.getBoardSize()[1]);
 		Group board = new Group();
 		outerBoard.getChildren().add(board);
 
@@ -386,6 +386,7 @@ public class PuzzleRunner extends Application {
 				for(Piece p : pieces){
 					newPieces.add(p);
 				}
+
 				boolean duplicate = false;
 				for (int i = 0; i < pieces.size(); i++) {
 					for (int j = i+1; j < pieces.size(); j++) {
@@ -458,12 +459,7 @@ public class PuzzleRunner extends Application {
 			}
 		});
 
-		goBackBtn.setOnAction(new EventHandler<ActionEvent>() {
-			@Override
-			public void handle(ActionEvent actionEvent) {
-				generateInitialScene(stage);
-			}
-		});
+		goBackBtn.setOnAction(actionEvent -> generateInitialScene(stage));
 	}
 
 	// Method shuffling the pieces on the board. It takes the board pieces and updates their position to
@@ -480,11 +476,6 @@ public class PuzzleRunner extends Application {
 	// Output - The text of the label has been set to the input
 	// Written by Oscar
 	public void setIsSolvedLabelText(String text){
-		Platform.runLater(new Runnable() {
-			@Override
-			public void run() {
-				isSolvedLabel.setText(text);
-			}
-		});
+		Platform.runLater(() -> isSolvedLabel.setText(text));
 	}
 }
