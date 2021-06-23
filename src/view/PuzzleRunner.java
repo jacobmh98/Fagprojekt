@@ -110,7 +110,7 @@ public class PuzzleRunner extends Application {
 			startStatePane.getChildren().addAll(solvedRB, shuffledRB);
 
 			CheckBox addSnapJSON = new CheckBox("Add snap");
-			CheckBox reshapeJSONPieces = new CheckBox("reshape pieces");
+			CheckBox reshapeJSONPieces = new CheckBox("Reshape pieces");
 			HBox checkBoxContainer = new HBox();
 			checkBoxContainer.setVisible(false);
 			checkBoxContainer.getChildren().addAll(addSnapJSON, reshapeJSONPieces);
