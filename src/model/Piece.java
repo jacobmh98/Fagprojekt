@@ -19,7 +19,7 @@ public class Piece extends Polygon {
 	private Double[] center = new Double[2];
 	private Double rotation = 0.0;
 	private double prevY = 0.0;
-	Controller controller = Controller.getInstance();
+	private Controller controller = Controller.getInstance();
 	private ArrayList<Piece> nearbyPieces = new ArrayList<Piece>();
 	private HashMap<Piece, Double[]> adjacentPieces = new HashMap<Piece, Double[]>();
 	private ArrayList<Corner> vectorCorners = new ArrayList<>();
