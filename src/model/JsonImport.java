@@ -1,3 +1,4 @@
+// This class uses the library json.simple to load the data from json files
 package model;
 
 import controller.Controller;
