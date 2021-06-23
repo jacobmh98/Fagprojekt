@@ -11,6 +11,7 @@ public class SolvePuzzle extends Thread{
     private ArrayList<SideLength> sideLengthsSorted = new ArrayList<>();
     private Controller controller = Controller.getInstance();
     private boolean solveBySideLength;
+    private Corner rootCorner;
 
     // Constructor for the SolvePuzzle class
     // Input - a boolean b
@@ -203,7 +204,7 @@ public class SolvePuzzle extends Thread{
                 double epsilon = 0.00000000001;
                 if (c.getAngle() + epsilon >= Math.PI / 2.0 && c.getAngle() - epsilon <= Math.PI / 2.0) {
                     root = p;
-
+                    rootCorner = c;
                     Double[] tempVector = new Double[]{0.0, -1.0};
                     Double[] vector1 = c.getVectors()[0];
                     Double[] vector2 = c.getVectors()[1];
@@ -299,6 +300,7 @@ public class SolvePuzzle extends Thread{
                 }
             }
         }
+        checkForCorrectSolutionRotation(queue, rootCorner);
         if(checkIfSolved(boardPieces)){
             controller.setSolvedText("This puzzle has a solution");
             System.out.println("This puzzle has a solution");
@@ -339,7 +341,9 @@ public class SolvePuzzle extends Thread{
         double det = tempVector1[0]*tempVector2[1]-tempVector1[1]*tempVector2[0];
         angle = Math.atan2(det, dotProduct);
         Controller.getInstance().getBoardPieces().get(s2.getPieceId()).rotatePiece(angle);
-        Controller.getInstance().getBoardPieces().get(s2.getPieceId()).rotateNeighbours(angle);
+        Piece p = Controller.getInstance().getBoardPieces().get(s2.getPieceId());
+        ArrayList<Piece> pieces = new ArrayList<>(Controller.getInstance().getGraph().depthFirstTraversal(p));
+        Controller.getInstance().getBoardPieces().get(s2.getPieceId()).rotateNeighbours(angle, pieces);
 
         s1Corners = s1.getCorners();
         s2Corners = s2.getCorners();
@@ -357,8 +361,11 @@ public class SolvePuzzle extends Thread{
         Controller.getInstance().getBoardPieces().get(s2.getPieceId()).movePiece(dx+s2Center[0],dy+s2Center[1]);
 
         if(!checkIntersection(s1, s2)){
+            p = Controller.getInstance().getBoardPieces().get(s2.getPieceId());
+            pieces = new ArrayList<>(Controller.getInstance().getGraph().depthFirstTraversal(p));
+
             Controller.getInstance().getBoardPieces().get(s2.getPieceId()).rotatePiece(Math.PI);
-            Controller.getInstance().getBoardPieces().get(s2.getPieceId()).rotateNeighbours(Math.PI);
+            Controller.getInstance().getBoardPieces().get(s2.getPieceId()).rotateNeighbours(Math.PI, pieces);
             s1Corners = s1.getCorners();
             s2Corners = s2.getCorners();
             dx = s1Corners[0][0] - s2Corners[1][0];
@@ -637,6 +644,7 @@ public class SolvePuzzle extends Thread{
                             p.getVectorCorners().get(indexPrev).getAngle() - epsilon <= 2.356194490))) {
 
                             Corner c = p.getVectorCorners().get(i);
+                            rootCorner = c;
 
                             Double[] tempVector = new Double[]{0.0, -1.0};
                             Double[] vector1 = c.getVectors()[0];
@@ -747,6 +755,7 @@ public class SolvePuzzle extends Thread{
                 }
             }
         }
+        checkForCorrectSolutionRotation(queue, rootCorner);
         if(checkIfSolved(boardPieces)){
             controller.setSolvedText("This puzzle has a solution");
             System.out.println("This puzzle has a solution");
@@ -833,5 +842,24 @@ public class SolvePuzzle extends Thread{
     public double findLengthOfPieceSide(Corner prevPieceCorner, Corner nextPieceCorner){
         Double[] sideVector = {prevPieceCorner.getCoordinates()[0]-nextPieceCorner.getCoordinates()[0], prevPieceCorner.getCoordinates()[1]-nextPieceCorner.getCoordinates()[1]};
         return Math.sqrt(Math.pow(sideVector[0],2)+Math.pow(sideVector[1],2));
+    }
+
+
+    // Method for rotating the entire board if it has been solved on the wrong width/height axis
+    // Input - An array of boardpieces (the queue) since we want the corner piece to be the first element
+    // Output - a board where the entire board has been rotated 90 degrees around the corner piece center and moved to bottom left corner
+    // Written by Oscar
+    public void checkForCorrectSolutionRotation(ArrayList<Piece> boardPieces, Corner rootCorner){ // The queue list
+        double epsilon = 10;
+        double[] boundaryBox = findBoundaryBox(boardPieces);
+        if(boundaryBox[1] > controller.getBoardSize()[0]+epsilon || boundaryBox[3] > controller.getBoardSize()[1]+epsilon){
+            boardPieces.get(0).rotatePiece(Math.PI/2);
+            boardPieces.get(0).rotateNeighbours(Math.PI/2, boardPieces);
+            Double dx = -rootCorner.getCoordinates()[0];
+            Double dy = controller.getBoardSize()[1]-rootCorner.getCoordinates()[1];
+            for(Piece p : boardPieces){
+                p.movePiece(p.getCenter()[0]+dx,p.getCenter()[1]+dy);
+            }
+        }
     }
 }

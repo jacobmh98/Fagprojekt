@@ -8,6 +8,8 @@ import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Polygon;
+
+import java.sql.Array;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Set;
@@ -82,12 +84,14 @@ public class Piece extends Polygon {
 				if(mouseEvent.getButton() == MouseButton.PRIMARY) {
 					movePiece(deltaX, deltaY);
 				} else {
+					ArrayList<Piece> pieces = new ArrayList<>(controller.getGraph().depthFirstTraversal(Piece.this));
+
 					if(direction == 1) {
 						rotatePiece(Math.PI/50);
-						rotateNeighbours(Math.PI/50);
+						rotateNeighbours(Math.PI/50, pieces);
 					} else {
 						rotatePiece(-Math.PI/50);
-						rotateNeighbours(-Math.PI/50);
+						rotateNeighbours(-Math.PI/50, pieces);
 					}
 				}
 			}
@@ -260,7 +264,8 @@ public class Piece extends Polygon {
 					if(!controller.getGraph().depthFirstTraversal(p).contains(this)) {
 						double angle = p.getRotation() - this.rotation;
 						rotatePiece(angle);
-						rotateNeighbours(angle);
+						ArrayList<Piece> pieces = new ArrayList<Piece>(controller.getGraph().depthFirstTraversal(this));
+						rotateNeighbours(angle, pieces);
 						temp = adjacentPieces.get(p);
 						Double moveDx = dx - temp[0];
 						Double moveDy = dy - temp[1];
@@ -443,8 +448,8 @@ public class Piece extends Polygon {
 	// It computes all the connected pieces as well as moves the neighbours to a center simulating
 	// a rotation around the axis of this piece.
 	// Written by Jacob
-	public void rotateNeighbours(Double angle) {
-		for(Piece p : controller.getGraph().depthFirstTraversal(this)) {
+	public void rotateNeighbours(Double angle, ArrayList<Piece> pieces) {
+		for(Piece p : pieces) {
 			if(p != this) {
 				p.rotatePiece(angle);
 
