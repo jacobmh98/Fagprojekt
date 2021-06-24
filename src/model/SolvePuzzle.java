@@ -296,7 +296,7 @@ public class SolvePuzzle extends Thread{
                         p.movePiece(dx, dy);
                         sleep(Controller.getInstance().getSolveSpeed());
                         if(!queue.contains(p)) {
-                        queue.add(p);
+                            queue.add(p);
                         }
                     }
                 }
