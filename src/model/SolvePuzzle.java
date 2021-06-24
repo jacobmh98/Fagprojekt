@@ -295,7 +295,9 @@ public class SolvePuzzle extends Thread{
                         Double dy = cs[0].getCoordinates()[1] - cs[1].getCoordinates()[1];
                         p.movePiece(dx, dy);
                         sleep(Controller.getInstance().getSolveSpeed());
-                        queue.add(p);
+                        if(!queue.contains(p)) {
+                            queue.add(p);
+                        }
                     }
                 }
             }
